@@ -65,7 +65,7 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
             </li>
           </ul>
         </div>
-        <div className="row-span-11">{children}</div>
+        <div className="row-span-11 max-h-full overflow-y-auto">{children}</div>
       </div>
     </div>
   );

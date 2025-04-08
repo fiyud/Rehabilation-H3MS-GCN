@@ -5,9 +5,10 @@ import {
   NavigationMenuTrigger,
 } from "@radix-ui/react-navigation-menu";
 import { Button } from "@radix-ui/themes";
-import { HouseWifi, ScanEye } from "lucide-react";
+import { HouseWifi, ScanEye, Dumbbell, Video } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -48,6 +49,48 @@ const Sidebar = () => {
                     }`}
                   >
                     Trang chủ
+                  </h1>
+                </Link>
+              </NavigationMenuTrigger>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
+                <Link
+                  to="/obs-viewer"
+                  className={`w-full *:text-[#373737] group ${
+                    isOpen
+                      ? "flex items-center gap-2"
+                      : "flex flex-col items-center "
+                  }`}
+                >
+                  <Video className="group-hover:text-[#ccc] duration-200" />
+                  <h1
+                    className={`text-[1rem] group-hover:text-[#ccc] transition-all duration-200 ease-in-out transform  ${
+                      !isOpen ? "hidden" : "block"
+                    }`}
+                  >
+                    OBS Viewer
+                  </h1>
+                </Link>
+              </NavigationMenuTrigger>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
+                <Link
+                  to="/exercises"
+                  className={`w-full *:text-[#373737] group ${
+                    isOpen
+                      ? "flex items-center gap-2"
+                      : "flex flex-col items-center "
+                  }`}
+                >
+                  <Dumbbell className="group-hover:text-[#ccc] duration-200" />
+                  <h1
+                    className={`text-[1rem] group-hover:text-[#ccc] transition-all duration-200 ease-in-out transform  ${
+                      !isOpen ? "hidden" : "block"
+                    }`}
+                  >
+                    Exercises
                   </h1>
                 </Link>
               </NavigationMenuTrigger>

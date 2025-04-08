@@ -1,5 +1,6 @@
 import {
   Button,
+  Callout,
   ScrollArea,
   SegmentedControl,
   Select,
@@ -14,6 +15,7 @@ import {
   CircleStop,
   Contrast,
   Droplets,
+  Info,
   Mic,
   MicOff,
   Moon,
@@ -26,6 +28,7 @@ import {
   VideoOff,
 } from "lucide-react";
 import React, { useState } from "react";
+import { Link } from "react-router";
 
 interface VideoSettings {
   brightness: number;
@@ -106,12 +109,19 @@ const CamControl: React.FC<CamControlProps> = ({
             <div className="flex flex-col gap-2">
               <h3 className="text-white font-medium">Camera Selection</h3>
               <Select.Root
-                value={selectedCamera}
+                value={selectedCamera || "none"}
                 onValueChange={handleCameraChange}
               >
                 <Select.Trigger className="w-full dark" />
+                {cameras.length <= 0 && (
+                  <Select.Content className="dark">
+                    <Select.Item key={"none"} value="none">
+                      -- No device found --
+                    </Select.Item>
+                  </Select.Content>
+                )}
                 <Select.Content className="dark">
-                  {cameras.map((camera) => (
+                  {cameras?.map((camera) => (
                     <Select.Item
                       key={camera?.deviceId}
                       value={camera?.deviceId || "1"}
@@ -316,6 +326,15 @@ const CamControl: React.FC<CamControlProps> = ({
             </div>
           </div>
         )}
+        <Callout.Root className="my-4" color="blue">
+          <Callout.Icon>
+            <Info size={18} />
+          </Callout.Icon>
+          <Callout.Text>
+            Go to our <Link to={"/obs-viewer"}>OBS Viewer</Link> if you're using{" "}
+            <strong>Kinect</strong>
+          </Callout.Text>
+        </Callout.Root>
       </ScrollArea>
     </div>
   );
