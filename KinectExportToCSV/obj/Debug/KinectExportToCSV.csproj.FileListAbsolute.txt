@@ -1,0 +1,2 @@
+C:\Users\Unknown\Documents\Kinect Studio\cverter\KinectExportToCSV\obj\Debug\KinectExportToCSV.csproj.AssemblyReference.cache
+C:\Users\Unknown\Documents\Kinect Studio\cverter\KinectExportToCSV\obj\Debug\KinectExportToCSV.csproj.CoreCompileInputs.cache
