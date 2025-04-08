@@ -59,29 +59,37 @@ a:hover {
 }
 
 @layer base {
-  @apply text-foreground bg-background;
-  @apply dark:text-foreground dark:bg-background;
-  @apply dark:focus-visible:ring-ring dark:focus-visible:ring-offset-background;
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
-  @apply focus-visible:ring-offset-background;
-  @apply selection:bg-accent selection:text-accent-foreground;
-}
-@layer components {
-  @apply text-foreground bg-background;
-  @apply dark:text-foreground dark:bg-background;
-  @apply dark:focus-visible:ring-ring dark:focus-visible:ring-offset-background;
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
-  @apply focus-visible:ring-offset-background;
-  @apply selection:bg-accent selection:text-accent-foreground;
-}
-
-@layer utilities {
-  @apply text-foreground bg-background;
-  @apply dark:text-foreground dark:bg-background;
-  @apply dark:focus-visible:ring-ring dark:focus-visible:ring-offset-background;
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
-  @apply focus-visible:ring-offset-background;
-  @apply selection:bg-accent selection:text-accent-foreground;
+  @layer base {
+    html {
+      font-size: 100%;
+      -webkit-text-size-adjust: 100%;
+      -moz-tab-size: 4;
+      tab-size: 4;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      margin: 0;
+      font-weight: inherit;
+      line-height: inherit;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 1em;
+    }
+    button {
+      cursor: pointer;
+    }
+  }
 }
 
 ::-webkit-scrollbar {

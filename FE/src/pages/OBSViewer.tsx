@@ -1,7 +1,7 @@
-import React, { useState } from "react";
 import OBSStream from "@/components/OBSStream";
 import TabsLayout from "@/layouts/TabsLayout";
-import { Blockquote, Code } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
+import React, { useState } from "react";
 
 const OBSViewer: React.FC = () => {
   const [error, setError] = useState<string>("");
@@ -19,67 +19,81 @@ const OBSViewer: React.FC = () => {
 
   return (
     <TabsLayout>
-      <div className="p-6">
+      <Flex justify={"between"}>
         <h1 className="text-2xl font-bold mb-6 text-white">
           OBS Virtual Camera Viewer
         </h1>
+      </Flex>
 
-        {error && (
-          <div className="bg-red-500 text-white p-4 rounded-lg mb-6">
-            <h2 className="font-bold">Error</h2>
-            <p>{error}</p>
+      {error && (
+        <div className="bg-red-500 text-white p-4 rounded-lg mb-6">
+          <h2 className="font-bold">Error</h2>
+          <p>{error}</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-12 gap-6">
+        <div className="bg-[#242424] col-span-9 rounded-lg p-4">
+          <div className="aspect-video bg-black rounded-lg overflow-hidden">
+            <OBSStream
+              onStreamReady={handleStreamReady}
+              onError={handleError}
+            />
           </div>
-        )}
+        </div>
+        <div className="col-span-3 bg-[#242424] rounded-lg p-4 text-white">
+          <h2 className="text-xl font-bold mb-4">OBS Virtual Camera</h2>
 
-        <div className="grid grid-cols-1 gap-6">
-          <div className="bg-[#242424] rounded-lg p-4">
-            <div className="aspect-video bg-black rounded-lg overflow-hidden">
-              <OBSStream
-                onStreamReady={handleStreamReady}
-                onError={handleError}
-              />
-            </div>
-            <Blockquote className="mt-4">
-              <h3 className="text-lg font-medium mb-2 text-gray-300">
-                Instructions:
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-blue-400 mb-1">
+                What is OBS Virtual Camera?
               </h3>
-              <ol className="list-decimal list-inside space-y-2 text-gray-300">
-                <li>
-                  Make sure you have{" "}
-                  <a href="https://obsproject.com/" target="_blank">
-                    OBS Studio
-                  </a>{" "}
-                  installed
-                </li>
-                <li>
-                  Use the{" "}
-                  <a
-                    href="https://obsproject.com/forum/resources/obs-kinect-with-faux-green-screen.897/"
-                    target="_blank"
-                  >
-                    Kinectv2 for OBS
-                  </a>{" "}
-                  plugin <span>or</span> follow this{" "}
-                  <a
-                    href="https://www.youtube.com/watch?v=iEtKBZ2crUE"
-                    target="_blank"
-                  >
-                    instruction
-                  </a>
-                  .
-                </li>
-                <li>
-                  Start the Virtual Camera in OBS (
-                  <Code className="text-[#ccc]">Tools</Code> &gt;{" "}
-                  <Code className="text-[#ccc]">StartVirtual Camera</Code>)
-                </li>
-                <li>Click the "Connect to OBS" button above</li>
-                <li>
-                  If you see any errors, check the console (F12) for more
-                  details
-                </li>
+              <p className="text-sm text-gray-300">
+                A feature that allows OBS Studio to act as a webcam for other
+                applications.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-blue-400 mb-1">
+                How to Use
+              </h3>
+              <ol className="list-decimal list-inside text-sm text-gray-300 space-y-1">
+                <li>Start OBS Studio</li>
+                <li>Click "Start Virtual Camera" in OBS</li>
+                <li>Select OBS Camera in your application</li>
               </ol>
-            </Blockquote>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-blue-400 mb-1">
+                Status
+              </h3>
+              <Flex align="center" gap="2">
+                <div
+                  className={`w-3 h-3 rounded-full ${
+                    stream ? "bg-green-500" : "bg-red-500"
+                  }`}
+                ></div>
+                <span>{stream ? "Connected" : "Not Connected"}</span>
+              </Flex>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-gray-700">
+              <p className="text-xs text-gray-400">
+                For more information, visit the{" "}
+                <a
+                  href="https://obsproject.com/kb/virtual-camera-guide"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:underline"
+                >
+                  OBS Virtual Camera Guide
+                </a>
+                .
+              </p>
+            </div>
           </div>
         </div>
       </div>

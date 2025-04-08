@@ -1,4 +1,5 @@
-import { Badge, Button } from "@radix-ui/themes";
+import { Badge, Button, Flex } from "@radix-ui/themes";
+import { Disc } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 interface OBSStreamProps {
@@ -46,7 +47,6 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
         },
       });
 
-      // Set up video element directly with the stream
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         if (onStreamReady) {
@@ -73,8 +73,7 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
   // Clean up on unmount
   useEffect(() => {
     return () => {
-      // Clean up any active streams
-      if (videoRef.current && videoRef.current.srcObject) {
+      if (videoRef?.current && videoRef?.current?.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach((track) => track.stop());
         videoRef.current.srcObject = null;
@@ -83,26 +82,40 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       <video
         ref={videoRef}
         autoPlay
         playsInline
         className="w-full h-auto rounded-lg"
       />
-      <Badge className="absolute bottom-2 right-2  px-2 py-1 " color="green">
+      <Badge
+        className="absolute bottom-2 right-2  px-2 py-1 "
+        color={connectionStatus ? "green" : "red"}
+      >
         {connectionStatus || "Not connected"}
       </Badge>
       <Button
         onClick={connectToOBS}
-        disabled={isConnecting || connectionStatus == "connected"}
-        className="absolute top-2 right-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+        color={connectionStatus !== "connected" ? "blue" : "red"}
+        variant="solid"
+        
+        className={`${
+          connectionStatus !== "connected"
+            ? "cursor-pointer"
+            : "cursor-not-allowed"
+        } absolute top-2 right-2 text-white px-3 py-1 rounded `}
       >
-        {isConnecting
-          ? "Connecting..."
-          : connectionStatus == "connected"
-          ? "Connected"
-          : "Connect to OBS"}
+        {isConnecting ? (
+          "Connecting..."
+        ) : connectionStatus == "connected" ? (
+          <Flex align={"center"} gap="1">
+            <Disc size={16} className="animate-pulse" />
+            <span>Connected</span>
+          </Flex>
+        ) : (
+          "Connect to OBS"
+        )}
       </Button>
     </div>
   );
