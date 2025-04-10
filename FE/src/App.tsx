@@ -1,7 +1,5 @@
 import { Route, Routes } from "react-router";
-import Main from "./pages/Main";
-import Exercises from "./pages/Exercises";
-import OBSViewer from "./pages/OBSViewer";
+import { Exercises, Main, OBSViewer } from "./pages";
 
 function App() {
   return (

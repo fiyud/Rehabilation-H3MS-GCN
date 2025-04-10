@@ -1,6 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Questrial&display=swap");
 @import "tailwindcss" important;
-@import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -47,6 +46,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+.perspective {
+  perspective: 1000px;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 a {
