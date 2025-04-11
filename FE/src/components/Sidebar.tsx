@@ -15,19 +15,17 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
-
+import { motion } from "motion/react";
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const path = useLocation().pathname.split("/")[1];
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
-    <Flex
-      justify={"between"}
-      direction={"column"}
-      className={` ${
-        isOpen ? "w-44" : "w-20"
-      } transition-all duration-200 ease-in-out bg-[#101010] text-white min-h-screen`}
+    <motion.div
+      initial={{ width: 80 }}
+      animate={{ width: isOpen ? 220 : 80 }}
+      className="bg-[#101010] text-white min-h-screen flex flex-col justify-between"
     >
       <div className="w-full">
         <Flex className="my-6" align={"center"} justify={"center"}>
@@ -138,7 +136,7 @@ const Sidebar = () => {
           {isOpen ? <StepBack /> : <StepForward />}
         </Button>
       </div>
-    </Flex>
+    </motion.div>
   );
 };
 

@@ -1,11 +1,12 @@
-import CamControl from "@/components/CamControl";
-import TabsLayout from "@/layouts/TabsLayout";
-import { Callout } from "@radix-ui/themes";
+import { CamControl } from "@/components";
+import { TabsLayout } from "@/layouts";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
-
+import { AnimatePresence, motion } from "motion/react";
+import { Flex, Spinner } from "@radix-ui/themes";
 const Main: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [controls, setControls] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
@@ -27,31 +28,24 @@ const Main: React.FC = () => {
 
   const handleDevices = useCallback(
     (mediaDevices: MediaDeviceInfo[]) => {
-      const videoDevices = mediaDevices.filter(
-        ({ kind }) => kind === "videoinput"
-      );
-      console.log("Available video devices:", videoDevices);
-      setCameras(videoDevices);
-
-      // If we already have a selected camera and it's still in the list, keep it
-      if (
-        selectedCamera &&
-        videoDevices.some((device) => device.deviceId === selectedCamera)
-      ) {
-        return;
-      }
-
-      // Try to find OBS Virtual Camera first
-      const obsCamera = videoDevices.find(
-        (device) =>
-          device.label.toLowerCase().includes("obs") ||
-          device.label.toLowerCase().includes("virtual")
-      );
-
-      if (obsCamera) {
-        setSelectedCamera(obsCamera.deviceId);
-      } else if (videoDevices.length > 0) {
-        setSelectedCamera(videoDevices[0].deviceId);
+      try {
+        setLoading(true);
+        const videoDevices = mediaDevices.filter(
+          ({ kind }) => kind === "videoinput"
+        );
+        console.log("Available video devices:", videoDevices);
+        setCameras(videoDevices);
+        if (
+          selectedCamera &&
+          videoDevices.some((device) => device.deviceId === selectedCamera)
+        ) {
+          return;
+        }
+      } catch (err) {
+        console.error("Error handling devices:", err);
+        setError("Failed to enumerate devices. Please check your camera.");
+      } finally {
+        setLoading(false);
       }
     },
     [selectedCamera]
@@ -60,6 +54,7 @@ const Main: React.FC = () => {
   // Function to request permissions and enumerate devices
   const initializeDevices = useCallback(async () => {
     try {
+      setLoading(true);
       setError("");
       // First try to get any video device without specific constraints
       const initialStream = await navigator.mediaDevices.getUserMedia({
@@ -78,6 +73,8 @@ const Main: React.FC = () => {
       setError(
         "Please make sure your camera is connected and permissions are granted."
       );
+    } finally {
+      setLoading(false);
     }
   }, [handleDevices]);
 
@@ -87,6 +84,7 @@ const Main: React.FC = () => {
 
   const startStream = async () => {
     try {
+      setLoading(true);
       setError("");
       const constraints = {
         video: {
@@ -119,30 +117,45 @@ const Main: React.FC = () => {
 
       // If there's an error, try to re-enumerate devices
       initializeDevices();
+    } finally {
+      setLoading(false);
     }
   };
 
   const stopStream = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => {
-        track.stop();
-        console.log("Stopped track:", track.label);
-      });
-      if (webcamRef.current?.video) {
-        webcamRef.current.video.srcObject = null;
+    try {
+      setLoading(true);
+      if (stream) {
+        stream.getTracks().forEach((track) => {
+          track.stop();
+          console.log("Stopped track:", track.label);
+        });
+        if (webcamRef.current?.video) {
+          webcamRef.current.video.srcObject = null;
+        }
+        setStream(null);
+        setControls(false);
+        setIsPlaying(false);
       }
-      setStream(null);
-      setControls(false);
-      setIsPlaying(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleCameraChange = (deviceId: string) => {
-    console.log("Changing camera to:", deviceId);
-    setSelectedCamera(deviceId);
-    if (isPlaying) {
-      stopStream();
-      startStream();
+    try {
+      setLoading(true);
+      setSelectedCamera(deviceId);
+      if (isPlaying) {
+        stopStream();
+        startStream();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -196,51 +209,67 @@ const Main: React.FC = () => {
 
   return (
     <TabsLayout>
-      <div className="items-center grid grid-cols-12 mt-6 gap-2 h-[calc(100vh-8rem)]">
-        <div className="col-span-9  overflow-hidden">
-          {error && (
-            <div className="bg-red-500 rounded-lg text-white p-2 text-center z-10">
-              {error}
-            </div>
-          )}
-          <Webcam
-            ref={webcamRef}
+      <AnimatePresence mode="wait">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="items-center grid grid-cols-12 mt-6 gap-2 h-[calc(100vh-8rem)]"
+        >
+          <div className="col-span-9  overflow-hidden">
+            {error && (
+              <div className="bg-red-500 rounded-lg text-white p-2 text-center z-10">
+                {error}
+              </div>
+            )}
+            {loading ? (
+              <Flex justify="center" align="center" className="h-full">
+                <Spinner size={"3"} />
+              </Flex>
+            ) : (
+              <Webcam
+                ref={webcamRef}
+                controls={controls}
+                style={getVideoStyle()}
+                className={`rounded-lg ${isVideoEnabled ? "" : "hidden"}`}
+                videoConstraints={{
+                  width: { ideal: 1920 },
+                  height: { ideal: 1080 },
+                  deviceId: selectedCamera
+                    ? { exact: selectedCamera }
+                    : undefined,
+                }}
+                audio={!isMuted}
+                muted={isMuted}
+                onUserMediaError={(error) => {
+                  console.error("Webcam error:", error);
+                  setError(
+                    `Webcam error: ${
+                      error instanceof Error ? error.message : String(error)
+                    }`
+                  );
+                }}
+              />
+            )}
+          </div>
+          <CamControl
+            isPlaying={isPlaying}
+            togglePlay={togglePlay}
+            selectedCamera={selectedCamera}
+            handleCameraChange={handleCameraChange}
+            cameras={cameras}
+            isMuted={isMuted}
+            toggleMute={toggleMute}
+            isVideoEnabled={isVideoEnabled}
+            toggleVideo={toggleVideo}
+            videoSettings={videoSettings}
+            updateVideoSetting={updateVideoSetting}
             controls={controls}
-            style={getVideoStyle()}
-            className={`rounded-lg ${isVideoEnabled ? "" : "hidden"}`}
-            videoConstraints={{
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
-              deviceId: selectedCamera ? { exact: selectedCamera } : undefined,
-            }}
-            audio={!isMuted}
-            muted={isMuted}
-            onUserMediaError={(error) => {
-              console.error("Webcam error:", error);
-              setError(
-                `Webcam error: ${
-                  error instanceof Error ? error.message : String(error)
-                }`
-              );
-            }}
+            setControls={setControls}
           />
-        </div>
-        <CamControl
-          isPlaying={isPlaying}
-          togglePlay={togglePlay}
-          selectedCamera={selectedCamera}
-          handleCameraChange={handleCameraChange}
-          cameras={cameras}
-          isMuted={isMuted}
-          toggleMute={toggleMute}
-          isVideoEnabled={isVideoEnabled}
-          toggleVideo={toggleVideo}
-          videoSettings={videoSettings}
-          updateVideoSetting={updateVideoSetting}
-          controls={controls}
-          setControls={setControls}
-        />
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </TabsLayout>
   );
 };

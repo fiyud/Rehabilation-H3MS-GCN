@@ -1,3 +1,4 @@
+import { Sidebar } from "@/components";
 import {
   AlertDialog,
   Avatar,
@@ -11,7 +12,6 @@ import {
 } from "@radix-ui/themes";
 import { Bell, Cog, HandHelping, Search } from "lucide-react";
 import React from "react";
-import Sidebar from "../components/Sidebar";
 const TabsLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex min-w-screen h-svh">

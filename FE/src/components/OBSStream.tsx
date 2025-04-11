@@ -1,5 +1,4 @@
-import { Badge, Button, Flex } from "@radix-ui/themes";
-import { Disc } from "lucide-react";
+import { Badge, Button, Spinner } from "@radix-ui/themes";
 import React, { useEffect, useRef, useState } from "react";
 
 interface OBSStreamProps {
@@ -11,10 +10,11 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<string>("");
-
+  const [loading, setLoading] = useState(false);
   // Function to connect to OBS Virtual Camera
   const connectToOBS = async () => {
     try {
+      setLoading(true);
       setIsConnecting(true);
       setConnectionStatus("connecting");
 
@@ -67,17 +67,30 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
           }`
         );
       }
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
+  const disconnectFromOBS = () => {
+    try {
+      setLoading(true);
       if (videoRef?.current && videoRef?.current?.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach((track) => track.stop());
         videoRef.current.srcObject = null;
       }
+      setConnectionStatus("disconnected");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      disconnectFromOBS();
     };
   }, []);
 
@@ -90,29 +103,24 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
         className="w-full h-auto rounded-lg"
       />
       <Badge
-        className="absolute bottom-2 right-2  px-2 py-1 "
+        className="absolute bottom-2 right-2 text-[0.875rem] p-2  "
         color={connectionStatus ? "green" : "red"}
       >
         {connectionStatus || "Not connected"}
       </Badge>
       <Button
-        onClick={connectToOBS}
+        loading={loading}
+        onClick={
+          connectionStatus !== "connected" ? connectToOBS : disconnectFromOBS
+        }
         color={connectionStatus !== "connected" ? "blue" : "red"}
-        variant="solid"
-        
-        className={`${
-          connectionStatus !== "connected"
-            ? "cursor-pointer"
-            : "cursor-not-allowed"
-        } absolute top-2 right-2 text-white px-3 py-1 rounded `}
+        variant="classic"
+        className="cursor-pointer absolute top-2 right-2 text-white px-3 py-1 rounded"
       >
         {isConnecting ? (
-          "Connecting..."
+          <Spinner size={"2"} />
         ) : connectionStatus == "connected" ? (
-          <Flex align={"center"} gap="1">
-            <Disc size={16} className="animate-pulse" />
-            <span>Connected</span>
-          </Flex>
+          "Disconnect from OBS"
         ) : (
           "Connect to OBS"
         )}

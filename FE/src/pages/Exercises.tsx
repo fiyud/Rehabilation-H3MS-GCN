@@ -1,11 +1,15 @@
+import { ExerciseSVGs, ExerciseVideos } from "@/assets/CustomAssets";
+import { ExerciseCard } from "@/components";
 import TabsLayout from "@/layouts/TabsLayout";
+import { AnimatePresence, motion } from "motion/react";
 import React from "react";
-
 const Exercises: React.FC = () => {
   const exercises = [
     {
       id: 1,
       name: "Deep Squat",
+      icon: ExerciseSVGs.DeepSquat,
+      videoUrl: ExerciseVideos.DeepSquat,
       instructions: [
         "Stand with feet shoulder-width apart",
         "Toes pointing slightly outward",
@@ -19,6 +23,8 @@ const Exercises: React.FC = () => {
     {
       id: 2,
       name: "Hurdle Step",
+      icon: ExerciseSVGs.HurdleStep,
+      videoUrl: ExerciseVideos.HurdleStep,
       instructions: [
         "Stand with feet hip-width apart",
         "Place a hurdle or object at knee height",
@@ -32,6 +38,8 @@ const Exercises: React.FC = () => {
     {
       id: 3,
       name: "Inline Lunge",
+      icon: ExerciseSVGs.InlineLunge,
+      videoUrl: ExerciseVideos.InlineLunge,
       instructions: [
         "Stand with feet together",
         "Step one foot backward in a straight line",
@@ -45,6 +53,8 @@ const Exercises: React.FC = () => {
     {
       id: 4,
       name: "Side Lunge",
+      icon: ExerciseSVGs.SideLunge,
+      videoUrl: ExerciseVideos.SideLunge,
       instructions: [
         "Stand with feet together",
         "Step one foot to the side",
@@ -58,6 +68,8 @@ const Exercises: React.FC = () => {
     {
       id: 5,
       name: "Sit to Stand",
+      icon: ExerciseSVGs.SitToStand,
+      videoUrl: ExerciseVideos.SitToStand,
       instructions: [
         "Start seated in a chair",
         "Place feet shoulder-width apart",
@@ -71,6 +83,8 @@ const Exercises: React.FC = () => {
     {
       id: 6,
       name: "Standing Active Straight Leg Raise",
+      icon: ExerciseSVGs.StandingActiveStraightLegRaise,
+      videoUrl: ExerciseVideos.StandingActiveStraightLegRaise,
       instructions: [
         "Stand on one leg",
         "Keep standing leg slightly bent",
@@ -84,6 +98,8 @@ const Exercises: React.FC = () => {
     {
       id: 7,
       name: "Standing Shoulder Abduction",
+      icon: ExerciseSVGs.StandingShoulderAbduction,
+      videoUrl: ExerciseVideos.StandingShoulderAbduction,
       instructions: [
         "Stand with arms at sides",
         "Raise arms out to the sides",
@@ -97,6 +113,8 @@ const Exercises: React.FC = () => {
     {
       id: 8,
       name: "Standing Shoulder Extension",
+      icon: ExerciseSVGs.StandingShoulderExtension,
+      videoUrl: ExerciseVideos.StandingShoulderExtension,
       instructions: [
         "Stand with arms raised forward",
         "Keep elbows straight",
@@ -110,6 +128,8 @@ const Exercises: React.FC = () => {
     {
       id: 9,
       name: "Standing Shoulder Internal-External Rotation",
+      icon: ExerciseSVGs.StandingShoulderInternalExternalRotation,
+      videoUrl: ExerciseVideos.StandingShoulderInternalExternalRotation,
       instructions: [
         "Stand with elbow bent at 90 degrees",
         "Keep elbow at your side",
@@ -123,6 +143,8 @@ const Exercises: React.FC = () => {
     {
       id: 10,
       name: "Standing Shoulder Scaption",
+      icon: ExerciseSVGs.StandingShoulderScaption,
+      videoUrl: ExerciseVideos.StandingShoulderScaption,
       instructions: [
         "Stand with arms at sides",
         "Raise arms at 45-degree angle",
@@ -137,32 +159,24 @@ const Exercises: React.FC = () => {
 
   return (
     <TabsLayout>
-      <h1 className="text-[2.5rem] font-bold my-6 text-white">
-        Exercise Instructions
-      </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {exercises.map((exercise) => (
-          <div key={exercise.id} className="bg-[#242424] rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4 text-white">
-              {exercise.name}
-            </h2>
-            <div className="mb-4">
-              <h3 className="text-lg font-medium mb-2 text-gray-300">
-                Instructions:
-              </h3>
-              <ol className="list-decimal list-inside space-y-2 text-gray-300">
-                {exercise.instructions.map((instruction, index) => (
-                  <li key={index}>{instruction}</li>
-                ))}
-              </ol>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium mb-2 text-gray-300">Tips:</h3>
-              <p className="text-gray-300">{exercise.tips}</p>
-            </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-col items-center justify-center p-6 bg-[#161616] min-h-screen"
+        >
+          <h1 className="text-[2.5rem] font-bold my-6 text-white">
+            Exercise Instructions
+          </h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {exercises.map((exercise) => (
+              <ExerciseCard key={exercise.id} exercise={exercise} />
+            ))}
           </div>
-        ))}
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </TabsLayout>
   );
 };
