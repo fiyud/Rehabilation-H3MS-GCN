@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BE")]
+[assembly: AssemblyTitle("KinectReaderConsole")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("BE")]
+[assembly: AssemblyProduct("KinectReaderConsole")]
 [assembly: AssemblyCopyright("Copyright ©  2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f6365437-7ddf-4be9-804c-fb27ec96b7f9")]
+[assembly: Guid("2232cef9-9e2b-48e2-b49f-fd6bde89988d")]
 
 // Version information for an assembly consists of the following four values:
 //
