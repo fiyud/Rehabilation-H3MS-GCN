@@ -1,4 +1,4 @@
-import { ExerciseSVGs, ExerciseVideos } from "@/assets/CustomAssets";
+import { ExerciseVideos } from "@/assets/CustomAssets";
 import { ExerciseCard } from "@/components";
 import TabsLayout from "@/layouts/TabsLayout";
 import { AnimatePresence, motion } from "motion/react";
@@ -8,7 +8,6 @@ const Exercises: React.FC = () => {
     {
       id: 1,
       name: "Deep Squat",
-      icon: ExerciseSVGs.DeepSquat,
       videoUrl: ExerciseVideos.DeepSquat,
       instructions: [
         "Stand with feet shoulder-width apart",
@@ -23,7 +22,7 @@ const Exercises: React.FC = () => {
     {
       id: 2,
       name: "Hurdle Step",
-      icon: ExerciseSVGs.HurdleStep,
+
       videoUrl: ExerciseVideos.HurdleStep,
       instructions: [
         "Stand with feet hip-width apart",
@@ -38,7 +37,7 @@ const Exercises: React.FC = () => {
     {
       id: 3,
       name: "Inline Lunge",
-      icon: ExerciseSVGs.InlineLunge,
+
       videoUrl: ExerciseVideos.InlineLunge,
       instructions: [
         "Stand with feet together",
@@ -53,7 +52,7 @@ const Exercises: React.FC = () => {
     {
       id: 4,
       name: "Side Lunge",
-      icon: ExerciseSVGs.SideLunge,
+
       videoUrl: ExerciseVideos.SideLunge,
       instructions: [
         "Stand with feet together",
@@ -68,7 +67,7 @@ const Exercises: React.FC = () => {
     {
       id: 5,
       name: "Sit to Stand",
-      icon: ExerciseSVGs.SitToStand,
+
       videoUrl: ExerciseVideos.SitToStand,
       instructions: [
         "Start seated in a chair",
@@ -83,7 +82,7 @@ const Exercises: React.FC = () => {
     {
       id: 6,
       name: "Standing Active Straight Leg Raise",
-      icon: ExerciseSVGs.StandingActiveStraightLegRaise,
+
       videoUrl: ExerciseVideos.StandingActiveStraightLegRaise,
       instructions: [
         "Stand on one leg",
@@ -98,7 +97,7 @@ const Exercises: React.FC = () => {
     {
       id: 7,
       name: "Standing Shoulder Abduction",
-      icon: ExerciseSVGs.StandingShoulderAbduction,
+
       videoUrl: ExerciseVideos.StandingShoulderAbduction,
       instructions: [
         "Stand with arms at sides",
@@ -113,7 +112,7 @@ const Exercises: React.FC = () => {
     {
       id: 8,
       name: "Standing Shoulder Extension",
-      icon: ExerciseSVGs.StandingShoulderExtension,
+
       videoUrl: ExerciseVideos.StandingShoulderExtension,
       instructions: [
         "Stand with arms raised forward",
@@ -128,7 +127,6 @@ const Exercises: React.FC = () => {
     {
       id: 9,
       name: "Standing Shoulder Internal-External Rotation",
-      icon: ExerciseSVGs.StandingShoulderInternalExternalRotation,
       videoUrl: ExerciseVideos.StandingShoulderInternalExternalRotation,
       instructions: [
         "Stand with elbow bent at 90 degrees",
@@ -143,7 +141,7 @@ const Exercises: React.FC = () => {
     {
       id: 10,
       name: "Standing Shoulder Scaption",
-      icon: ExerciseSVGs.StandingShoulderScaption,
+
       videoUrl: ExerciseVideos.StandingShoulderScaption,
       instructions: [
         "Stand with arms at sides",
@@ -165,12 +163,12 @@ const Exercises: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="flex flex-col items-center justify-center p-6 bg-[#161616] min-h-screen"
+          className="flex flex-col items-center p-6 bg-[#161616] min-h-screen"
         >
           <h1 className="text-[2.5rem] font-bold my-6 text-white">
             Exercise Instructions
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
             {exercises.map((exercise) => (
               <ExerciseCard key={exercise.id} exercise={exercise} />
             ))}
