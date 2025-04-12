@@ -1,6 +1,7 @@
+import { ExerciseDialog } from "@/components";
 import OBSStream from "@/components/OBSStream";
 import TabsLayout from "@/layouts/TabsLayout";
-import { Flex, IconButton, Link } from "@radix-ui/themes";
+import { Dialog, Flex, IconButton, Link, ScrollArea } from "@radix-ui/themes";
 import { HandHelping } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import React, { useState } from "react";
@@ -23,13 +24,8 @@ const OBSViewer: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
+          className="h-[calc(100vh-8rem)]"
         >
-          <Flex justify={"between"}>
-            <h1 className="text-2xl font-bold mb-6 text-white">
-              OBS Virtual Camera Viewer
-            </h1>
-          </Flex>
-
           {error && (
             <div className="bg-red-500 text-white p-4 rounded-lg mb-6">
               <h2 className="font-bold">Error</h2>
@@ -37,7 +33,7 @@ const OBSViewer: React.FC = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-12 gap-6">
+          <div className="grid grid-cols-12 gap-6 my-6 h-full overflow-auto">
             <div className="bg-[#242424] col-span-9 rounded-lg p-4">
               <div className="aspect-video bg-black rounded-lg overflow-hidden">
                 <OBSStream
@@ -46,7 +42,11 @@ const OBSViewer: React.FC = () => {
                 />
               </div>
             </div>
-            <div className="col-span-3 bg-[#242424] rounded-lg p-4 text-white">
+            <ScrollArea
+              className="col-span-3 bg-[#242424] rounded-lg p-4   text-white "
+              type="auto"
+              scrollbars="vertical"
+            >
               <h2 className="text-xl font-bold mb-4">OBS Virtual Camera</h2>
 
               <div className="space-y-4">
@@ -104,12 +104,17 @@ const OBSViewer: React.FC = () => {
                 {stream && (
                   <p className="text-sm text-gray-300 p-0">
                     Ready? Let's{" "}
-                    <Link
-                      className="cursor-pointer hover:underline"
-                      onClick={() => console.log("dit")}
-                    >
-                      start your session!
-                    </Link>
+                    <Dialog.Root>
+                      <Dialog.Trigger>
+                        <Link
+                          className="cursor-pointer hover:underline"
+                          onClick={() => console.log("dit")}
+                        >
+                          start your session!
+                        </Link>
+                      </Dialog.Trigger>
+                      <ExerciseDialog />
+                    </Dialog.Root>
                   </p>
                 )}
 
@@ -128,7 +133,7 @@ const OBSViewer: React.FC = () => {
                   </p>
                 </div>
               </div>
-            </div>
+            </ScrollArea>
           </div>
         </motion.div>
       </AnimatePresence>

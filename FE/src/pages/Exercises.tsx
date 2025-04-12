@@ -1,14 +1,14 @@
-import { ExerciseSVGs, ExerciseVideos } from "@/assets/CustomAssets";
+import { ExerciseVideos } from "@/assets/CustomAssets";
 import { ExerciseCard } from "@/components";
 import TabsLayout from "@/layouts/TabsLayout";
+import { SegmentedControl } from "@radix-ui/themes";
 import { AnimatePresence, motion } from "motion/react";
 import React from "react";
 const Exercises: React.FC = () => {
-  const exercises = [
+  const prmd = [
     {
       id: 1,
       name: "Deep Squat",
-      icon: ExerciseSVGs.DeepSquat,
       videoUrl: ExerciseVideos.DeepSquat,
       instructions: [
         "Stand with feet shoulder-width apart",
@@ -23,7 +23,7 @@ const Exercises: React.FC = () => {
     {
       id: 2,
       name: "Hurdle Step",
-      icon: ExerciseSVGs.HurdleStep,
+
       videoUrl: ExerciseVideos.HurdleStep,
       instructions: [
         "Stand with feet hip-width apart",
@@ -38,7 +38,7 @@ const Exercises: React.FC = () => {
     {
       id: 3,
       name: "Inline Lunge",
-      icon: ExerciseSVGs.InlineLunge,
+
       videoUrl: ExerciseVideos.InlineLunge,
       instructions: [
         "Stand with feet together",
@@ -53,7 +53,7 @@ const Exercises: React.FC = () => {
     {
       id: 4,
       name: "Side Lunge",
-      icon: ExerciseSVGs.SideLunge,
+
       videoUrl: ExerciseVideos.SideLunge,
       instructions: [
         "Stand with feet together",
@@ -68,7 +68,7 @@ const Exercises: React.FC = () => {
     {
       id: 5,
       name: "Sit to Stand",
-      icon: ExerciseSVGs.SitToStand,
+
       videoUrl: ExerciseVideos.SitToStand,
       instructions: [
         "Start seated in a chair",
@@ -83,7 +83,7 @@ const Exercises: React.FC = () => {
     {
       id: 6,
       name: "Standing Active Straight Leg Raise",
-      icon: ExerciseSVGs.StandingActiveStraightLegRaise,
+
       videoUrl: ExerciseVideos.StandingActiveStraightLegRaise,
       instructions: [
         "Stand on one leg",
@@ -98,7 +98,7 @@ const Exercises: React.FC = () => {
     {
       id: 7,
       name: "Standing Shoulder Abduction",
-      icon: ExerciseSVGs.StandingShoulderAbduction,
+
       videoUrl: ExerciseVideos.StandingShoulderAbduction,
       instructions: [
         "Stand with arms at sides",
@@ -113,7 +113,7 @@ const Exercises: React.FC = () => {
     {
       id: 8,
       name: "Standing Shoulder Extension",
-      icon: ExerciseSVGs.StandingShoulderExtension,
+
       videoUrl: ExerciseVideos.StandingShoulderExtension,
       instructions: [
         "Stand with arms raised forward",
@@ -128,7 +128,6 @@ const Exercises: React.FC = () => {
     {
       id: 9,
       name: "Standing Shoulder Internal-External Rotation",
-      icon: ExerciseSVGs.StandingShoulderInternalExternalRotation,
       videoUrl: ExerciseVideos.StandingShoulderInternalExternalRotation,
       instructions: [
         "Stand with elbow bent at 90 degrees",
@@ -143,7 +142,7 @@ const Exercises: React.FC = () => {
     {
       id: 10,
       name: "Standing Shoulder Scaption",
-      icon: ExerciseSVGs.StandingShoulderScaption,
+
       videoUrl: ExerciseVideos.StandingShoulderScaption,
       instructions: [
         "Stand with arms at sides",
@@ -156,7 +155,74 @@ const Exercises: React.FC = () => {
       tips: "Keep your shoulders down and maintain proper form throughout.",
     },
   ];
-
+  const kimore = [
+    {
+      id: 11,
+      name: "Jumping Jacks",
+      videoUrl: ExerciseVideos.JumpingJacks, // <- make sure this exists in your ExerciseVideos object
+      instructions: [
+        "Stand upright with feet together and arms at your sides",
+        "Jump while spreading your legs shoulder-width apart",
+        "Simultaneously raise your arms overhead",
+        "Jump again to return to the starting position",
+        "Repeat at a steady pace",
+      ],
+      tips: "Maintain a consistent rhythm and land softly on your feet to avoid joint strain.",
+    },
+    {
+      id: 12,
+      name: "Arm Circles",
+      videoUrl: ExerciseVideos.ArmCircles,
+      instructions: [
+        "Stand with feet shoulder-width apart",
+        "Extend both arms out to the sides at shoulder height",
+        "Start making small forward circles with your arms",
+        "Gradually increase the size of the circles",
+        "Reverse the direction after a set time",
+      ],
+      tips: "Keep your arms straight and engage your shoulders for maximum benefit.",
+    },
+    {
+      id: 13,
+      name: "Torso Twists",
+      videoUrl: ExerciseVideos.TorsoTwists,
+      instructions: [
+        "Stand with feet hip-width apart",
+        "Bend your elbows and place hands in front of you",
+        "Twist your upper body to the left while keeping hips stable",
+        "Return to center and twist to the right",
+        "Continue alternating sides",
+      ],
+      tips: "Engage your core and avoid moving your hips for an effective twist.",
+    },
+    {
+      id: 14,
+      name: "Squats",
+      videoUrl: ExerciseVideos.Squats,
+      instructions: [
+        "Stand with feet shoulder-width apart",
+        "Keep your chest up and back straight",
+        "Bend your knees and hips to lower down",
+        "Lower as if sitting into a chair",
+        "Push through your heels to return to standing",
+      ],
+      tips: "Keep your knees aligned with your toes and avoid leaning too far forward.",
+    },
+    {
+      id: 15,
+      name: "Lateral Arm Raises",
+      videoUrl: ExerciseVideos.LateralArmRaises,
+      instructions: [
+        "Stand with arms at your sides",
+        "Raise both arms out to the sides until shoulder height",
+        "Pause briefly at the top",
+        "Lower arms back down with control",
+        "Repeat for desired repetitions",
+      ],
+      tips: "Avoid shrugging your shoulders and use light weights if needed for better form.",
+    },
+  ];
+  const [selectedSet, setSelectedSet] = React.useState("prmd");
   return (
     <TabsLayout>
       <AnimatePresence mode="wait">
@@ -165,15 +231,31 @@ const Exercises: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="flex flex-col items-center justify-center p-6 bg-[#161616] min-h-screen"
+          className="flex flex-col items-center p-6 bg-[#161616] min-h-screen"
         >
           <h1 className="text-[2.5rem] font-bold my-6 text-white">
             Exercise Instructions
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {exercises.map((exercise) => (
-              <ExerciseCard key={exercise.id} exercise={exercise} />
-            ))}
+          <SegmentedControl.Root
+            defaultValue="prmd"
+            onValueChange={(value) => {
+              setSelectedSet(value);
+            }}
+            size={"3"}
+            className="w-full mb-6 *:cursor-pointer"
+          >
+            <SegmentedControl.Item value="prmd">UI-PRMD</SegmentedControl.Item>
+            <SegmentedControl.Item value="kimore">KIMORE</SegmentedControl.Item>
+          </SegmentedControl.Root>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            {selectedSet == "prmd"
+              ? prmd.map((exercise) => (
+                  <ExerciseCard key={exercise.id} exercise={exercise} />
+                ))
+              : kimore.map((exercise) => (
+                  <ExerciseCard key={exercise.id} exercise={exercise} />
+                ))}
           </div>
         </motion.div>
       </AnimatePresence>

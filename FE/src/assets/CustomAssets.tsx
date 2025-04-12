@@ -256,15 +256,18 @@ export const ExerciseSVGs = {
 
 // YouTube Video Links (placeholder - replace with actual YouTube embed URLs)
 export const ExerciseVideos = {
-  DeepSquat: "https://www.youtube.com/embed/U3CGMyjzWrM",
-  HurdleStep: "https://www.youtube.com/embed/8jyhPSQGKL4",
-  InlineLunge: "https://www.youtube.com/embed/3WBwIpNHWOM",
-  SideLunge: "https://www.youtube.com/embed/r-l0OACWqhI",
-  SitToStand: "https://www.youtube.com/embed/r4MzxtBKyNQ",
-  StandingActiveStraightLegRaise: "https://www.youtube.com/embed/wPm8ODgHMqM",
-  StandingShoulderAbduction: "https://www.youtube.com/embed/oCDUm5247rY",
-  StandingShoulderExtension: "https://www.youtube.com/embed/8A8SRh5rSL4",
+  DeepSquat: "https://www.youtube.com/embed/bjV07PRoGGo?si=-4JXc2T9eITgqAnJ",
+  HurdleStep: "https://www.youtube.com/embed/U-n_Ar3RcLk?si=JzjUaz9H2bX-nS8v",
+  InlineLunge: "https://www.youtube.com/embed/gNm2Nkc4_o0?si=ahBPvS3wjuEEbkme",
+  SideLunge: "https://www.youtube.com/embed/URQvRQT0XMA?si=6c_NimLz4f5b8KHK",
+  SitToStand: "https://www.youtube.com/embed/eutszbtbJM8?si=J0GUkTHX1_K4lqHx",
+  StandingActiveStraightLegRaise:
+    "https://www.youtube.com/embed/hB2n_pPw_aY?si=88jJMapos8CqqpK_",
+  StandingShoulderAbduction:
+    "https://www.youtube.com/embed/ah4ckpaWd-Y?si=_-CoYsOj_VKDW2v3",
+  StandingShoulderExtension:
+    "https://www.youtube.com/embed/EDQMlxrAHb0?si=uSN-a2cSPHPXW7eu",
   StandingShoulderInternalExternalRotation:
-    "https://www.youtube.com/embed/mhllehl2Qlc",
-  StandingShoulderScaption: "https://www.youtube.com/embed/Ui-mx1Rj6mo",
+    "https://www.youtube.com/embed/8zJtj0Bw6D0?si=yuGUl1MWnMUFIr2V",
+  StandingShoulderScaption: "",
 };

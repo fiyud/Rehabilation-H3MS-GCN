@@ -217,7 +217,7 @@ const Main: React.FC = () => {
           transition={{ duration: 0.3 }}
           className="items-center grid grid-cols-12 mt-6 gap-2 h-[calc(100vh-8rem)]"
         >
-          <div className="col-span-9  overflow-hidden">
+          <div className="col-span-9 overflow-hidden">
             {error && (
               <div className="bg-red-500 rounded-lg text-white p-2 text-center z-10">
                 {error}
