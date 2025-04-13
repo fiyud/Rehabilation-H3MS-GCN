@@ -12,6 +12,7 @@ import {
   Video,
   StepBack,
   StepForward,
+  ChartColumnDecreasing,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
@@ -108,6 +109,34 @@ const Sidebar = () => {
                   } ${path == "exercises" ? "*:text-white" : ""}`}
                 >
                   <Dumbbell className="group-hover:text-[#ccc] duration-200" />
+                  <h1
+                    className={`
+                      text-[1rem] group-hover:text-[#ccc]
+                      transition-all duration-300 ease-in-out
+                      overflow-hidden whitespace-nowrap
+                      ${
+                        isOpen
+                          ? "block opacity-100 max-w-[160px]"
+                          : "hidden opacity-0 max-w-0"
+                      }
+                    `}
+                  >
+                    Exercises
+                  </h1>
+                </Link>
+              </NavigationMenuTrigger>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
+                <Link
+                  to="/statistics"
+                  className={`w-full *:text-[#373737] group ${
+                    isOpen
+                      ? "flex items-center gap-2"
+                      : "flex flex-col items-center "
+                  } ${path == "statistics" ? "*:text-white" : ""}`}
+                >
+                  <ChartColumnDecreasing className="group-hover:text-[#ccc] duration-200" />
                   <h1
                     className={`
                       text-[1rem] group-hover:text-[#ccc]

@@ -231,9 +231,9 @@ const Exercises: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="flex flex-col items-center p-6 bg-[#161616] min-h-screen"
+          className="flex flex-col items-center  bg-[#161616] min-h-screen"
         >
-          <h1 className="text-[2.5rem] font-bold my-6 text-white">
+          <h1 className="text-[2.5rem] font-bold py-4 text-white">
             Exercise Instructions
           </h1>
           <SegmentedControl.Root
