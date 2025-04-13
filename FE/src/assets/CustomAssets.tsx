@@ -269,5 +269,12 @@ export const ExerciseVideos = {
     "https://www.youtube.com/embed/EDQMlxrAHb0?si=uSN-a2cSPHPXW7eu",
   StandingShoulderInternalExternalRotation:
     "https://www.youtube.com/embed/8zJtj0Bw6D0?si=yuGUl1MWnMUFIr2V",
-  StandingShoulderScaption: "",
+  StandingShoulderScaption:
+    "https://www.youtube.com/embed/mPulP1J7QOw?si=2OCISBEqC-KSPAMF",
+  JumpingJacks: "https://www.youtube.com/embed/uLVt6u15L98?si=lveFuhFng2HiQNMf",
+  ArmCircles: "https://www.youtube.com/embed/UVMEnIaY8aU?si=ejJhQOVDlDnoxHGa",
+  TorsoTwists: "https://www.youtube.com/embed/HMKbmG1L7vc?si=hSLGU2wCoqtOYg7F",
+  Squats: "https://www.youtube.com/embed/YaXPRqUwItQ?si=vSuYqu6ayIyNU1-v",
+  LateralArmRaises:
+    "https://www.youtube.com/embed/XPPfnSEATJA?si=7EZU-MuQekcizUFQ",
 };

@@ -1,5 +1,7 @@
+import { useExercise } from "@/lib/ExerciseContext";
 import { Badge, Button, Spinner } from "@radix-ui/themes";
 import React, { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 
 interface OBSStreamProps {
   onStreamReady?: (stream: MediaStream) => void;
@@ -11,7 +13,8 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  // Function to connect to OBS Virtual Camera
+  const { timer, startExercise, finishExercise } = useExercise();
+
   const connectToOBS = async () => {
     try {
       setLoading(true);
@@ -102,6 +105,29 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
         playsInline
         className="w-full h-auto rounded-lg"
       />
+      {finishExercise && (
+        <motion.div
+          key="finish"
+          exit={{ opacity: 0 }}
+          className="absolute w-full h-full z-30 top-0 left-0 bg-black/50 flex items-center justify-center text-white text-2xl font-bold "
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          Exercise Finished !
+        </motion.div>
+      )}
+      {startExercise && (
+        <Badge
+          color="gray"
+          className="absolute top-2 left-2 text-[0.875rem] p-2  "
+        >
+          {timer && timer > 0
+            ? `Time left: ${Math.floor(timer / 60)}:${
+                timer % 60 < 10 ? `0${timer % 60}` : `${timer % 60}`
+              } minutes`
+            : "Done !"}
+        </Badge>
+      )}
       <Badge
         className="absolute bottom-2 right-2 text-[0.875rem] p-2  "
         color={connectionStatus ? "green" : "red"}
