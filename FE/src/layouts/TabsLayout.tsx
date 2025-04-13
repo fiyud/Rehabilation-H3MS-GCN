@@ -16,7 +16,7 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex min-w-screen h-svh">
       <Sidebar />
-      <div className="w-full bg-[#161616] grid grid-rows-12 p-6 ">
+      <div className="w-full bg-[#161616] grid grid-rows-12 p-6 gap-2">
         <div className="row-span-1 grid grid-cols-12 items-center">
           <div className="col-span-3 flex items-center gap-4 ">
             <Avatar
