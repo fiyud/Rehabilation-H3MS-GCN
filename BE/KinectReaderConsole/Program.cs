@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using Microsoft.Kinect;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace KinectReaderConsole
@@ -12,11 +14,13 @@ namespace KinectReaderConsole
         static BodyFrameReader bodyFrameReader;
         static Body[] bodies;
         static HubConnection connection;
+        static List<object> batch = new List<object>();
 
         static void Main(string[] args)
         {
             connection = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5160/kinectHub")
+                .WithAutomaticReconnect()
                 .Build();
             connection.StartAsync().Wait();
             Console.WriteLine("Connected to SignalR hub.");
@@ -70,12 +74,24 @@ namespace KinectReaderConsole
 
                     if (skeletons.Any())
                     {
-                        var data = JsonConvert.SerializeObject(new
+                        var data = new
                         {
                             Timestamp = frame.RelativeTime.ToString(),
                             Skeletons = skeletons
-                        });
-                        connection.InvokeAsync("SendKinectData", data).Wait();
+                        };
+
+                        batch.Add(data);
+                        if (batch.Count >= 50)
+                        {
+                            try
+                            {
+                                connection.InvokeAsync("SendBatchToAI", JsonConvert.SerializeObject(batch)).Wait();
+                                batch.Clear();
+                            } catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error sending batch: {ex.Message}");
+                            }
+                        }
                     }
                 }
             }
