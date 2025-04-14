@@ -1,4 +1,4 @@
-import { useExercise } from "@/lib/ExerciseContext";
+import { useExercise } from "@/lib";
 import React, { useEffect, useState } from "react";
 const StartMaskLayout = ({ children }: { children: React.ReactNode }) => {
   const [count, setCount] = useState(3);

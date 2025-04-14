@@ -1,7 +1,7 @@
-import { useExercise } from "@/lib/ExerciseContext";
 import { Badge, Button, Spinner } from "@radix-ui/themes";
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
+import { useExercise } from "@/lib";
 
 interface OBSStreamProps {
   onStreamReady?: (stream: MediaStream) => void;

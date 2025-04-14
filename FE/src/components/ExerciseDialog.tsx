@@ -1,6 +1,6 @@
 import kimore from "@/assets/exercise-svgrepo-com (1).svg";
 import prmd from "@/assets/exercise-svgrepo-com (2).svg";
-import { useExercise } from "@/lib/ExerciseContext";
+import { useExercise } from "@/lib";
 import { Button, Dialog, Flex, RadioCards, Tooltip } from "@radix-ui/themes";
 import { AnimatePresence, motion } from "motion/react";
 import React from "react";

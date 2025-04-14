@@ -17,11 +17,12 @@ import {
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { motion } from "motion/react";
+import { useAuth } from "@/lib";
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const path = useLocation().pathname.split("/")[1];
   const toggleSidebar = () => setIsOpen(!isOpen);
-
+  const { isAuthenticated } = useAuth();
   return (
     <motion.div
       initial={{ width: 80 }}
@@ -73,34 +74,6 @@ const Sidebar = () => {
             <NavigationMenuItem>
               <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
                 <Link
-                  to="/obs-viewer"
-                  className={`w-full *:text-[#373737] group ${
-                    isOpen
-                      ? "flex items-center gap-2"
-                      : "flex flex-col items-center "
-                  } ${path == "obs-viewer" ? "*:text-white" : ""}`}
-                >
-                  <Video className="group-hover:text-[#ccc] duration-200" />
-                  <h1
-                    className={`
-                      text-[1rem] group-hover:text-[#ccc]
-                      transition-all duration-300 ease-in-out
-                      overflow-hidden whitespace-nowrap
-                      ${
-                        isOpen
-                          ? "block opacity-100 max-w-[160px]"
-                          : "hidden opacity-0 max-w-0"
-                      }
-                    `}
-                  >
-                    OBS Viewer
-                  </h1>
-                </Link>
-              </NavigationMenuTrigger>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
-                <Link
                   to="/exercises"
                   className={`w-full *:text-[#373737] group ${
                     isOpen
@@ -126,34 +99,67 @@ const Sidebar = () => {
                 </Link>
               </NavigationMenuTrigger>
             </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
-                <Link
-                  to="/statistics"
-                  className={`w-full *:text-[#373737] group ${
-                    isOpen
-                      ? "flex items-center gap-2"
-                      : "flex flex-col items-center "
-                  } ${path == "statistics" ? "*:text-white" : ""}`}
-                >
-                  <ChartColumnDecreasing className="group-hover:text-[#ccc] duration-200" />
-                  <h1
-                    className={`
-                      text-[1rem] group-hover:text-[#ccc]
-                      transition-all duration-300 ease-in-out
-                      overflow-hidden whitespace-nowrap
-                      ${
+
+            {isAuthenticated && (
+              <>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
+                    <Link
+                      to="/obs-viewer"
+                      className={`w-full *:text-[#373737] group ${
                         isOpen
-                          ? "block opacity-100 max-w-[160px]"
-                          : "hidden opacity-0 max-w-0"
-                      }
-                    `}
-                  >
-                    Exercises
-                  </h1>
-                </Link>
-              </NavigationMenuTrigger>
-            </NavigationMenuItem>
+                          ? "flex items-center gap-2"
+                          : "flex flex-col items-center "
+                      } ${path == "obs-viewer" ? "*:text-white" : ""}`}
+                    >
+                      <Video className="group-hover:text-[#ccc] duration-200" />
+                      <h1
+                        className={`
+                        text-[1rem] group-hover:text-[#ccc]
+                        transition-all duration-300 ease-in-out
+                        overflow-hidden whitespace-nowrap
+                        ${
+                          isOpen
+                            ? "block opacity-100 max-w-[160px]"
+                            : "hidden opacity-0 max-w-0"
+                        }
+                      `}
+                      >
+                        OBS Viewer
+                      </h1>
+                    </Link>
+                  </NavigationMenuTrigger>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
+                    <Link
+                      to="/statistics"
+                      className={`w-full *:text-[#373737] group ${
+                        isOpen
+                          ? "flex items-center gap-2"
+                          : "flex flex-col items-center "
+                      } ${path == "statistics" ? "*:text-white" : ""}`}
+                    >
+                      <ChartColumnDecreasing className="group-hover:text-[#ccc] duration-200" />
+                      <h1
+                        className={`
+                        text-[1rem] group-hover:text-[#ccc]
+                        transition-all duration-300 ease-in-out
+                        overflow-hidden whitespace-nowrap
+                        ${
+                          isOpen
+                            ? "block opacity-100 max-w-[160px]"
+                            : "hidden opacity-0 max-w-0"
+                        }
+                      `}
+                      >
+                        Exercises
+                      </h1>
+                    </Link>
+                  </NavigationMenuTrigger>
+                </NavigationMenuItem>
+              </>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
       </div>
