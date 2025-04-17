@@ -2,11 +2,13 @@ import { ExerciseDialog } from "@/components";
 import OBSStream from "@/components/OBSStream";
 import TabsLayout from "@/layouts/TabsLayout";
 import { Dialog, Flex, IconButton, Link, ScrollArea } from "@radix-ui/themes";
-import { HandHelping } from "lucide-react";
+import { HandHelping, Info } from "lucide-react";
+import { useDevice } from "@/lib";
 import { AnimatePresence, motion } from "motion/react";
 import React, { useState } from "react";
+import { Callout } from "@radix-ui/themes";
 const OBSViewer: React.FC = () => {
-  const [error, setError] = useState<string>("");
+  const { error, setError } = useDevice();
   const [stream, setStream] = useState<MediaStream | null>(null);
   const handleStreamReady = (mediaStream: MediaStream) => {
     setStream(mediaStream);
@@ -27,13 +29,15 @@ const OBSViewer: React.FC = () => {
           className="h-[calc(100vh-8rem)]"
         >
           {error && (
-            <div className="bg-red-500 text-white p-4 rounded-lg mb-6">
-              <h2 className="font-bold">Error</h2>
-              <p>{error}</p>
-            </div>
+            <Callout.Root color="red" className="mb-4">
+              <Callout.Icon>
+                <Info />
+              </Callout.Icon>
+              <Callout.Text>{error}</Callout.Text>
+            </Callout.Root>
           )}
 
-          <div className="grid grid-cols-12 gap-6 my-6 h-full overflow-auto">
+          <div className="grid grid-cols-12 gap-6 my-6 h-full overflow-hidden">
             <div className="bg-[#242424] col-span-9 rounded-lg p-4">
               <div className="aspect-video bg-black rounded-lg overflow-hidden">
                 <OBSStream

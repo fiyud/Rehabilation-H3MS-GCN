@@ -1,49 +1,57 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Logging;
-using Microsoft.Kinect;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Kinect;
+using Newtonsoft.Json;
 
 namespace KinectReaderConsole
 {
     internal class Program
     {
+        static string userId;
         static KinectSensor sensor;
         static BodyFrameReader bodyFrameReader;
         static Body[] bodies;
         static HubConnection connection;
-        static List<object> batch = new List<object>();
+        static readonly List<object> batch = new List<object>();
 
         static void Main(string[] args)
         {
-            connection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5160/kinectHub")
-                .WithAutomaticReconnect()
-                .Build();
-            connection.StartAsync().Wait();
-            Console.WriteLine("Connected to SignalR hub.");
-
-            sensor = KinectSensor.GetDefault();
-            if (sensor == null)
+            if (args.Length > 0)
             {
-                Console.WriteLine("Kinect not detected.");
-                return;
+                userId = args[0];
+                Console.WriteLine($"User ID: {userId}");
             }
-            sensor.Open();
-            bodyFrameReader = sensor.BodyFrameSource.OpenReader();
-            bodies = new Body[sensor.BodyFrameSource.BodyCount];
-            bodyFrameReader.FrameArrived += BodyFrameReader_FrameArrived;
-
-            Console.WriteLine("Press ENTER to stop...");
-            Console.ReadLine();
-
-            bodyFrameReader?.Dispose();
-            if (sensor != null && sensor.IsOpen)
+            if (!string.IsNullOrEmpty(userId))
             {
-                sensor.Close();
-                Console.WriteLine("Kinect sensor closed.");
+                connection = new HubConnectionBuilder()
+                    .WithUrl("http://localhost:5160/kinectHub")
+                    .WithAutomaticReconnect()
+                    .Build();
+                connection.StartAsync().Wait();
+                Console.WriteLine("Connected to SignalR hub.");
+
+                sensor = KinectSensor.GetDefault();
+                if (sensor == null)
+                {
+                    Console.WriteLine("Kinect not detected.");
+                    return;
+                }
+                sensor.Open();
+                bodyFrameReader = sensor.BodyFrameSource.OpenReader();
+                bodies = new Body[sensor.BodyFrameSource.BodyCount];
+                bodyFrameReader.FrameArrived += BodyFrameReader_FrameArrived;
+
+                Console.WriteLine("Press ENTER to stop...");
+                Console.ReadLine();
+
+                bodyFrameReader?.Dispose();
+                if (sensor != null && sensor.IsOpen)
+                {
+                    sensor.Close();
+                    Console.WriteLine("Kinect sensor closed.");
+                }
             }
         }
 
@@ -66,7 +74,7 @@ namespace KinectReaderConsole
                                     j.Value.Position.X,
                                     j.Value.Position.Y,
                                     j.Value.Position.Z,
-                                    TrackingState = j.Value.TrackingState.ToString()
+                                    TrackingState = j.Value.TrackingState.ToString(),
                                 }
                             ),
                         })
@@ -77,17 +85,19 @@ namespace KinectReaderConsole
                         var data = new
                         {
                             Timestamp = frame.RelativeTime.ToString(),
-                            Skeletons = skeletons
+                            Skeletons = skeletons,
                         };
+                        connection.InvokeAsync("SendFrameToUser", userId, JsonConvert.SerializeObject(data));
 
                         batch.Add(data);
                         if (batch.Count >= 50)
                         {
                             try
                             {
-                                connection.InvokeAsync("SendBatchToAI", JsonConvert.SerializeObject(batch)).Wait();
+                                connection.InvokeAsync("SendBatchToAI", userId, JsonConvert.SerializeObject(batch)).Wait();
                                 batch.Clear();
-                            } catch (Exception ex)
+                            }
+                            catch (Exception ex)
                             {
                                 Console.WriteLine($"Error sending batch: {ex.Message}");
                             }
@@ -98,3 +108,4 @@ namespace KinectReaderConsole
         }
     }
 }
+
