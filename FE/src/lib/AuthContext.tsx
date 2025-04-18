@@ -6,11 +6,18 @@ import React, {
   ReactNode,
 } from "react";
 
-interface User {
+export interface User {
   id: string;
   name: string;
-  email: string;
   // Add other user properties as needed
+  age?: string;
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -19,7 +26,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  signup: (email: string, password: string, name: string) => Promise<void>;
+  authError: string | null;
+  setAuthError: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,7 +47,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
+  const [authError, setAuthError] = useState<string | null>(null);
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
@@ -115,40 +123,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signup = async (email: string, password: string, name: string) => {
-    setIsLoading(true);
-    try {
-      // Replace with your actual signup API call
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, name }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Signup failed");
-      }
-
-      const data = await response.json();
-      localStorage.setItem("auth_token", data.token);
-      setUser(data.user);
-    } catch (error) {
-      console.error("Signup error:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const value = {
     user,
     isLoading,
-    isAuthenticated: !user,
+    isAuthenticated: !!user,
     login,
     logout,
-    signup,
+    authError,
+    setAuthError,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

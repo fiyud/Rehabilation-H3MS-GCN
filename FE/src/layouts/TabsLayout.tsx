@@ -20,6 +20,7 @@ import {
   Text,
   TextField,
 } from "@radix-ui/themes";
+import { http } from "@/lib";
 import {
   Bell,
   Cog,
@@ -34,7 +35,27 @@ import { motion } from "motion/react";
 import React, { useState } from "react";
 const TabsLayout = ({ children }: { children: React.ReactNode }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const handleLogin = async (formData: FormData) => {
+    try {
+      setLoading(true);
+      const id = formData.get("id") as string;
+      const name = formData.get("name") as string;
+      console.log(id, name);
+      const resp = await http.post(`/login`, {
+        name,
+        id,
+      });
+      if (resp.status === 200) {
+        localStorage.setItem("token", resp.data.token);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex min-w-screen h-svh">
       <Sidebar />
@@ -48,15 +69,15 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
                     <Link className="bg-transparent cursor-pointer flex items-center gap-3">
                       <Avatar
                         size="3"
-                        src="https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?&w=64&h=64&dpr=2&q=70&crop=focalpoint&fp-x=0.67&fp-y=0.5&fp-z=1.4&fit=crop"
-                        fallback="T"
+                        src={`https://api.dicebear.com/9.x/glass/svg?seed=${user?.name}`}
+                        fallback={user?.name ? user?.name[0] : "P"}
                       />
                       <Box>
-                        <Text as="div" size="2" weight="bold">
-                          Teodros Girmay
+                        <Text as="p" size="2" weight="bold">
+                          {user?.name}
                         </Text>
-                        <Text as="div" size="2" color="gray">
-                          Engineering
+                        <Text as="p" size="2" color="gray">
+                          #{user?.id}
                         </Text>
                       </Box>
                     </Link>
@@ -81,50 +102,49 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
               </Card>
             ) : (
               <Dialog.Root>
-                <Dialog.Trigger>
-                  <Link
-                    className="hover:underline cursor-pointer"
-                    onClick={() => console.log("cc")}
-                  >
-                    Login
-                  </Link>
-                </Dialog.Trigger>
+                <form action={handleLogin} method="post">
+                  <Dialog.Trigger>
+                    <Link className="hover:underline cursor-pointer">
+                      Login
+                    </Link>
+                  </Dialog.Trigger>
 
-                <Dialog.Content maxWidth="450px">
-                  <Dialog.Title>Login</Dialog.Title>
+                  <Dialog.Content maxWidth="450px">
+                    <Dialog.Title>Login</Dialog.Title>
 
-                  <Flex direction="column" gap="3">
-                    <label>
-                      <Text as="div" size="2" mb="1" weight="bold">
-                        Name
-                      </Text>
-                      <TextField.Root
-                        defaultValue="Freja Johnsen"
-                        placeholder="Enter your full name"
-                      />
-                    </label>
-                    <label>
-                      <Text as="div" size="2" mb="1" weight="bold">
-                        UID
-                      </Text>
-                      <TextField.Root
-                        defaultValue="freja@example.com"
-                        placeholder="Enter your UID"
-                      />
-                    </label>
-                  </Flex>
+                    <Flex direction="column" gap="3">
+                      <label>
+                        <Text as="div" size="2" mb="1" weight="bold">
+                          Name
+                        </Text>
+                        <TextField.Root
+                          name="name"
+                          placeholder="Enter your full name"
+                        />
+                      </label>
+                      <label>
+                        <Text as="div" size="2" mb="1" weight="bold">
+                          UID
+                        </Text>
+                        <TextField.Root
+                          name="id"
+                          placeholder="Enter your UID"
+                        />
+                      </label>
+                    </Flex>
 
-                  <Flex gap="3" mt="4" justify="end">
-                    <Dialog.Close>
-                      <Button variant="soft" color="gray">
-                        Cancel
-                      </Button>
-                    </Dialog.Close>
-                    <Dialog.Close>
-                      <Button>Login</Button>
-                    </Dialog.Close>
-                  </Flex>
-                </Dialog.Content>
+                    <Flex gap="3" mt="4" justify="end">
+                      <Dialog.Close>
+                        <Button variant="soft" color="gray">
+                          Cancel
+                        </Button>
+                      </Dialog.Close>
+                      <Dialog.Close>
+                        <Button type="submit">Login</Button>
+                      </Dialog.Close>
+                    </Flex>
+                  </Dialog.Content>
+                </form>
               </Dialog.Root>
             )}
           </div>

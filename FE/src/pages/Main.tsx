@@ -25,11 +25,11 @@ const Main: React.FC = () => {
     opacity: 100,
   });
   const {
-    setError,
+    setDeviceError,
     selectedCamera,
     initializeDevices,
     setSelectedCamera,
-    error,
+    deviceError,
     devices,
     releaseDevice,
     reserveDevice,
@@ -38,7 +38,7 @@ const Main: React.FC = () => {
   const startStream = async () => {
     try {
       setLoading(true);
-      setError("");
+      setDeviceError("");
       reserveDevice(selectedCamera);
       const constraints = {
         video: {
@@ -63,7 +63,7 @@ const Main: React.FC = () => {
       setIsPlaying(true);
     } catch (error) {
       console.error("Error accessing media devices:", error);
-      setError(
+      setDeviceError(
         `Failed to access camera: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
@@ -174,12 +174,12 @@ const Main: React.FC = () => {
           className="items-center grid grid-cols-12 mt-6 gap-2 h-[calc(100vh-8rem)]"
         >
           <div className="col-span-9 overflow-hidden">
-            {error && (
+            {deviceError && (
               <Callout.Root color="red" className="mb-4">
                 <Callout.Icon>
                   <Info />
                 </Callout.Icon>
-                <Callout.Text>{error}</Callout.Text>
+                <Callout.Text>{deviceError}</Callout.Text>
               </Callout.Root>
             )}
             {loading ? (
@@ -203,7 +203,7 @@ const Main: React.FC = () => {
                 muted={isMuted}
                 onUserMediaError={(error) => {
                   console.error("Webcam error:", error);
-                  setError(
+                  setDeviceError(
                     `Webcam error: ${
                       error instanceof Error ? error.message : String(error)
                     }`

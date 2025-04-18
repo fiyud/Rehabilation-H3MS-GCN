@@ -13,9 +13,9 @@ interface DeviceContextType {
   setSelectedCamera: React.Dispatch<React.SetStateAction<string>>;
   startExercise: boolean;
   setStartExercise: React.Dispatch<React.SetStateAction<boolean>>;
-  error: string;
+  deviceError: string;
   loading: boolean;
-  setError: React.Dispatch<React.SetStateAction<string>>;
+  setDeviceError: React.Dispatch<React.SetStateAction<string>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   initializeDevices: () => Promise<void>;
   reserveDevice: (deviceId: string) => void;
@@ -32,7 +32,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const [selectedCamera, setSelectedCamera] = useState<string>("");
   const [devices, setDevices] = useState<MediaDeviceInfo[]>();
   const [startExercise, setStartExercise] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [deviceError, setDeviceError] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [activeDevice, setActiveDevice] = useState<string | null>(null);
 
@@ -68,7 +68,9 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
         }
       } catch (err) {
         console.error("Error handling devices:", err);
-        setError("Failed to enumerate devices. Please check your camera.");
+        setDeviceError(
+          "Failed to enumerate devices. Please check your camera."
+        );
       } finally {
         setLoading(false);
       }
@@ -79,7 +81,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const initializeDevices = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
+      setDeviceError("");
       // First try to get any video device without specific constraints
       const initialStream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -94,7 +96,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       handleDevices(devices);
     } catch (err) {
       console.error("Error initializing devices:", err);
-      setError(
+      setDeviceError(
         "Please make sure your camera is connected and permissions are granted."
       );
     } finally {
@@ -111,9 +113,9 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     setSelectedCamera,
     startExercise,
     setStartExercise,
-    error,
+    deviceError,
     loading,
-    setError,
+    setDeviceError,
     setLoading,
     initializeDevices,
     releaseDevice,

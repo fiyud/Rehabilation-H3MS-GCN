@@ -1,11 +1,14 @@
 using KinectAppAPI;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(opts =>
 {
     opts.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -16,17 +19,65 @@ builder.Services.AddSignalR(opts =>
     opts.EnableDetailedErrors = true;
     opts.MaximumReceiveMessageSize = 1024 * 1024 * 10; // 10 MB
 });
-builder.Services.AddScoped<IUserDataAccess, UserDataAccess>();
+builder.Services.AddScoped<IDataAccess, DataAccess>();
+builder.Services.AddAuthentication("SimpleToken")
+                .AddScheme<AuthenticationSchemeOptions, AuthHandler>("SimpleToken", null);
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapHub<KinectHub>("/kinectHub");
 
-app.MapPost("/login", async (LoginRequest login, IUserDataAccess data) =>
+app.MapPost("/login", async (LoginRequest login, IDataAccess data) =>
 {
     var user = await data.GetByIdAsync(login.Id);
-    return user != null ? Results.Ok(new { message = "Login successfully", user }) : Results.Unauthorized();
+    return user != null ? Results.Ok(user) : Results.Unauthorized();
 });
+
+app.MapGet("/patients", async (HttpContext context, IDataAccess data) =>
+{
+    var doctorId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (doctorId == null) return Results.Unauthorized();
+    var patients = await data.GetPatientsByDoctorIdAsync(doctorId);
+    return patients.Any() ? Results.Ok(patients) : Results.NotFound();
+}).RequireAuthorization(policy => policy.RequireRole(Role.Doctor.ToString()));
+
+app.MapPost("/patients", async (AddPatientRequest req, HttpContext context, IDataAccess data) => {
+    var doctorId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (doctorId == null) return Results.Unauthorized();
+    return await data.AddAsync(new User
+    {
+        Id = req.Id,
+        Name = req.Name,
+        Role = Role.Patient,
+        DoctorId = doctorId,
+        Age = req.Age,
+        Address = req.Address,
+        Phone = req.Phone,
+    }) ? Results.Created() : Results.BadRequest();
+}).RequireAuthorization(policy => policy.RequireRole(Role.Doctor.ToString()));
+
+app.MapGet("/exercises", async (HttpContext context, IDataAccess data) =>
+{
+    var patientId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (patientId == null) return Results.Unauthorized();
+    var exercises = await data.GetExerciseByPatientIdAsync(patientId);
+    return exercises.Any() ? Results.Ok(exercises) : Results.NotFound();
+}).RequireAuthorization(policy => policy.RequireRole(Role.Patient.ToString()));
+
+app.MapPost("/exercises", async (AddExerciseRequest req, HttpContext context, IDataAccess data) =>
+{
+    var patientId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (patientId == null) return Results.Unauthorized();
+    return await data.AddExerciseAsync(new Exercise
+    {
+        PatientId = patientId,
+        Type = req.Type,
+        Score = req.Score
+    }) ? Results.Created() : Results.BadRequest();
+}).RequireAuthorization(policy => policy.RequireRole(Role.Patient.ToString()));
 
 app.Run();

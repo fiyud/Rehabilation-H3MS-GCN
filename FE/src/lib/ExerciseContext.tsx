@@ -16,6 +16,8 @@ interface ExerciseContextType {
   setSelectedExerciseType: React.Dispatch<React.SetStateAction<string>>;
   finishExercise: boolean;
   setFinishExercise: React.Dispatch<React.SetStateAction<boolean>>;
+  setExerciseError: React.Dispatch<React.SetStateAction<string>>;
+  exerciseError: string;
 }
 
 const ExerciseContext = createContext<ExerciseContextType | undefined>(
@@ -32,6 +34,7 @@ export const ExerciseProvider: React.FC<ExerciseProviderProps> = ({
   const [selectedExerciseType, setSelectedExerciseType] = useState<string>("");
   const [startExercise, setStartExercise] = useState(false);
   const [finishExercise, setFinishExercise] = useState(false);
+  const [exerciseError, setExerciseError] = useState("");
   const [points, setPoints] = useState(0);
   const [timer, setTimer] = useState(180);
   const triggerTimer = () => {
@@ -60,6 +63,8 @@ export const ExerciseProvider: React.FC<ExerciseProviderProps> = ({
     setSelectedExerciseType,
     finishExercise,
     setFinishExercise,
+    setExerciseError,
+    exerciseError,
   };
 
   return (

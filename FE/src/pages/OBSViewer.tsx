@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "motion/react";
 import React, { useState } from "react";
 import { Callout } from "@radix-ui/themes";
 const OBSViewer: React.FC = () => {
-  const { error, setError } = useDevice();
+  const { deviceError, setDeviceError } = useDevice();
   const [stream, setStream] = useState<MediaStream | null>(null);
   const handleStreamReady = (mediaStream: MediaStream) => {
     setStream(mediaStream);
@@ -16,7 +16,7 @@ const OBSViewer: React.FC = () => {
 
   const handleError = (errorMessage: string) => {
     console.error("OBS Stream error:", errorMessage);
-    setError(errorMessage);
+    setDeviceError(errorMessage);
   };
   return (
     <TabsLayout>
@@ -28,12 +28,12 @@ const OBSViewer: React.FC = () => {
           transition={{ duration: 0.3 }}
           className="h-[calc(100vh-8rem)]"
         >
-          {error && (
+          {deviceError && (
             <Callout.Root color="red" className="mb-4">
               <Callout.Icon>
                 <Info />
               </Callout.Icon>
-              <Callout.Text>{error}</Callout.Text>
+              <Callout.Text>{deviceError}</Callout.Text>
             </Callout.Root>
           )}
 
