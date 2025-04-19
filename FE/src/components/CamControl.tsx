@@ -62,7 +62,6 @@ import { motion } from "motion/react";
 const CamControl: React.FC<CamControlProps> = ({
   isPlaying,
   togglePlay,
-  selectedCamera,
   handleCameraChange,
   cameras,
   isMuted,
@@ -119,11 +118,14 @@ const CamControl: React.FC<CamControlProps> = ({
               <div className="flex flex-col gap-2">
                 <h3 className="text-white font-medium">Camera Selection</h3>
                 <Select.Root
-                  value={selectedCamera}
                   onValueChange={handleCameraChange}
+                  defaultValue="default"
                 >
                   <Select.Trigger className="w-full dark" />
                   <Select.Content className="dark">
+                    <Select.Item value="default" disabled>
+                      Your default camera
+                    </Select.Item>
                     {cameras?.map((camera) => (
                       <Select.Item
                         key={camera?.deviceId}

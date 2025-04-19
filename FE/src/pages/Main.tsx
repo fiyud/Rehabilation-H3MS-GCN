@@ -7,13 +7,18 @@ import { AnimatePresence, motion } from "motion/react";
 import { Flex, Spinner, Callout } from "@radix-ui/themes";
 import { useDevice } from "@/lib";
 const Main: React.FC = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [controls, setControls] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const webcamRef = useRef<Webcam>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const {
+    isPlaying,
+    setIsPlaying,
+    isMuted,
+    isVideoEnabled,
+    setIsMuted,
+    setIsVideoEnabled,
+  } = useDevice();
   const [videoSettings, setVideoSettings] = useState({
     brightness: 100,
     contrast: 100,
@@ -80,7 +85,7 @@ const Main: React.FC = () => {
     try {
       setLoading(true);
       if (webcamRef?.current && webcamRef?.current?.video?.srcObject) {
-        let localStream = webcamRef.current.video.srcObject as MediaStream;
+        const localStream = webcamRef.current.video.srcObject as MediaStream;
         localStream.getTracks().forEach((track) => track.stop());
         webcamRef.current.video.srcObject = null;
         setStream(null);
@@ -173,7 +178,7 @@ const Main: React.FC = () => {
           transition={{ duration: 0.3 }}
           className="items-center grid grid-cols-12 mt-6 gap-2 h-[calc(100vh-8rem)]"
         >
-          <div className="col-span-9 overflow-hidden">
+          <div className="col-span-9 h-full overflow-hidden">
             {deviceError && (
               <Callout.Root color="red" className="mb-4">
                 <Callout.Icon>
@@ -193,11 +198,12 @@ const Main: React.FC = () => {
                 style={getVideoStyle()}
                 className={`rounded-lg ${isVideoEnabled ? "" : "hidden"}`}
                 videoConstraints={{
-                  width: { ideal: 1920 },
-                  height: { ideal: 1080 },
+                  width: { ideal: 1920, min: 640 },
+                  height: { ideal: 1080, min: 480 },
                   deviceId: selectedCamera
                     ? { exact: selectedCamera }
                     : undefined,
+                  facingMode: "user",
                 }}
                 audio={!isMuted}
                 muted={isMuted}

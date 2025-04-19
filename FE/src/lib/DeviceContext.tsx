@@ -20,7 +20,12 @@ interface DeviceContextType {
   initializeDevices: () => Promise<void>;
   reserveDevice: (deviceId: string) => void;
   releaseDevice: () => void;
-  
+  isPlaying: boolean;
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsMuted: React.Dispatch<React.SetStateAction<boolean>>;
+  isMuted: boolean;
+  isVideoEnabled: boolean;
+  setIsVideoEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
@@ -30,14 +35,15 @@ interface DeviceProviderProps {
 }
 
 export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [selectedCamera, setSelectedCamera] = useState<string>("");
   const [devices, setDevices] = useState<MediaDeviceInfo[]>();
   const [startExercise, setStartExercise] = useState(false);
   const [deviceError, setDeviceError] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [activeDevice, setActiveDevice] = useState<string | null>(null);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
 
   // Function to reserve a device
   const reserveDevice = (deviceId: string) => {
@@ -97,6 +103,9 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       // Now enumerate all devices
       const devices = await navigator.mediaDevices.enumerateDevices();
       handleDevices(devices);
+      setIsPlaying(true);
+      setIsMuted(false);
+      setIsVideoEnabled(true);
     } catch (err) {
       console.error("Error initializing devices:", err);
       setDeviceError(
@@ -123,6 +132,12 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     initializeDevices,
     releaseDevice,
     reserveDevice,
+    isPlaying,
+    setIsPlaying,
+    setIsMuted,
+    isMuted,
+    isVideoEnabled,
+    setIsVideoEnabled,
   };
   return (
     <DeviceContext.Provider value={value}>{children}</DeviceContext.Provider>
