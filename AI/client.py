@@ -60,7 +60,7 @@ hub_conn = HubConnectionBuilder().with_url("http://localhost:5160/kinectHub?type
 
 def handle_skeleton_data(args):
     try:
-        data = json.loads(args[0])
+        data = json.loads(args[1])
         sample_tensor = load_sample_from_json(data, device='cuda')
 
         model= FiveStreamGCN_Model(num_joints=25, num_features=7, hidden_dim=128, num_layers=3, 
@@ -69,7 +69,7 @@ def handle_skeleton_data(args):
         model.load_state_dict(torch.load("weights/kimore/model_ex1.pth", map_location='cuda:0'))
 
         y_pred = predict_single_sample(model, sample_tensor, device='cuda', model_name='FiveStreamGCN_Model')
-        hub_conn.send("SendScore", [float(y_pred)])
+        hub_conn.send("SendScore", [args[0], float(y_pred)])
     except Exception as e:
         print(e)
 

@@ -1,20 +1,19 @@
 import { CamControl } from "@/components";
 import { TabsLayout } from "@/layouts";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Info } from "lucide-react";
+import React, { useRef, useState, useEffect } from "react";
 import Webcam from "react-webcam";
 import { AnimatePresence, motion } from "motion/react";
-import { Flex, Spinner } from "@radix-ui/themes";
+import { Flex, Spinner, Callout } from "@radix-ui/themes";
+import { useDevice } from "@/lib";
 const Main: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [controls, setControls] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [selectedCamera, setSelectedCamera] = useState<string>("");
-  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const webcamRef = useRef<Webcam>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [error, setError] = useState<string>("");
   const [videoSettings, setVideoSettings] = useState({
     brightness: 100,
     contrast: 100,
@@ -25,67 +24,22 @@ const Main: React.FC = () => {
     invert: 0,
     opacity: 100,
   });
-
-  const handleDevices = useCallback(
-    (mediaDevices: MediaDeviceInfo[]) => {
-      try {
-        setLoading(true);
-        const videoDevices = mediaDevices.filter(
-          ({ kind }) => kind === "videoinput"
-        );
-        console.log("Available video devices:", videoDevices);
-        setCameras(videoDevices);
-        if (
-          selectedCamera &&
-          videoDevices.some((device) => device.deviceId === selectedCamera)
-        ) {
-          return;
-        }
-      } catch (err) {
-        console.error("Error handling devices:", err);
-        setError("Failed to enumerate devices. Please check your camera.");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [selectedCamera]
-  );
-
-  // Function to request permissions and enumerate devices
-  const initializeDevices = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError("");
-      // First try to get any video device without specific constraints
-      const initialStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-
-      // Stop the initial stream immediately
-      initialStream.getTracks().forEach((track) => track.stop());
-
-      // Now enumerate all devices
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      handleDevices(devices);
-    } catch (err) {
-      console.error("Error initializing devices:", err);
-      setError(
-        "Please make sure your camera is connected and permissions are granted."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [handleDevices]);
-
-  useEffect(() => {
-    initializeDevices();
-  }, [initializeDevices]);
+  const {
+    setDeviceError,
+    selectedCamera,
+    initializeDevices,
+    setSelectedCamera,
+    deviceError,
+    devices,
+    releaseDevice,
+    reserveDevice,
+  } = useDevice();
 
   const startStream = async () => {
     try {
       setLoading(true);
-      setError("");
+      setDeviceError("");
+      reserveDevice(selectedCamera);
       const constraints = {
         video: {
           width: { ideal: 1920 },
@@ -109,14 +63,14 @@ const Main: React.FC = () => {
       setIsPlaying(true);
     } catch (error) {
       console.error("Error accessing media devices:", error);
-      setError(
+      setDeviceError(
         `Failed to access camera: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
+      initializeDevices();
 
       // If there's an error, try to re-enumerate devices
-      initializeDevices();
     } finally {
       setLoading(false);
     }
@@ -125,18 +79,16 @@ const Main: React.FC = () => {
   const stopStream = () => {
     try {
       setLoading(true);
-      if (stream) {
-        stream.getTracks().forEach((track) => {
-          track.stop();
-          console.log("Stopped track:", track.label);
-        });
-        if (webcamRef.current?.video) {
-          webcamRef.current.video.srcObject = null;
-        }
+      if (webcamRef?.current && webcamRef?.current?.video?.srcObject) {
+        let localStream = webcamRef.current.video.srcObject as MediaStream;
+        localStream.getTracks().forEach((track) => track.stop());
+        webcamRef.current.video.srcObject = null;
         setStream(null);
         setControls(false);
         setIsPlaying(false);
       }
+      // Release the device
+      releaseDevice();
     } catch (error) {
       console.error(error);
     } finally {
@@ -191,7 +143,11 @@ const Main: React.FC = () => {
   ) => {
     setVideoSettings((prev) => ({ ...prev, [setting]: value }));
   };
-
+  useEffect(() => {
+    return () => {
+      stopStream();
+    };
+  }, []);
   const getVideoStyle = () => {
     return {
       filter: `
@@ -218,10 +174,13 @@ const Main: React.FC = () => {
           className="items-center grid grid-cols-12 mt-6 gap-2 h-[calc(100vh-8rem)]"
         >
           <div className="col-span-9 overflow-hidden">
-            {error && (
-              <div className="bg-red-500 rounded-lg text-white p-2 text-center z-10">
-                {error}
-              </div>
+            {deviceError && (
+              <Callout.Root color="red" className="mb-4">
+                <Callout.Icon>
+                  <Info />
+                </Callout.Icon>
+                <Callout.Text>{deviceError}</Callout.Text>
+              </Callout.Root>
             )}
             {loading ? (
               <Flex justify="center" align="center" className="h-full">
@@ -244,7 +203,7 @@ const Main: React.FC = () => {
                 muted={isMuted}
                 onUserMediaError={(error) => {
                   console.error("Webcam error:", error);
-                  setError(
+                  setDeviceError(
                     `Webcam error: ${
                       error instanceof Error ? error.message : String(error)
                     }`
@@ -258,7 +217,7 @@ const Main: React.FC = () => {
             togglePlay={togglePlay}
             selectedCamera={selectedCamera}
             handleCameraChange={handleCameraChange}
-            cameras={cameras}
+            cameras={devices}
             isMuted={isMuted}
             toggleMute={toggleMute}
             isVideoEnabled={isVideoEnabled}

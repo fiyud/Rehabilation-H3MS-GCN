@@ -1,8 +1,9 @@
 import { Badge, Button, Spinner } from "@radix-ui/themes";
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { useExercise } from "@/lib";
-
+import { useExercise, useDevice } from "@/lib";
+import { SkeletonCanvas, Frame } from "@/components";
+import * as signalR from "@microsoft/signalr";
 interface OBSStreamProps {
   onStreamReady?: (stream: MediaStream) => void;
   onError?: (error: string) => void;
@@ -13,7 +14,43 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const { timer, startExercise, finishExercise } = useExercise();
+  const [conn, setConn] = useState<signalR.HubConnection | undefined>();
+  const { setPoints, points, startExercise, timer, finishExercise } =
+    useExercise();
+  const [frame, setFrame] = useState<Frame | undefined>();
+  const {
+    devices,
+    setSelectedCamera,
+    selectedCamera,
+    reserveDevice,
+    releaseDevice,
+  } = useDevice();
+
+  useEffect(() => {
+    const newConn = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5160/kinectHub?type=ui&userId=abc123")
+      .withAutomaticReconnect()
+      .build();
+    setConn(newConn);
+  }, []);
+
+  useEffect(() => {
+    if (conn) {
+      conn
+        .start()
+        .then(() => {
+          console.log("Connected!");
+          conn.on("ReceiveScore", (data: number) => {
+            console.log(data);
+            setPoints(data);
+          });
+          conn.on("ReceiveFrame", (data: string) => {
+            setFrame(JSON.parse(data));
+          });
+        })
+        .catch((err) => console.error("Connection failed: ", err));
+    }
+  }, [conn]);
 
   const connectToOBS = async () => {
     try {
@@ -21,20 +58,21 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
       setIsConnecting(true);
       setConnectionStatus("connecting");
 
-      // Get available video devices
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(
-        (device) => device.kind === "videoinput"
-      );
-      console.log("Available video devices:", videoDevices);
-
       // Find OBS Virtual Camera
-      const obsDevice = videoDevices.find(
+      const obsDevice = devices?.find(
         (device) =>
           device.label.toLowerCase().includes("obs") ||
           device.label.toLowerCase().includes("virtual")
       );
+      if (!obsDevice) {
+        throw new Error(
+          "OBS Virtual Camera not found. Please make sure OBS is running and Virtual Camera is started."
+        );
+      }
+      // Reserve the device
+      reserveDevice(obsDevice.deviceId);
 
+      console.log("OBS Device:", obsDevice);
       if (!obsDevice) {
         throw new Error(
           "OBS Virtual Camera not found. Please make sure OBS is running and Virtual Camera is started."
@@ -44,14 +82,16 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
       // Get stream from OBS Virtual Camera
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          deviceId: { exact: obsDevice.deviceId },
+          deviceId: obsDevice.deviceId ? obsDevice.deviceId : undefined,
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
+        audio: false,
       });
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.play();
         if (onStreamReady) {
           onStreamReady(stream);
         }
@@ -83,6 +123,7 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
         stream.getTracks().forEach((track) => track.stop());
         videoRef.current.srcObject = null;
       }
+      releaseDevice();
       setConnectionStatus("disconnected");
     } catch (error) {
       console.error(error);
@@ -90,6 +131,7 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
       setLoading(false);
     }
   };
+
   // Clean up on unmount
   useEffect(() => {
     return () => {
@@ -99,12 +141,16 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
 
   return (
     <div className="relative h-full">
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        className="w-full h-auto rounded-lg"
-      />
+      <div className="relative w-full h-full rounded-lg overflow-hidden">
+        <SkeletonCanvas data={frame} />
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          className="w-full h-full rounded-lg"
+        />
+      </div>
       {finishExercise && (
         <motion.div
           key="finish"
@@ -126,6 +172,15 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
                 timer % 60 < 10 ? `0${timer % 60}` : `${timer % 60}`
               } minutes`
             : "Done !"}
+        </Badge>
+      )}
+      {startExercise && (
+        <Badge
+          color="amber"
+          size={"3"}
+          className="absolute bottom-2 left-2 text-[22px] p-2"
+        >
+          Points: {points.toFixed(2)}
         </Badge>
       )}
       <Badge

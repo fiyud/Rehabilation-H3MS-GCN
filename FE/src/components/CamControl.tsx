@@ -47,7 +47,7 @@ interface CamControlProps {
   togglePlay: () => void;
   selectedCamera: string;
   handleCameraChange: (deviceId: string) => void;
-  cameras: MediaDeviceInfo[];
+  cameras?: MediaDeviceInfo[];
   isMuted: boolean;
   toggleMute: () => void;
   isVideoEnabled: boolean;
@@ -119,17 +119,10 @@ const CamControl: React.FC<CamControlProps> = ({
               <div className="flex flex-col gap-2">
                 <h3 className="text-white font-medium">Camera Selection</h3>
                 <Select.Root
-                  value={selectedCamera || "none"}
+                  value={selectedCamera}
                   onValueChange={handleCameraChange}
                 >
                   <Select.Trigger className="w-full dark" />
-                  {cameras.length <= 0 && (
-                    <Select.Content className="dark">
-                      <Select.Item key={"none"} value="none">
-                        -- No device found --
-                      </Select.Item>
-                    </Select.Content>
-                  )}
                   <Select.Content className="dark">
                     {cameras?.map((camera) => (
                       <Select.Item
