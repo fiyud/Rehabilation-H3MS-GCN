@@ -56,17 +56,36 @@ def load_sample_from_json(data, device='cpu'):
     coords_tensor = coords_tensor.view(50, 25, 7)  # Reshape to (50, 25, 7)
     return coords_tensor 
 
+
+exercises = [
+    "weights/kimore/model_ex1.pth",
+    "weights/kimore/model_ex2.pth",
+    "weights/kimore/model_ex3.pth",
+    "weights/kimore/model_ex4.pth",
+    "weights/kimore/model_ex5.pth",
+    "weights/uiprmd/best_model.pth",
+    "weights/uiprmd/best_model2.pth",
+    "weights/uiprmd/best_model3.pth",
+    "weights/uiprmd/best_model4.pth",
+    "weights/uiprmd/best_model5.pth",
+    "weights/uiprmd/best_model6.pth",
+    "weights/uiprmd/best_model7.pth",
+    "weights/uiprmd/best_model8.pth",
+    "weights/uiprmd/best_model9.pth",
+    "weights/uiprmd/best_model10.pth"
+]
+
 hub_conn = HubConnectionBuilder().with_url("http://localhost:5160/kinectHub?type=ai").build()
 
 def handle_skeleton_data(args):
     try:
-        data = json.loads(args[1])
+        data = json.loads(args[2])
         sample_tensor = load_sample_from_json(data, device='cuda')
 
         model= FiveStreamGCN_Model(num_joints=25, num_features=7, hidden_dim=128, num_layers=3, 
                                    output_dim=1, feat_d=300, nhead=4, dropout=0.15)
 
-        model.load_state_dict(torch.load("weights/kimore/model_ex1.pth", map_location='cuda:0'))
+        model.load_state_dict(torch.load(exercises[args[1]], map_location='cuda:0'))
 
         y_pred = predict_single_sample(model, sample_tensor, device='cuda', model_name='FiveStreamGCN_Model')
         hub_conn.send("SendScore", [args[0], float(y_pred)])

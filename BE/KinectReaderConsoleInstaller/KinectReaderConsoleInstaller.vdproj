@@ -1768,12 +1768,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_85F7203A56E3A65AC8C605B25003AF80"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_0FCA6D9B3508447DAA63CD8BBB5E0CA2"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2647,6 +2641,12 @@
         "OwnerKey" = "8:_D734E201D30E9D67143EC2AF19238DEC"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_85F7203A56E3A65AC8C605B25003AF80"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -2665,6 +2665,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
+            }
         }
         "Release"
         {
@@ -2681,6 +2697,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
+            }
         }
     }
     "Deployable"
@@ -7293,7 +7325,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:KinectReaderConsoleInstaller"
         "ProductCode" = "8:{FA8C4C64-0FDF-476B-92C2-E3BFDB4363F4}"
-        "PackageCode" = "8:{7E797921-06EE-44BB-B4C4-B0E02AE7C84E}"
+        "PackageCode" = "8:{B2D14160-461D-4871-A0BF-1999DB489A60}"
         "UpgradeCode" = "8:{F3D65C34-F199-4A9F-9D1F-585C91F11DBB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -7434,7 +7466,7 @@
                                                 {
                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_956FDA552D7B41D19C5ACA8C3EC723C1"
                                                     {
-                                                    "Name" = "8:(Default)"
+                                                    "Name" = "8:"
                                                     "Condition" = "8:"
                                                     "Transitive" = "11:FALSE"
                                                     "ValueTypes" = "3:1"
@@ -7464,9 +7496,9 @@
                                 }
                                 "Values"
                                 {
-                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_0404B8C15FF04850AB9AFBDB59AB6847"
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_2393DD7E999242C880A4EE26DCECE638"
                                     {
-                                    "Name" = "8:(Default)"
+                                    "Name" = "8:"
                                     "Condition" = "8:"
                                     "Transitive" = "11:FALSE"
                                     "ValueTypes" = "3:1"
@@ -7477,14 +7509,6 @@
                         }
                         "Values"
                         {
-                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_0444299DDA9C45FEB75943A53E9E65AB"
-                            {
-                            "Name" = "8:(Default)"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "ValueTypes" = "3:1"
-                            "Value" = "8:Kinect App Launcher"
-                            }
                             "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_30724694824C4263A5CE556E89BF41E6"
                             {
                             "Name" = "8:URL Protocol"
@@ -7492,6 +7516,14 @@
                             "Transitive" = "11:FALSE"
                             "ValueTypes" = "3:1"
                             "Value" = "8:"
+                            }
+                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_6ABC960160A744108091E37D5EC21542"
+                            {
+                            "Name" = "8:"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "ValueTypes" = "3:1"
+                            "Value" = "8:Kinect App Launcher"
                             }
                         }
                     }

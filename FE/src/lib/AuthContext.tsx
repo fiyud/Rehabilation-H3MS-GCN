@@ -24,11 +24,13 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   authError: string | null;
   setAuthError: React.Dispatch<React.SetStateAction<string | null>>;
 }
+import { http } from "@/lib"; // Adjust the import path as needed
+import { useNavigate } from "react-router";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -48,59 +50,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const navigate = useNavigate();
   useEffect(() => {
-    const checkAuthStatus = async () => {
+    const checkToken = async () => {
       try {
-        const token = localStorage.getItem("auth_token");
-
-        if (token) {
-          const response = await fetch("/api/user/me", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-          } else {
-            localStorage.removeItem("auth_token");
-            setUser(null);
-          }
+        setIsLoading(true);
+        const user = localStorage.getItem("user");
+        if (!user) {
+          setUser(null);
+          return;
+        } else {
+          const parsedUser = JSON.parse(user as string) as User;
+          setUser(parsedUser);
         }
       } catch (error) {
-        console.error("Authentication error:", error);
-        setUser(null);
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
     };
-
-    checkAuthStatus();
+    checkToken()
   }, []);
-
-  const login = async (email: string, password: string) => {
+  const login = async (name: string, id: string) => {
     setIsLoading(true);
     try {
-      // Replace with your actual login API call
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await http.post("/login", {
+        name,
+        id,
       });
-
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error("Login failed");
       }
-
-      const data = await response.json();
-      localStorage.setItem("auth_token", data.token);
-      setUser(data.user);
+      const user = response?.data as User;
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser(user);
+      return true;
     } catch (error) {
       console.error("Login error:", error);
-      throw error;
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -108,13 +95,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Optional: call logout API endpoint
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-        },
-      });
+      localStorage.removeItem("token");
+      setUser(null);
+      setAuthError(null);
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

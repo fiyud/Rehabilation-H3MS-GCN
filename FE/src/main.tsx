@@ -11,17 +11,17 @@ import { StartMaskLayout } from "./layouts";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Theme appearance="dark">
-      <DeviceProvider>
-        <AuthProvider>
-          <ExerciseProvider>
-            <StartMaskLayout>
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </StartMaskLayout>
-          </ExerciseProvider>
-        </AuthProvider>
-      </DeviceProvider>
+      <BrowserRouter>
+        <DeviceProvider>
+          <AuthProvider>
+            <ExerciseProvider>
+              <StartMaskLayout>
+                  <App />
+              </StartMaskLayout>
+            </ExerciseProvider>
+          </AuthProvider>
+        </DeviceProvider>
+      </BrowserRouter>
     </Theme>
   </StrictMode>
 );

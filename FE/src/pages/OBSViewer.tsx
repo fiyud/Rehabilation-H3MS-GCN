@@ -6,7 +6,7 @@ import { HandHelping, Info } from "lucide-react";
 import { useDevice } from "@/lib";
 import { AnimatePresence, motion } from "motion/react";
 import React, { useState } from "react";
-import { Callout } from "@radix-ui/themes";
+import { Callout, Blockquote } from "@radix-ui/themes";
 const OBSViewer: React.FC = () => {
   const { deviceError, setDeviceError } = useDevice();
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -110,10 +110,7 @@ const OBSViewer: React.FC = () => {
                     Ready? Let's{" "}
                     <Dialog.Root>
                       <Dialog.Trigger>
-                        <Link
-                          className="cursor-pointer hover:underline"
-                          onClick={() => console.log("dit")}
-                        >
+                        <Link className="cursor-pointer hover:underline">
                           start your session!
                         </Link>
                       </Dialog.Trigger>
