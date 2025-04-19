@@ -1,17 +1,24 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 
 namespace KinectAppAPI
 {
     public class KinectHub : Hub
     {
+        public struct ClientContext
+        {
+            public string ConnectionId { get; set; }
+            public ExerciseType? ExerciseType { get; set; }
+        }
+
         private static string? _aiConnectionId;
-        private static readonly Dictionary<string, string> _clients = [];
+        private static readonly ConcurrentDictionary<string, ClientContext> _clients = [];
 
         public async Task SendFrameToUser(string userId, string data)
         {
-            if (_clients.TryGetValue(userId, out var connectionId))
+            if (_clients.TryGetValue(userId, out var context) && !string.IsNullOrEmpty(context.ConnectionId))
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveFrame", data);
+                await Clients.Client(context.ConnectionId).SendAsync("ReceiveFrame", data);
             }
             else
             {
@@ -19,11 +26,33 @@ namespace KinectAppAPI
             }
         }
 
+        public Task SetExerciseType(string userId, ExerciseType type)
+        {
+            if (_clients.TryGetValue(userId, out var context))
+            {
+                context.ExerciseType = type;
+                Console.WriteLine($"Exercise type set for {userId}: {type}");
+            }
+            else
+            {
+                Console.WriteLine($"User {userId} not found.");
+            }
+            return Task.CompletedTask;
+        }
+
         public async Task SendBatchToAI(string userId, string data)
         {
-            if (!string.IsNullOrEmpty(userId) && _aiConnectionId != null)
+            if (_clients.TryGetValue(userId, out var context) && _aiConnectionId != null && context.ExerciseType != null)
             {
-                await Clients.Client(_aiConnectionId).SendAsync("ReceiveBatch", userId, data);
+                await Clients.Client(_aiConnectionId).SendAsync("ReceiveBatch", userId, context.ExerciseType, data);
+            }
+            else if (_aiConnectionId == null)
+            {
+                Console.WriteLine("No AI client connected.");
+            }
+            else if (context.ExerciseType == null)
+            {
+                Console.WriteLine($"User {userId} hasn't choose a exercise type.");
             }
             else
             {
@@ -33,9 +62,9 @@ namespace KinectAppAPI
 
         public async Task SendScore(string userId, float data)
         {
-            if (_clients.TryGetValue(userId, out var connectionId))
+            if (_clients.TryGetValue(userId, out var context) && !string.IsNullOrEmpty(context.ConnectionId))
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveScore", data);
+                await Clients.Client(context.ConnectionId).SendAsync("ReceiveScore", data);
             }
             else
             {
@@ -50,7 +79,7 @@ namespace KinectAppAPI
 
             if (clientType == "ui" && !string.IsNullOrEmpty(userId))
             {
-                _clients[userId] = Context.ConnectionId;
+                _clients[userId] = new ClientContext { ConnectionId = Context.ConnectionId };
                 Console.WriteLine($"UI client connected: {userId} - {Context.ConnectionId}");
             }
             else if (clientType == "ai")
@@ -67,10 +96,10 @@ namespace KinectAppAPI
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            var userId = _clients.FirstOrDefault(c => c.Value == Context.ConnectionId).Key;
+            var userId = _clients.FirstOrDefault(c => c.Value.ConnectionId == Context.ConnectionId).Key;
             if (!string.IsNullOrEmpty(userId))
             {
-                _clients.Remove(userId);
+                _clients.Remove(userId, out var context);
                 Console.WriteLine($"UI client disconnected: {userId} - {Context.ConnectionId}");
             }
             else if (_aiConnectionId == Context.ConnectionId)

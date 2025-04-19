@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Kinect;
 using Newtonsoft.Json;
@@ -20,7 +21,11 @@ namespace KinectReaderConsole
         {
             if (args.Length > 0)
             {
-                userId = args[0];
+                string url = args[0];
+                Uri uri = new Uri(url);
+                string query = uri.Query;
+                var queryParams = HttpUtility.ParseQueryString(query);
+                userId = queryParams["userId"];
                 Console.WriteLine($"User ID: {userId}");
             }
             if (!string.IsNullOrEmpty(userId))

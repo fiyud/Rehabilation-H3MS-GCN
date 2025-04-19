@@ -6,22 +6,21 @@ import { AnimatePresence, motion } from "motion/react";
 import React from "react";
 
 const ExerciseDialog: React.FC = () => {
-  const [exercise, setExercise] = React.useState<string>("");
-  const { setStartExercise } = useExercise();
-  function search(formData: FormData) {
+  const { setStartExercise, setSelectedExerciseType, selectedExerciseType } =
+    useExercise();
+  function handleChooseExercise(formData: FormData) {
     const query = formData.get("exercise");
     if (query) {
-      console.log("Selected exercise:", query);
-      setExercise(query as string);
+      setSelectedExerciseType(query as string);
     }
     setStartExercise(true);
   }
   return (
     <Dialog.Content>
-      <form action={search} method="post">
+      <form action={handleChooseExercise} method="post">
         <Dialog.Title>Choose your exercise type</Dialog.Title>
         <Dialog.Description size="2" my={"6"}>
-          {exercise == "" ? (
+          {selectedExerciseType == "" ? (
             <AnimatePresence mode="wait">
               <motion.div
                 className="flex items-center gap-2 justify-center"
@@ -33,7 +32,9 @@ const ExerciseDialog: React.FC = () => {
                 <Tooltip content="Kimore">
                   <motion.button
                     value={"Kimore"}
-                    onClick={(e) => setExercise(e.currentTarget.value)}
+                    onClick={(e) =>
+                      setSelectedExerciseType(e.currentTarget.value)
+                    }
                     type="button"
                     whileHover={{
                       rotateX: 20,
@@ -52,7 +53,9 @@ const ExerciseDialog: React.FC = () => {
                   <motion.button
                     type="button"
                     value={"PRMD"}
-                    onClick={(e) => setExercise(e.currentTarget.value)}
+                    onClick={(e) =>
+                      setSelectedExerciseType(e.currentTarget.value)
+                    }
                     className="border border-gray-300 rounded-lg cursor-pointer p-4 bg-[#1e1f21]"
                     whileHover={{
                       rotateX: 20,
@@ -71,20 +74,20 @@ const ExerciseDialog: React.FC = () => {
           ) : (
             <AnimatePresence mode="wait">
               <motion.div
-                key={exercise}
+                key={selectedExerciseType}
                 className="flex items-center gap-2 justify-center"
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.3 }}
               >
-                {ExtractSelectedExercise(exercise)}
+                {ExtractSelectedExercise(selectedExerciseType)}
               </motion.div>
             </AnimatePresence>
           )}
         </Dialog.Description>
         <Flex gap={"2"} justify="end">
-          {exercise == "" ? (
+          {selectedExerciseType == "" ? (
             <Dialog.Close>
               <Button variant="soft" className="cursor-pointer" color="gray">
                 Cancel
@@ -95,7 +98,7 @@ const ExerciseDialog: React.FC = () => {
               <Button
                 variant="soft"
                 onClick={() => {
-                  setExercise("");
+                  setSelectedExerciseType("");
                 }}
                 className="cursor-pointer"
                 color="gray"
@@ -120,25 +123,61 @@ const ExerciseDialog: React.FC = () => {
   );
 };
 const ExtractSelectedExercise = (exercise: string) => {
+  enum KimoreExercises {
+    JumpingJacks = "Kimore_JumpingJacks",
+    ArmCircles = "Kimore_ArmCircles",
+    TorsoTwists = "Kimore_TorsoTwists",
+    Squats = "Kimore_Squats",
+    LateralArmRaises = "Kimore_LateralArmRaises",
+  }
+
+  enum PRMDExercises {
+    DeepSquat = "UIPRMD_DeepSquat",
+    HurdleStep = "UIPRMD_HurdleStep",
+    InlineLunge = "UIPRMD_InlineLunge",
+    SideLunge = "UIPRMD_SideLunge",
+    SitToStand = "UIPRMD_SitToStand",
+    StandingActiveStraightLegRaise = "UIPRMD_StandingActiveStraightLegRaise",
+    StandingShoulderAbduction = "UIPRMD_StandingShoulderAbduction",
+    StandingShoulderExtension = "UIPRMD_StandingShoulderExtension",
+    StandingShoulderInternalExternalRotation = "UIPRMD_StandingShoulderInternalExternalRotation",
+    StandingShoulderScaption = "UIPRMD_StandingShoulderScaption",
+  }
+
   const kimoreExercises = [
-    "Jumping jacks",
-    "Arm circles",
-    "Hip twists",
-    "Lateral arm raises",
-    "Torso twists",
+    { name: "Jumping jacks", value: KimoreExercises.JumpingJacks },
+    { name: "Arm circles", value: KimoreExercises.ArmCircles },
+    { name: "Torso twists", value: KimoreExercises.TorsoTwists },
+    { name: "Squats", value: KimoreExercises.Squats },
+    { name: "Lateral arm raises", value: KimoreExercises.LateralArmRaises },
   ];
 
   const prmdExercises = [
-    "Deep Squat",
-    "Hurdle Step",
-    "Inline Lunge",
-    "Side Lunge",
-    "Sit to Stand",
-    "Standing Active Straight Leg Raise",
-    "Standing Shoulder Abduction",
-    "Standing Shoulder Extension",
-    "Standing Shoulder Internal-External Rotation",
-    "Standing Shoulder Scaption",
+    { name: "Deep Squat", value: PRMDExercises.DeepSquat },
+    { name: "Hurdle Step", value: PRMDExercises.HurdleStep },
+    { name: "Inline Lunge", value: PRMDExercises.InlineLunge },
+    { name: "Side Lunge", value: PRMDExercises.SideLunge },
+    { name: "Sit to Stand", value: PRMDExercises.SitToStand },
+    {
+      name: "Standing Active Straight Leg Raise",
+      value: PRMDExercises.StandingActiveStraightLegRaise,
+    },
+    {
+      name: "Standing Shoulder Abduction",
+      value: PRMDExercises.StandingShoulderAbduction,
+    },
+    {
+      name: "Standing Shoulder Extension",
+      value: PRMDExercises.StandingShoulderExtension,
+    },
+    {
+      name: "Standing Shoulder Internal-External Rotation",
+      value: PRMDExercises.StandingShoulderInternalExternalRotation,
+    },
+    {
+      name: "Standing Shoulder Scaption",
+      value: PRMDExercises.StandingShoulderScaption,
+    },
   ];
 
   switch (exercise) {
@@ -151,12 +190,9 @@ const ExtractSelectedExercise = (exercise: string) => {
           columns={{ initial: "1", sm: "3" }}
         >
           {kimoreExercises.map((ex, index) => (
-            <RadioCards.Item
-              key={`kimore-${index + 1}`}
-              value={`kimore-${index + 1}`}
-            >
+            <RadioCards.Item key={`kimore-${index + 1}`} value={ex?.value}>
               <Flex direction="column" width="100%">
-                <p>{ex}</p>
+                <p>{ex?.name}</p>
               </Flex>
             </RadioCards.Item>
           ))}
@@ -171,12 +207,9 @@ const ExtractSelectedExercise = (exercise: string) => {
           columns={{ initial: "1", sm: "3" }}
         >
           {prmdExercises.map((ex, index) => (
-            <RadioCards.Item
-              key={`prmd-${index + 1}`}
-              value={`prmd-${index + 1}`}
-            >
+            <RadioCards.Item key={`prmd-${index + 1}`} value={ex?.value}>
               <Flex direction="column" width="100%">
-                <p>{ex}</p>
+                <p>{ex?.name}</p>
               </Flex>
             </RadioCards.Item>
           ))}

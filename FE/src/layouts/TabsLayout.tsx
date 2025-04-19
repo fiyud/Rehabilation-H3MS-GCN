@@ -20,7 +20,6 @@ import {
   Text,
   TextField,
 } from "@radix-ui/themes";
-import { http } from "@/lib";
 import {
   Bell,
   Cog,
@@ -33,25 +32,26 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import React, { useState } from "react";
+import { isAxiosError } from "axios";
 const TabsLayout = ({ children }: { children: React.ReactNode }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, setAuthError, authError, login, logout } =
+    useAuth();
+
   const [loading, setLoading] = useState(false);
   const handleLogin = async (formData: FormData) => {
     try {
       setLoading(true);
       const id = formData.get("id") as string;
       const name = formData.get("name") as string;
-      console.log(id, name);
-      const resp = await http.post(`/login`, {
-        name,
-        id,
-      });
-      if (resp.status === 200) {
-        localStorage.setItem("token", resp.data.token);
+      const resp = await login(name, id);
+      if (resp) {
+        console.log("Logged in");
       }
     } catch (error) {
-      console.error(error);
+      if (isAxiosError(error)) {
+        setAuthError(error.response?.data.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,11 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
                     </DropdownMenu.Item>
 
                     <DropdownMenu.Separator />
-                    <DropdownMenu.Item shortcut="⌘ ⌫" color="red">
+                    <DropdownMenu.Item
+                      shortcut="⌘ ⌫"
+                      color="red"
+                      onClick={logout}
+                    >
                       Logout
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>
@@ -102,16 +106,21 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
               </Card>
             ) : (
               <Dialog.Root>
-                <form action={handleLogin} method="post">
+                <Flex>
                   <Dialog.Trigger>
-                    <Link className="hover:underline cursor-pointer">
+                    <Button variant="ghost">
                       Login
-                    </Link>
+                    </Button>
                   </Dialog.Trigger>
-
-                  <Dialog.Content maxWidth="450px">
-                    <Dialog.Title>Login</Dialog.Title>
-
+                  {authError && (
+                    <Text size="2" color="red" className="ml-4">
+                      {authError}
+                    </Text>
+                  )}
+                </Flex>
+                <Dialog.Content maxWidth="450px">
+                  <Dialog.Title>Login</Dialog.Title>
+                  <form action={handleLogin} method="post">
                     <Flex direction="column" gap="3">
                       <label>
                         <Text as="div" size="2" mb="1" weight="bold">
@@ -140,11 +149,13 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
                         </Button>
                       </Dialog.Close>
                       <Dialog.Close>
-                        <Button type="submit">Login</Button>
+                        <Button loading={loading} type="submit">
+                          Login
+                        </Button>
                       </Dialog.Close>
                     </Flex>
-                  </Dialog.Content>
-                </form>
+                  </form>
+                </Dialog.Content>
               </Dialog.Root>
             )}
           </div>
@@ -275,100 +286,110 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
           />
         )}
 
-        <motion.div
-          key={"drawer"}
-          initial={{ opacity: 0, x: 300 }}
-          animate={{ opacity: 1, x: drawerOpen ? 0 : 300 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed top-0 right-0 h-full w-80 bg-[#161616]  shadow-lg z-50 p-6"
-        >
-          <Flex pb={"4"} justify={"end"}>
-            <Button
-              onClick={() => setDrawerOpen(false)}
-              variant="classic"
-              color="gray"
-            >
-              <X size={16} />
-            </Button>
-          </Flex>
-          <Box>
-            <Badge mb="4" color="blue" className="border" variant="soft">
-              <UserPen size={20} />
-              <h1 className="text-[1rem] font-medium">Basic Identification</h1>
-            </Badge>
-            <DataList.Root>
-              <DataList.Item align="center">
-                <DataList.Label minWidth="88px">Status</DataList.Label>
-                <DataList.Value>
-                  <Badge color="jade" variant="soft" radius="full">
-                    Authorized
-                  </Badge>
-                </DataList.Value>
-              </DataList.Item>
-              <DataList.Item>
-                <DataList.Label minWidth="88px">ID</DataList.Label>
-                <DataList.Value>
-                  <Flex align="center" gap="2">
-                    <Code variant="soft">u_2J89JSA4GJ</Code>
-                    <IconButton
-                      size="1"
-                      aria-label="Copy value"
-                      color="gray"
-                      variant="ghost"
-                      onClick={() =>
-                        window.navigator.clipboard.writeText("u_2J89JSA4GJ")
-                      }
-                    >
-                      <CopyIcon size={"16"} />
-                    </IconButton>
-                  </Flex>
-                </DataList.Value>
-              </DataList.Item>
-              <DataList.Item>
-                <DataList.Label minWidth="88px">Name</DataList.Label>
-                <DataList.Value>Vlad Moroz</DataList.Value>
-              </DataList.Item>
-              <DataList.Item>
-                <DataList.Label minWidth="88px">Gender</DataList.Label>
-                <DataList.Value>Male</DataList.Value>
-              </DataList.Item>
-              <DataList.Item>
-                <DataList.Label minWidth="88px">Date of Birth</DataList.Label>
-                <DataList.Value>Vlad Moroz</DataList.Value>
-              </DataList.Item>
-            </DataList.Root>
-          </Box>
-          <Separator my="6" size="4" />
-          <Box>
-            <Badge mb="4" color="red" className="border" variant="soft">
-              <ContactRound size={20} />
-              <h1 className="text-[1rem] font-medium">Contact Information</h1>
-            </Badge>
-            <DataList.Root>
-              <DataList.Item>
-                <DataList.Label minWidth="88px">Phone number</DataList.Label>
-                <DataList.Value>
-                  <Flex align="center" gap="2">
-                    <Code variant="soft">u_2J89JSA4GJ</Code>
-                  </Flex>
-                </DataList.Value>
-              </DataList.Item>
-              <DataList.Item>
-                <DataList.Label minWidth="88px">Email address</DataList.Label>{" "}
-                <DataList.Value>
-                  <Link href="mailto:vlad@workos.com">vlad@workos.com</Link>
-                </DataList.Value>
-              </DataList.Item>
-              <DataList.Item>
-                <DataList.Label minWidth="88px">Address</DataList.Label>
-                <DataList.Value>
-                  <Link href="mailto:vlad@workos.com">vlad@workos.com</Link>
-                </DataList.Value>
-              </DataList.Item>
-            </DataList.Root>
-          </Box>
-        </motion.div>
+        {isAuthenticated && (
+          <motion.div
+            key={"drawer"}
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: drawerOpen ? 0 : 300 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-0 right-0 h-full w-80 bg-[#161616]  shadow-lg z-50 p-6"
+          >
+            <Flex pb={"4"} justify={"end"}>
+              <Button
+                onClick={() => setDrawerOpen(false)}
+                variant="classic"
+                color="gray"
+              >
+                <X size={16} />
+              </Button>
+            </Flex>
+            <Box>
+              <Badge mb="4" color="blue" className="border" variant="soft">
+                <UserPen size={20} />
+                <h1 className="text-[16px] font-medium">
+                  Basic Identification
+                </h1>
+              </Badge>
+              <DataList.Root>
+                <DataList.Item align="center">
+                  <DataList.Label minWidth="5.5rem">Status</DataList.Label>
+                  <DataList.Value>
+                    <Badge color="jade" variant="soft" radius="full">
+                      Authorized
+                    </Badge>
+                  </DataList.Value>
+                </DataList.Item>
+                <DataList.Item>
+                  <DataList.Label minWidth="5.5rem">ID</DataList.Label>
+                  <DataList.Value>
+                    <Flex align="center" gap="2">
+                      <Code variant="soft">u_2J89JSA4GJ</Code>
+                      <IconButton
+                        size="1"
+                        aria-label="Copy value"
+                        color="gray"
+                        variant="ghost"
+                        onClick={() =>
+                          window.navigator.clipboard.writeText("u_2J89JSA4GJ")
+                        }
+                      >
+                        <CopyIcon size={"16"} />
+                      </IconButton>
+                    </Flex>
+                  </DataList.Value>
+                </DataList.Item>
+                <DataList.Item>
+                  <DataList.Label minWidth="5.5rem">Name</DataList.Label>
+                  <DataList.Value>Vlad Moroz</DataList.Value>
+                </DataList.Item>
+                <DataList.Item>
+                  <DataList.Label minWidth="5.5rem">Gender</DataList.Label>
+                  <DataList.Value>Male</DataList.Value>
+                </DataList.Item>
+                <DataList.Item>
+                  <DataList.Label minWidth="5.5rem">
+                    Date of Birth
+                  </DataList.Label>
+                  <DataList.Value>Vlad Moroz</DataList.Value>
+                </DataList.Item>
+              </DataList.Root>
+            </Box>
+            <Separator my="6" size="4" />
+            <Box>
+              <Badge mb="4" color="red" className="border" variant="soft">
+                <ContactRound size={20} />
+                <h1 className="text-[16px] font-medium">Contact Information</h1>
+              </Badge>
+              <DataList.Root>
+                <DataList.Item>
+                  <DataList.Label minWidth="5.5rem">
+                    Phone number
+                  </DataList.Label>
+                  <DataList.Value>
+                    <Flex align="center" gap="2">
+                      <Code variant="soft">u_2J89JSA4GJ</Code>
+                    </Flex>
+                  </DataList.Value>
+                </DataList.Item>
+                <DataList.Item>
+                  <DataList.Label minWidth="5.5rem">
+                    Email address
+                  </DataList.Label>{" "}
+                  <DataList.Value>
+                    <Link href="mailto:vlad@workos.com">vlad@workos.com</Link>
+                  </DataList.Value>
+                </DataList.Item>
+                <DataList.Item>
+                  <DataList.Label minWidth="5.5rem">Address</DataList.Label>
+                  <DataList.Value>
+                    <Link href="mailto:vlad@workos.com">vlad@workos.com</Link>
+                  </DataList.Value>
+                </DataList.Item>
+              </DataList.Root>
+            </Box>
+          </motion.div>
+        )}
       </div>
     </div>
   );

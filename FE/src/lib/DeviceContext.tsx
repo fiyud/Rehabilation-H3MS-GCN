@@ -20,6 +20,7 @@ interface DeviceContextType {
   initializeDevices: () => Promise<void>;
   reserveDevice: (deviceId: string) => void;
   releaseDevice: () => void;
+  
 }
 
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
@@ -29,6 +30,8 @@ interface DeviceProviderProps {
 }
 
 export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const [selectedCamera, setSelectedCamera] = useState<string>("");
   const [devices, setDevices] = useState<MediaDeviceInfo[]>();
   const [startExercise, setStartExercise] = useState(false);
