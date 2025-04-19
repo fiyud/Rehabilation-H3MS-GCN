@@ -108,7 +108,7 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
               <Dialog.Root>
                 <Flex>
                   <Dialog.Trigger>
-                    <Button variant="ghost">
+                    <Button variant="classic" className="px-6">
                       Login
                     </Button>
                   </Dialog.Trigger>
@@ -123,8 +123,8 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
                   <form action={handleLogin} method="post">
                     <Flex direction="column" gap="3">
                       <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                          Name
+                        <Text as="div" size="2" mb="2" weight="bold">
+                          Full Name
                         </Text>
                         <TextField.Root
                           name="name"
@@ -132,7 +132,7 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
                         />
                       </label>
                       <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
+                        <Text as="div" size="2" mb="2" weight="bold">
                           UID
                         </Text>
                         <TextField.Root

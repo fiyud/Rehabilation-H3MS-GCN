@@ -62,7 +62,6 @@ import { motion } from "motion/react";
 const CamControl: React.FC<CamControlProps> = ({
   isPlaying,
   togglePlay,
-  selectedCamera,
   handleCameraChange,
   cameras,
   isMuted,
@@ -75,7 +74,6 @@ const CamControl: React.FC<CamControlProps> = ({
   setControls,
 }: CamControlProps) => {
   const [activeTab, setActiveTab] = useState("camera");
-  console.log(selectedCamera);
   return (
     <div className="col-span-3 bg-[#101010] h-full rounded-lg p-4 flex flex-col gap-6 overflow-y-auto">
       <SegmentedControl.Root
@@ -121,10 +119,13 @@ const CamControl: React.FC<CamControlProps> = ({
                 <h3 className="text-white font-medium">Camera Selection</h3>
                 <Select.Root
                   onValueChange={handleCameraChange}
-                  value={selectedCamera}
+                  defaultValue="default"
                 >
                   <Select.Trigger className="w-full dark" />
                   <Select.Content className="dark">
+                    <Select.Item value="default" disabled>
+                      Your default camera
+                    </Select.Item>
                     {cameras?.map((camera) => (
                       <Select.Item
                         key={camera?.deviceId}

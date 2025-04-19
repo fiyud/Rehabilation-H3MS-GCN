@@ -69,7 +69,6 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
         );
         console.log("Available video devices:", videoDevices);
         setDevices(videoDevices);
-
         if (
           selectedCamera &&
           videoDevices.some((device) => device.deviceId === selectedCamera)

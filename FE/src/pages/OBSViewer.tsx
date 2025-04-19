@@ -1,12 +1,18 @@
 import { ExerciseDialog } from "@/components";
 import OBSStream from "@/components/OBSStream";
 import TabsLayout from "@/layouts/TabsLayout";
-import { Dialog, Flex, IconButton, Link, ScrollArea } from "@radix-ui/themes";
-import { HandHelping, Info } from "lucide-react";
 import { useDevice } from "@/lib";
+import {
+  Callout,
+  Dialog,
+  Flex,
+  IconButton,
+  Link,
+  ScrollArea,
+} from "@radix-ui/themes";
+import { HandHelping, Info } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import React, { useState } from "react";
-import { Callout, Blockquote } from "@radix-ui/themes";
 const OBSViewer: React.FC = () => {
   const { deviceError, setDeviceError } = useDevice();
   const [stream, setStream] = useState<MediaStream | null>(null);

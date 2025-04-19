@@ -31,6 +31,7 @@ interface AuthContextType {
 }
 import { http } from "@/lib"; // Adjust the import path as needed
 import { useNavigate } from "react-router";
+import { isAxiosError } from "axios";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -69,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }
     };
-    checkToken()
+    checkToken();
   }, []);
   const login = async (name: string, id: string) => {
     setIsLoading(true);
@@ -87,6 +88,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return true;
     } catch (error) {
       console.error("Login error:", error);
+      if (isAxiosError(error)) {
+        setAuthError(error.response?.data.message);
+      }
       return false;
     } finally {
       setIsLoading(false);
