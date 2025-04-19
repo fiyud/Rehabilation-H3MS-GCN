@@ -75,6 +75,7 @@ const CamControl: React.FC<CamControlProps> = ({
   setControls,
 }: CamControlProps) => {
   const [activeTab, setActiveTab] = useState("camera");
+  console.log(selectedCamera);
   return (
     <div className="col-span-3 bg-[#101010] h-full rounded-lg p-4 flex flex-col gap-6 overflow-y-auto">
       <SegmentedControl.Root
@@ -119,8 +120,8 @@ const CamControl: React.FC<CamControlProps> = ({
               <div className="flex flex-col gap-2">
                 <h3 className="text-white font-medium">Camera Selection</h3>
                 <Select.Root
-                  value={selectedCamera}
                   onValueChange={handleCameraChange}
+                  value={selectedCamera}
                 >
                   <Select.Trigger className="w-full dark" />
                   <Select.Content className="dark">

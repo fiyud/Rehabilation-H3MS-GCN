@@ -20,8 +20,6 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
   const [frame, setFrame] = useState<Frame | undefined>();
   const {
     devices,
-    setSelectedCamera,
-    selectedCamera,
     reserveDevice,
     releaseDevice,
   } = useDevice();
