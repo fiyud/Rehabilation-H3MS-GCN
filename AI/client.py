@@ -14,16 +14,16 @@ exercises = [
     "weights/kimore/model_ex3.pth",
     "weights/kimore/model_ex4.pth",
     "weights/kimore/model_ex5.pth",
-    "weights/uiprmd/best_model.pth",
-    "weights/uiprmd/best_model2.pth",
-    "weights/uiprmd/best_model3.pth",
-    "weights/uiprmd/best_model4.pth",
-    "weights/uiprmd/best_model5.pth",
-    "weights/uiprmd/best_model6.pth",
-    "weights/uiprmd/best_model7.pth",
-    "weights/uiprmd/best_model8.pth",
-    "weights/uiprmd/best_model9.pth",
-    "weights/uiprmd/best_model10.pth"
+    "weights/uiprmd/model_Ex1.pth",
+    "weights/uiprmd/model_Ex2.pth",
+    "weights/uiprmd/model_Ex3.pth",
+    "weights/uiprmd/model_Ex4.pth",
+    "weights/uiprmd/model_Ex5.pth",
+    "weights/uiprmd/model_Ex6.pth",
+    "weights/uiprmd/model_Ex7.pth",
+    "weights/uiprmd/model_Ex8.pth",
+    "weights/uiprmd/model_Ex9.pth",
+    "weights/uiprmd/model_Ex10.pth"
 ]
 
 shutdown_event = threading.Event()
