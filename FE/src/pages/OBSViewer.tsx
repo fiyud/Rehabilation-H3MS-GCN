@@ -168,7 +168,7 @@ const OBSViewer: React.FC = () => {
                       <Link
                         onClick={stopExercise}
                         color="red"
-                        className="text-red-500 hover:text-red-700 hover:underline"
+                        className="text-red-500 hover:text-red-700 hover:underline cursor-pointer"
                       >
                         Stop !
                       </Link>

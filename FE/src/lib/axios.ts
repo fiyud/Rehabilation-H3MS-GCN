@@ -13,7 +13,6 @@ http.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("user");
     const parsedToken = token ? JSON.parse(token) : null;
-    console.log(parsedToken);
     if (token) {
       config.headers.Authorization = `Bearer ${parsedToken?.id}`;
     }

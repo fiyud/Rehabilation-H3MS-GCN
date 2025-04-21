@@ -1,3 +1,0 @@
-json
-torch
-torch_geometric

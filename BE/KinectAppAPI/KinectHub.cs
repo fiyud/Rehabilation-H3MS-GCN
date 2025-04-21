@@ -20,10 +20,6 @@ namespace KinectAppAPI
             {
                 await Clients.Client(context.ConnectionId).SendAsync("ReceiveFrame", data);
             }
-            else
-            {
-                Console.WriteLine($"User {userId} not found.");
-            }
         }
 
         public Task SetExerciseType(string userId, ExerciseType type)

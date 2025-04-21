@@ -14,16 +14,16 @@ exercises = [
     "weights/kimore/model_ex3.pth",
     "weights/kimore/model_ex4.pth",
     "weights/kimore/model_ex5.pth",
-    "weights/uiprmd/best_model.pth",
-    "weights/uiprmd/best_model2.pth",
-    "weights/uiprmd/best_model3.pth",
-    "weights/uiprmd/best_model4.pth",
-    "weights/uiprmd/best_model5.pth",
-    "weights/uiprmd/best_model6.pth",
-    "weights/uiprmd/best_model7.pth",
-    "weights/uiprmd/best_model8.pth",
-    "weights/uiprmd/best_model9.pth",
-    "weights/uiprmd/best_model10.pth"
+    "weights/uiprmd/model_Ex1.pth",
+    "weights/uiprmd/model_Ex2.pth",
+    "weights/uiprmd/model_Ex3.pth",
+    "weights/uiprmd/model_Ex4.pth",
+    "weights/uiprmd/model_Ex5.pth",
+    "weights/uiprmd/model_Ex6.pth",
+    "weights/uiprmd/model_Ex7.pth",
+    "weights/uiprmd/model_Ex8.pth",
+    "weights/uiprmd/model_Ex9.pth",
+    "weights/uiprmd/model_Ex10.pth"
 ]
 
 shutdown_event = threading.Event()
@@ -34,7 +34,7 @@ def handle_shutdown(signum, frame):
 signal.signal(signal.SIGINT, handle_shutdown)
 signal.signal(signal.SIGTERM, handle_shutdown)
 
-server_url = os.environ.get("SERVER_URL", "http://localhost:5160/kinectHub?type=ai")
+server_url = os.environ.get("SERVER_URL", "http://localhost:8080/kinecthub?type=ai")
 hub_conn = HubConnectionBuilder().with_url(server_url).build()
 
 def handle_kimore(data, weight):
@@ -42,7 +42,6 @@ def handle_kimore(data, weight):
     sample_tensor = kimore.load_sample_from_json(data, device='cuda')
     model = FiveStreamGCN_Model(num_joints=25, num_features=7, hidden_dim=128, num_layers=3, 
                                 output_dim=1, feat_d=300, nhead=4, dropout=0.15)
-    print("Loading model: ", weight)
     model.load_state_dict(torch.load(weight, map_location='cuda:0'))
     y_pred = kimore.predict_single_sample(model, sample_tensor, device='cuda', model_name='FiveStreamGCN_Model')
     return y_pred
@@ -52,7 +51,6 @@ def handle_uiprmd(data, weight):
     sample_tensor = uiprmd.load_sample_from_json(data, device='cuda')
     model = FiveStreamGCN_Model(num_joints=39, num_features=3, hidden_dim=128, num_layers=3,  feat_d=741,
                                 output_dim=1, dropout=0.15)
-    print("Loading model: ", weight)
     model.load_state_dict(torch.load(weight, map_location='cuda:0'))
     y_pred = uiprmd.predict_single_sample(model, sample_tensor, device='cuda', model_name='FiveStreamGCN_Model')
     return y_pred

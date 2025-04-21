@@ -11,9 +11,14 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - .docker/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+      - ./.docker/setup.sql:/docker-entrypoint-initdb.d/setup.sql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   server:
     build:
@@ -23,9 +28,10 @@ services:
       ConnectionStrings_MySQLConnection: Server=db;Port=3306;Database=rehab;User=root;Password=root;
       Logging_LogLevel_Default: Warning
     ports:
-      - "8080:8080"
+      - "80:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
 

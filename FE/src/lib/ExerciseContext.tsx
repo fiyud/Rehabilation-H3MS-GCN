@@ -21,6 +21,8 @@ interface ExerciseContextType {
   setExerciseError: React.Dispatch<React.SetStateAction<string>>;
   exerciseError: string;
   stopExercise: () => void;
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
 }
 enum Exercises {
   Kimore_JumpingJacks,
@@ -58,8 +60,7 @@ export const ExerciseProvider: React.FC<ExerciseProviderProps> = ({
   const [exerciseError, setExerciseError] = useState("");
   const [points, setPoints] = useState(0);
   const [timer, setTimer] = useState(180);
-  
-
+  const [search, setSearch] = useState<string>("");
   const triggerTimer = () => {
     if (startExercise && !finishExercise) {
       setTimer((prev) => prev - 1);
@@ -95,6 +96,8 @@ export const ExerciseProvider: React.FC<ExerciseProviderProps> = ({
     setExerciseError,
     exerciseError,
     stopExercise,
+    search,
+    setSearch,
   };
 
   return (

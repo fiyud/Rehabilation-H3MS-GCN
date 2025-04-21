@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components";
-import { useAuth } from "@/lib";
+import { useAuth, useExercise } from "@/lib";
+import { useLocation } from "react-router";
 import {
   AlertDialog,
   Avatar,
@@ -38,8 +39,9 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { isAuthenticated, user, setAuthError, authError, login, logout } =
     useAuth();
-
   const [loading, setLoading] = useState(false);
+  const { pathname } = useLocation();
+  const { setSearch } = useExercise();
   const handleLogin = async (formData: FormData) => {
     try {
       setLoading(true);
@@ -164,14 +166,18 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
             <TextField.Root
               placeholder="Search the docs…"
               className="dark"
+              disabled={pathname.substring(1) != "statistics"}
+              onChange={(e) => setSearch(e.currentTarget.value)}
               size={"3"}
             >
               <TextField.Slot side="left">
-                <Select.Root defaultValue="apple">
+                <Select.Root
+                  defaultValue="apple"
+                  disabled={pathname.substring(1) != "statistics"}
+                >
                   <Select.Trigger variant="ghost" className="dark text-white" />
                   <Select.Content className="dark">
-                    <Select.Item value="apple">Tabs</Select.Item>
-                    <Select.Item value="orange">Marks</Select.Item>
+                    <Select.Item value="apple">Patients</Select.Item>
                   </Select.Content>
                 </Select.Root>
               </TextField.Slot>
@@ -275,7 +281,11 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
             <li>
               <Tooltip content="Download our console app">
                 <Button variant="classic" color="green">
-                  <a href="/vite.svg" className="no-underline text-white" download>
+                  <a
+                    href="/KinectReaderConsoleInstaller.msi"
+                    className="no-underline text-white"
+                    download
+                  >
                     Download
                   </a>
                 </Button>

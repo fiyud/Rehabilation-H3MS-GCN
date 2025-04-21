@@ -8,7 +8,7 @@ namespace KinectAppAPI
         private readonly string _connectionString = configuration.GetConnectionString("MySQLConnection")!;
 
         private MySqlConnection GetConnection() => new(_connectionString);
-        
+
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             using var conn = GetConnection();
@@ -40,7 +40,37 @@ namespace KinectAppAPI
         public async Task<IEnumerable<DoctorPatientResponse>> GetPatientsByDoctorIdAsync(string doctorId)
         {
             using var conn = GetConnection();
-            return await conn.QueryAsync<DoctorPatientResponse>(Constants.GetPatientsByDoctorId, new { DoctorId = doctorId });
+            var patientDict = new Dictionary<string, DoctorPatientResponse>();
+            var result = await conn.QueryAsync<DoctorPatientResponse, ExerciseResponse, DoctorPatientResponse>(
+                Constants.GetPatientsByDoctorId,
+                (patient, exercise) =>
+                {
+                    if (!patientDict.TryGetValue(patient.Id, out var entry))
+                    {
+                        entry = new DoctorPatientResponse
+                        {
+                            Id = patient.Id,
+                            Name = patient.Name,
+                            Age = patient.Age,
+                            Address = patient.Address,
+                            Phone = patient.Phone,
+                            Exercises = []
+                        };
+                        patientDict[patient.Id] = entry;
+                    }
+                    if (exercise?.Type != null)
+                    {
+                        var exercises = patientDict[patient.Id].Exercises.ToList();
+                        exercises.Add(exercise);
+                        entry.Exercises = [.. exercises];
+                        patientDict[patient.Id] = entry;
+                    }
+                    return entry;
+                },
+                new { DoctorId = doctorId },
+                splitOn: "Type"
+            );
+            return patientDict.Values;
         }
 
         public async Task<IEnumerable<Exercise>> GetExerciseByPatientIdAsync(string patientId)

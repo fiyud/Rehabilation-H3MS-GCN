@@ -192,7 +192,7 @@ const Main: React.FC = () => {
                 <Spinner size={"3"} />
               </Flex>
             ) : (
-              <div className="aspect-video bg-black rounded-lg overflow-hidden flex items-center">
+              <div className="aspect-video bg-black rounded-lg h-full overflow-hidden flex items-center">
                 <Webcam
                   ref={webcamRef}
                   controls={controls}
