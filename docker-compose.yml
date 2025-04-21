@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: rehab
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - .docker/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    networks:
+      - app-network
+
+  server:
+    build:
+      context: ./BE/KinectAppAPI
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings_MySQLConnection: Server=db;Port=3306;Database=rehab;User=root;Password=root;
+      Logging_LogLevel_Default: Warning
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  ai:
+    build: ./AI
+    depends_on:
+      - server
+    networks:
+      - app-network
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      SERVER_URL: http://server:8080/kinecthub?type=ai
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

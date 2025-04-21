@@ -1,9 +1,37 @@
 import { Route, Routes } from "react-router";
-import Main from "./pages/Main";
+import { NotFound, ProtectedRoute, useAuth } from "./lib";
+import { Exercises, Main, OBSViewer, Statistics } from "./pages";
+
 function App() {
+  const { isAuthenticated } = useAuth();
   return (
     <Routes>
-      <Route path="/" element={<Main />} />
+      <Route caseSensitive path="/exercises" element={<Exercises />} />
+      {isAuthenticated ? (
+        <>
+          <Route
+            caseSensitive
+            path="/"
+            element={
+              <ProtectedRoute>
+                <OBSViewer />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            caseSensitive
+            path="/statistics"
+            element={
+              <ProtectedRoute>
+                <Statistics />
+              </ProtectedRoute>
+            }
+          />
+        </>
+      ) : (
+        <Route caseSensitive path="/" element={<Main />} />
+      )}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

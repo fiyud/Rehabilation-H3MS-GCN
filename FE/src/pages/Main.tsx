@@ -1,17 +1,24 @@
-import CamControl from "@/components/CamControl";
-import TabsLayout from "@/layouts/TabsLayout";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { CamControl } from "@/components";
+import { TabsLayout } from "@/layouts";
+import { Info } from "lucide-react";
+import React, { useRef, useState, useEffect } from "react";
 import Webcam from "react-webcam";
-
+import { AnimatePresence, motion } from "motion/react";
+import { Flex, Spinner, Callout } from "@radix-ui/themes";
+import { useDevice } from "@/lib";
 const Main: React.FC = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [controls, setControls] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [selectedCamera, setSelectedCamera] = useState<string>("");
-  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const webcamRef = useRef<Webcam>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const {
+    isPlaying,
+    setIsPlaying,
+    isMuted,
+    isVideoEnabled,
+    setIsMuted,
+    setIsVideoEnabled,
+  } = useDevice();
   const [videoSettings, setVideoSettings] = useState({
     brightness: 100,
     contrast: 100,
@@ -22,31 +29,36 @@ const Main: React.FC = () => {
     invert: 0,
     opacity: 100,
   });
-
-  const handleDevices = useCallback((mediaDevices: MediaDeviceInfo[]) => {
-    const videoDevices = mediaDevices.filter(
-      ({ kind }) => kind === "videoinput"
-    );
-    setCameras(videoDevices);
-    if (videoDevices.length > 0) {
-      setSelectedCamera(videoDevices[0].deviceId);
-    }
-  }, []);
-
-  useEffect(() => {
-    navigator.mediaDevices.enumerateDevices().then(handleDevices);
-  }, [handleDevices]);
+  const {
+    setDeviceError,
+    selectedCamera,
+    initializeDevices,
+    setSelectedCamera,
+    deviceError,
+    devices,
+    releaseDevice,
+    reserveDevice,
+  } = useDevice();
 
   const startStream = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
+      setLoading(true);
+      setDeviceError("");
+      reserveDevice(selectedCamera);
+      const constraints = {
         video: {
-          width: 1400,
-          facingMode: "user",
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
           deviceId: selectedCamera ? { exact: selectedCamera } : undefined,
         },
         audio: true,
-      });
+      };
+
+      console.log("Attempting to start stream with constraints:", constraints);
+      const mediaStream = await navigator.mediaDevices.getUserMedia(
+        constraints
+      );
+      console.log("Stream started successfully:", mediaStream.getVideoTracks());
 
       if (webcamRef.current?.video) {
         webcamRef.current.video.srcObject = mediaStream;
@@ -56,27 +68,51 @@ const Main: React.FC = () => {
       setIsPlaying(true);
     } catch (error) {
       console.error("Error accessing media devices:", error);
+      setDeviceError(
+        `Failed to access camera: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+      initializeDevices();
+
+      // If there's an error, try to re-enumerate devices
+    } finally {
+      setLoading(false);
     }
   };
 
   const stopStream = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      if (webcamRef.current?.video) {
+    try {
+      setLoading(true);
+      if (webcamRef?.current && webcamRef?.current?.video?.srcObject) {
+        const localStream = webcamRef.current.video.srcObject as MediaStream;
+        localStream.getTracks().forEach((track) => track.stop());
         webcamRef.current.video.srcObject = null;
+        setStream(null);
+        setControls(false);
+        setIsPlaying(false);
       }
-      setStream(null);
-      setControls(false);
-      setIsPlaying(false);
+      // Release the device
+      releaseDevice();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleCameraChange = (deviceId: string) => {
-    console.log(deviceId);
-    setSelectedCamera(deviceId);
-    if (isPlaying) {
-      stopStream();
-      startStream();
+    try {
+      setLoading(true);
+      setSelectedCamera(deviceId);
+      if (isPlaying) {
+        stopStream();
+        startStream();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,7 +148,11 @@ const Main: React.FC = () => {
   ) => {
     setVideoSettings((prev) => ({ ...prev, [setting]: value }));
   };
-
+  useEffect(() => {
+    return () => {
+      stopStream();
+    };
+  }, []);
   const getVideoStyle = () => {
     return {
       filter: `
@@ -130,38 +170,73 @@ const Main: React.FC = () => {
 
   return (
     <TabsLayout>
-      <div className="items-center grid grid-cols-12 mt-6 gap-2 h-[calc(100vh-8rem)]">
-        <div className="col-span-9 relative rounded-lg overflow-hidden">
-          <Webcam
-            ref={webcamRef}
+      <AnimatePresence mode="wait">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="items-center grid grid-cols-12 mt-6 gap-2 h-[calc(100vh-8rem)]"
+        >
+          <div className="col-span-9 h-full overflow-hidden">
+            {deviceError && (
+              <Callout.Root color="red" className="mb-4">
+                <Callout.Icon>
+                  <Info />
+                </Callout.Icon>
+                <Callout.Text>{deviceError}</Callout.Text>
+              </Callout.Root>
+            )}
+            {loading ? (
+              <Flex justify="center" align="center" className="h-full">
+                <Spinner size={"3"} />
+              </Flex>
+            ) : (
+              <div className="aspect-video bg-black rounded-lg overflow-hidden flex items-center">
+                <Webcam
+                  ref={webcamRef}
+                  controls={controls}
+                  style={getVideoStyle()}
+                  className={`rounded-lg ${isVideoEnabled ? "" : "hidden"}`}
+                  videoConstraints={{
+                    width: { ideal: 1920, min: 640 },
+                    height: { ideal: 1080, min: 480 },
+                    deviceId: selectedCamera
+                      ? { exact: selectedCamera }
+                      : undefined,
+                    facingMode: "user",
+                  }}
+                  audio={!isMuted}
+                  muted={isMuted}
+                  // onUserMediaError={(error) => {
+                  //   console.error("Webcam error:", error);
+                  //   setDeviceError(
+                  //     `Webcam error: ${
+                  //       error instanceof Error ? error.message : String(error)
+                  //     }`
+                  //   );
+                  // }}
+                />
+              </div>
+            )}
+          </div>
+          <CamControl
+            isPlaying={isPlaying}
+            togglePlay={togglePlay}
+            selectedCamera={selectedCamera}
+            handleCameraChange={handleCameraChange}
+            cameras={devices}
+            isMuted={isMuted}
+            toggleMute={toggleMute}
+            isVideoEnabled={isVideoEnabled}
+            toggleVideo={toggleVideo}
+            videoSettings={videoSettings}
+            updateVideoSetting={updateVideoSetting}
             controls={controls}
-            style={getVideoStyle()}
-            className={` rounded-lg ${isVideoEnabled ? "" : "hidden"}`}
-            videoConstraints={{
-              facingMode: "user",
-              width: 2000,
-              deviceId: selectedCamera ? { exact: selectedCamera } : undefined,
-            }}
-            audio={!isMuted}
-            muted={isMuted}
+            setControls={setControls}
           />
-        </div>
-        <CamControl
-          isPlaying={isPlaying}
-          togglePlay={togglePlay}
-          selectedCamera={selectedCamera}
-          handleCameraChange={handleCameraChange}
-          cameras={cameras}
-          isMuted={isMuted}
-          toggleMute={toggleMute}
-          isVideoEnabled={isVideoEnabled}
-          toggleVideo={toggleVideo}
-          videoSettings={videoSettings}
-          updateVideoSetting={updateVideoSetting}
-          controls={controls}
-          setControls={setControls}
-        />
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </TabsLayout>
   );
 };
