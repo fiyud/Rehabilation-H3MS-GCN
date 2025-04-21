@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using System.Configuration;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Kinect;
 using Newtonsoft.Json;
@@ -36,8 +37,8 @@ namespace KinectReaderConsole
             }
             Console.WriteLine("Please don't close this window.");
             Console.WriteLine("Initializing Kinect and SignalR...");
-            InitializeSignalR();
             InitializeKinect();
+            InitializeSignalR();
             Console.WriteLine("Press ENTER to stop...");
             Console.ReadLine();
 
@@ -66,8 +67,10 @@ namespace KinectReaderConsole
 
         private static async void InitializeSignalR()
         {
+            string url = ConfigurationManager.AppSettings["SignalRHubUrl"] ?? "http://localhost:8080/kinectHub";
+            Console.WriteLine($"Connecting to SignalR hub at {url}...");
             connection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:8080/kinectHub")
+                .WithUrl(url)
                 .WithAutomaticReconnect()
                 .Build();
             connection.Reconnected += (error) =>

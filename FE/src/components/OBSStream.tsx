@@ -36,11 +36,18 @@ const OBSStream: React.FC = () => {
     setConnectionStatus,
   } = useStream();
   const { isAuthenticated, user } = useAuth();
-  const { selectedExerciseType } = useExercise();
-  const [limit] = useState(
-    selectedExerciseType?.toString().includes("Kimore") ? 50 : 1
+  const { selectedExerciseType, setStartExercise, setFinishExercise } =
+    useExercise();
+  const [limit, setLimit] = useState<number>();
+
+  console.log(
+    selectedExerciseType && Exercises[selectedExerciseType].split("_")[0]
   );
-  console.log(selectedExerciseType?.toString());
+  console.log(
+    selectedExerciseType &&
+      Exercises[selectedExerciseType].split("_")[0] == "Kimore"
+  );
+  console.log(limit);
   // mark checks
   const [totalMark, setTotalMark] = useState<number>(0);
   const [resetView, setResetView] = useState(false);
@@ -81,6 +88,7 @@ const OBSStream: React.FC = () => {
         .catch((err) => console.error("Connection failed: ", err));
     }
   }, [conn]);
+
   useEffect(() => {
     const handleExercise = async () => {
       if (selectedExerciseType) {
@@ -91,7 +99,10 @@ const OBSStream: React.FC = () => {
         );
       }
     };
-
+    selectedExerciseType &&
+    Exercises[selectedExerciseType].split("_")[0] == "Kimore"
+      ? setLimit(50)
+      : setLimit(1);
     handleExercise();
   }, [selectedExerciseType]);
 
@@ -105,7 +116,7 @@ const OBSStream: React.FC = () => {
               ? Exercises[selectedExerciseType]
               : undefined,
             score: totalMark / count,
-            duration: timer,
+            duration: 180 - timer,
           });
 
           if (resp.status === 200) {
@@ -127,8 +138,11 @@ const OBSStream: React.FC = () => {
     return () => {
       disconnectFromOBS();
       setConnectionStatus("disconnected");
+      setStartExercise(false);
+      setFinishExercise(false);
     };
   }, []);
+
   return (
     <>
       <div className="relative h-full">
@@ -144,14 +158,14 @@ const OBSStream: React.FC = () => {
             autoPlay
             muted
             playsInline
-            className="w-full h-full rounded-lg"
+            className="w-full h-full rounded-lg "
           />
         </div>
         {finishExercise && resetView == false && (
           <motion.div
             key="finish"
             exit={{ opacity: 0 }}
-            className="absolute w-full h-full z-30 top-0 left-0 bg-black/50 flex flex-col items-center justify-center text-white text-2xl font-bold "
+            className="absolute w-full h-full z-30 top-0 left-0 bg-gray-600/30 backdrop-blur-md flex flex-col items-center justify-center text-white text-2xl font-bold "
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
@@ -160,10 +174,12 @@ const OBSStream: React.FC = () => {
               <dt className="text-lg font-bold underline">Score:</dt>
               <dd className="text-lg">{points.toFixed(2)}</dd>
               <dt className="text-lg font-bold underline">Duration:</dt>
-              <dd className="text-lg">
+              <dd className="text-lg ">
                 {Math.floor((180 - timer) / 60)}:
-                {(180 - timer) % 60 < 10 ? `0${timer % 60}` : `${timer % 60}`}{" "}
-                minutes
+                {(180 - timer) % 60 < 10
+                  ? `0${(180 - timer) % 60}`
+                  : `${(180 - timer) % 60}`}{" "}
+                seconds
               </dd>
               <dt className="text-lg font-bold underline">Average:</dt>
               <dd className="text-lg">{(totalMark / count).toFixed(2)}</dd>
@@ -204,7 +220,7 @@ const OBSStream: React.FC = () => {
           }
           color={connectionStatus !== "connected" ? "blue" : "red"}
           variant="classic"
-          className="cursor-pointer absolute top-2 right-2 text-white px-3 py-1 rounded z-50"
+          className="cursor-pointer absolute top-2 right-2 text-white px-3 py-1 rounded z-30"
         >
           {isConnecting ? (
             <Spinner size={"2"} />

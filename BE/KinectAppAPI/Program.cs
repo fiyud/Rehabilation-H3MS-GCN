@@ -32,7 +32,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<KinectHub>("/kinectHub");
+app.MapHub<KinectHub>("/kinecthub");
 
 app.MapPost("/login", async (LoginRequest login, IDataAccess data) =>
 {

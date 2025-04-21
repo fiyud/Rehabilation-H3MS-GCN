@@ -3,16 +3,16 @@
     public record LoginRequest(string Username, string Id);
     public record AddPatientRequest(string Id, string Name, int? Age, string? Address, string? Phone);
     public record AddExerciseRequest(ExerciseType Type, decimal Score, decimal? Duration);
-    public record DoctorPatientResponse(
-        string Id, 
-        string Name, 
-        int Age, 
-        string Address, 
-        string Phone, 
-        ExerciseType Type, 
-        decimal Score, 
-        decimal Duration, 
-        DateTime SubmittedAt);
+    public record ExerciseResponse(ExerciseType Type, decimal Score, decimal Duration, DateTime SubmittedAt);
+    public class DoctorPatientResponse
+    {
+        public required string Id { get; set; }
+        public required string Name { get; set; }
+        public int? Age { get; set; }
+        public string? Address { get; set; }
+        public string? Phone { get; set; }
+        public ExerciseResponse[] Exercises { get; set; } = [];
+    }
 
     public enum Role { Doctor, Patient }
     public class User

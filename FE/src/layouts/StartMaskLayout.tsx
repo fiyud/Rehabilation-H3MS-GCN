@@ -14,7 +14,7 @@ const StartMaskLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       {count > 0 && startExercise && (
-        <div className="fixed inset-0 z-100 h-full w-full bg-gray-600/30 backdrop-blur-md flex items-center justify-center text-white text-5xl font-bold">
+        <div className="fixed inset-0 z-80 h-full w-full bg-gray-600/30 backdrop-blur-md flex items-center justify-center text-white text-5xl font-bold">
           Starting in {count}...
         </div>
       )}

@@ -148,7 +148,7 @@ export const SkeletonCanvas: React.FC<Props> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="absolute w-full h-full top-0 left-0 bg-transparent z-50"
+      className="absolute w-full h-full top-0 left-0 bg-transparent z-30"
     />
   );
 };
