@@ -37,6 +37,10 @@ create table if not exists exercises (
 		'UIPRMD_StandingShoulderScaption'
     )),
     score decimal(10, 2),
+    duration decimal(10, 2),
     submitted_at datetime default now(),
     foreign key (patient_id) references users(id)
 );
+
+insert into users(id, `name`, `role`) values ('DT1234', 'Doan Quoc Bao', 'Doctor');
+insert into users(id, `name`, `role`, doctor_id, age, address, phone) values ('PT1234', 'Nguyen Tien Dat', 'Patient', 1, 20, 'Ha Noi', '0123456789');

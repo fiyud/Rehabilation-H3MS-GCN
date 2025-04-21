@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Kinect;
@@ -28,36 +29,72 @@ namespace KinectReaderConsole
                 userId = queryParams["userId"];
                 Console.WriteLine($"User ID: {userId}");
             }
-            if (!string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId))
             {
-                connection = new HubConnectionBuilder()
-                    .WithUrl("http://localhost:5160/kinectHub")
-                    .WithAutomaticReconnect()
-                    .Build();
-                connection.StartAsync().Wait();
-                Console.WriteLine("Connected to SignalR hub.");
-
-                sensor = KinectSensor.GetDefault();
-                if (sensor == null)
-                {
-                    Console.WriteLine("Kinect not detected.");
-                    return;
-                }
-                sensor.Open();
-                bodyFrameReader = sensor.BodyFrameSource.OpenReader();
-                bodies = new Body[sensor.BodyFrameSource.BodyCount];
-                bodyFrameReader.FrameArrived += BodyFrameReader_FrameArrived;
-
-                Console.WriteLine("Press ENTER to stop...");
-                Console.ReadLine();
-
-                bodyFrameReader?.Dispose();
-                if (sensor != null && sensor.IsOpen)
-                {
-                    sensor.Close();
-                    Console.WriteLine("Kinect sensor closed.");
-                }
+                Console.WriteLine("User ID not passed as parameter.");
+                return;
             }
+            Console.WriteLine("Please don't close this window.");
+            Console.WriteLine("Initializing Kinect and SignalR...");
+            InitializeSignalR();
+            InitializeKinect();
+            Console.WriteLine("Press ENTER to stop...");
+            Console.ReadLine();
+
+            bodyFrameReader?.Dispose();
+            if (sensor != null && sensor.IsOpen)
+            {
+                sensor.Close();
+                Console.WriteLine("Kinect sensor closed.");
+            }
+        }
+
+        private static void InitializeKinect()
+        {
+            sensor = KinectSensor.GetDefault();
+            if (sensor == null)
+            {
+                Console.WriteLine("Kinect not detected.");
+                return;
+            }
+            sensor.Open();
+            bodyFrameReader = sensor.BodyFrameSource.OpenReader();
+            bodies = new Body[sensor.BodyFrameSource.BodyCount];
+            bodyFrameReader.FrameArrived += BodyFrameReader_FrameArrived;
+            sensor.IsAvailableChanged += Sensor_IsAvailableChanged;
+        }
+
+        private static async void InitializeSignalR()
+        {
+            connection = new HubConnectionBuilder()
+                .WithUrl("http://localhost:8080/kinectHub")
+                .WithAutomaticReconnect()
+                .Build();
+            connection.Reconnected += (error) =>
+            {
+                Console.WriteLine("Reconnected to SignalR hub.");
+                return Task.CompletedTask;
+            };
+            connection.Closed += async (error) =>
+            {
+                Console.WriteLine("Connection closed. Attempting to reconnect in 5s...");
+                await Task.Delay(5000);
+            };
+            try
+            {
+                await connection.StartAsync();
+                Console.WriteLine("Connected to SignalR hub.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error connecting to SignalR hub: {ex.Message}");
+                return;
+            }
+        }
+
+        private static void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
+        {
+            Console.WriteLine($"Kinect is {(e.IsAvailable ? "available" : "not available")}");
         }
 
         private static void BodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
@@ -113,4 +150,3 @@ namespace KinectReaderConsole
         }
     }
 }
-

@@ -1,6 +1,8 @@
 using KinectAppAPI;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http.Json;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
@@ -14,6 +16,7 @@ builder.Services.AddCors(opts =>
               .AllowCredentials();
     });
 });
+builder.Services.Configure<JsonOptions>(opts => opts.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSignalR(opts =>
 {
     opts.EnableDetailedErrors = true;
@@ -76,7 +79,8 @@ app.MapPost("/exercises", async (AddExerciseRequest req, HttpContext context, ID
     {
         PatientId = patientId,
         Type = req.Type,
-        Score = req.Score
+        Score = req.Score,
+        Duration = req.Duration ?? 180.0m,
     }) ? Results.Created() : Results.BadRequest();
 }).RequireAuthorization(policy => policy.RequireRole(Role.Patient.ToString()));
 

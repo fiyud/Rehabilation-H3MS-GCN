@@ -5,6 +5,11 @@ import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build :{
+     cssCodeSplit :true,
+     sourcemap : false,
+     minify  : "esbuild",
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

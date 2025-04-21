@@ -1,17 +1,31 @@
 import { TabsLayout } from "@/layouts";
+import { User, http, useAuth } from "@/lib";
 import { Button, Dialog, Flex, Table, Text, TextField } from "@radix-ui/themes";
 import { CirclePlus, Sheet } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { User, http } from "@/lib";
-import React from "react";
+import React, { useEffect, useState } from "react";
 interface Patients extends User {
   exercise: string;
   marks: number;
 }
+interface Exercises {
+  id: number;
+  patientId: number | null;
+  type: string;
+  score: number;
+  duration: number;
+  submittedAt: string;
+}
+type CSVHeader = { label: string; key: string };
+type ExportToCSVOptions = {
+  filename?: string;
+  includeBOM?: boolean; // For Excel compatibility
+};
 const Statistics: React.FC = () => {
   const [patients, setPatients] = useState<Patients[]>([]);
+  const [exercises, setExercises] = useState<Exercises[]>([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const getPatients = async () => {
     try {
       setLoading(true);
@@ -28,15 +42,7 @@ const Statistics: React.FC = () => {
   const handleAddPatient = async (formData: FormData) => {
     try {
       setLoading(true);
-      const resp = await http.post(
-        `/patients`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const resp = await http.post(`/patients`, formData);
       if (resp.status === 200) {
         setPatients((prev) => [...prev, resp.data]);
       }
@@ -46,11 +52,115 @@ const Statistics: React.FC = () => {
       setLoading(false);
     }
   };
+  const getExercises = async () => {
+    try {
+      setLoading(true);
+      const resp = await http.get("/exercises");
+      if (resp?.status === 200) {
+        setExercises(resp.data);
+        console.log("GET 200");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     return () => {
-      getPatients();
+      if (user?.role == 1) {
+        getExercises();
+      } else {
+        getPatients();
+      }
     };
   }, []);
+  const exerciseHeaders = [
+    { label: "Id", key: "id" },
+    { label: "Name", key: "name" },
+    { label: "Exercise", key: "exercise" },
+    { label: "Marks", key: "marks" },
+    { label: "Duration", key: "duration" },
+  ];
+  const patientsHeaders = [
+    { label: "Id", key: "id" },
+    { label: "Name", key: "name" },
+    { label: "Exercise", key: "exercise" },
+    { label: "Marks", key: "marks" },
+  ];
+
+  const exportToCSV = (
+    data: Record<string, any>[],
+    headers: CSVHeader[],
+    options: ExportToCSVOptions = {}
+  ) => {
+    const { filename = "export.csv", includeBOM = false } = options;
+
+    const formatCell = (value: any): string => {
+      if (value === null || value === undefined) return "";
+      let cell = String(value);
+      if (typeof value === "object") {
+        try {
+          cell = JSON.stringify(value);
+        } catch {
+          cell = "";
+        }
+      }
+      return cell.includes(",") || cell.includes('"') || cell.includes("\n")
+        ? `"${cell.replace(/"/g, '""')}"`
+        : cell;
+    };
+
+    try {
+      setLoading(true);
+
+      const headerRow = headers.map((h) => h.label).join(",");
+      const rows = data.map((item) =>
+        headers.map((h) => formatCell(item[h.key])).join(",")
+      );
+
+      const csvBody = [headerRow, ...rows].join("\n");
+      const finalCSV = includeBOM ? "\uFEFF" + csvBody : csvBody;
+
+      const blob = new Blob([finalCSV], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("CSV Export Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (user?.role === 1) {
+      const formattedExercises = exercises.map((exercise) => {
+        const [name, exerciseType] = exercise.type.split("_");
+
+        return {
+          id: exercise.id,
+          name: name || "",
+          exercise: exerciseType || "",
+          marks: `${exercise.score}/${name == "Kimore" ? 50 : 1}`,
+          duration: `${Math.floor(exercise.duration / 60)}:${String(
+            exercise.duration % 60
+          ).padStart(2, "0")}`,
+        };
+      });
+
+      exportToCSV(formattedExercises, exerciseHeaders);
+    } else {
+      exportToCSV(patients, patientsHeaders);
+    }
+  };
+
   return (
     <TabsLayout>
       <AnimatePresence mode="wait">
@@ -63,11 +173,18 @@ const Statistics: React.FC = () => {
           <Flex align={"center"} justify="between" className="my-4">
             <h1 className="font-semibold">Statistics</h1>
             <Flex className="*:cursor-pointer">
-              <Button variant="classic" size="2" className="mr-4" color="teal">
+              <Button
+                variant="classic"
+                size="2"
+                onClick={handleExportCSV}
+                className="mr-4"
+                color="teal"
+                loading={loading}
+              >
                 <Sheet /> Export CSV
               </Button>
-              <Dialog.Root>
-                <form action={handleAddPatient} method="post">
+              {user?.role == 2 && (
+                <Dialog.Root>
                   <Dialog.Trigger>
                     <Button variant="classic" size="2" color="iris">
                       <CirclePlus /> Add your Patients
@@ -79,27 +196,22 @@ const Statistics: React.FC = () => {
                     <Dialog.Description size="2" mb="4">
                       Make changes to your profile.
                     </Dialog.Description>
-
-                    <Flex direction="column" gap="3">
-                      <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                          Name
-                        </Text>
-                        <TextField.Root
-                          defaultValue="Freja Johnsen"
-                          placeholder="Enter your full name"
-                        />
-                      </label>
-                      <label>
-                        <Text as="div" size="2" mb="1" weight="bold">
-                          Email
-                        </Text>
-                        <TextField.Root
-                          defaultValue="freja@example.com"
-                          placeholder="Enter your email"
-                        />
-                      </label>
-                    </Flex>
+                    <form action={handleAddPatient} method="post">
+                      <Flex direction="column" gap="3">
+                        <label>
+                          <Text as="div" size="2" mb="1" weight="bold">
+                            Patient's Name
+                          </Text>
+                          <TextField.Root placeholder="Enter patient's full name" />
+                        </label>
+                        <label>
+                          <Text as="div" size="2" mb="1" weight="bold">
+                            UID
+                          </Text>
+                          <TextField.Root placeholder="Enter patient's given UID" />
+                        </label>
+                      </Flex>
+                    </form>
 
                     <Flex gap="3" mt="4" justify="end">
                       <Dialog.Close>
@@ -112,8 +224,8 @@ const Statistics: React.FC = () => {
                       </Dialog.Close>
                     </Flex>
                   </Dialog.Content>
-                </form>
-              </Dialog.Root>
+                </Dialog.Root>
+              )}
             </Flex>
           </Flex>
           <Table.Root variant="surface">
@@ -123,19 +235,36 @@ const Statistics: React.FC = () => {
                 <Table.ColumnHeaderCell>Name</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell>Exercise</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell>Marks</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>Duration</Table.ColumnHeaderCell>
               </Table.Row>
             </Table.Header>
 
             <Table.Body>
-              {!!patients?.length &&
-                patients?.map((p) => (
-                  <Table.Row>
-                    <Table.RowHeaderCell>{p?.id}</Table.RowHeaderCell>
-                    <Table.Cell>{p?.name}</Table.Cell>
-                    <Table.Cell>{p?.exercise}</Table.Cell>
-                    <Table.Cell>{p?.marks}</Table.Cell>
-                  </Table.Row>
-                ))}
+              {user?.role == 1
+                ? !!exercises?.length &&
+                  exercises.map((exercise) => (
+                    <Table.Row key={exercise.id}>
+                      <Table.RowHeaderCell>{exercise.id}</Table.RowHeaderCell>
+                      <Table.Cell>{exercise.type.split("_")[0]}</Table.Cell>
+                      <Table.Cell>{exercise.type.split("_")[1]}</Table.Cell>
+                      <Table.Cell>
+                        {exercise.score}/
+                        {exercise?.type.split("_")[0] == "Kimore" ? 50 : 1}
+                      </Table.Cell>
+                      <Table.Cell>{`${Math.floor(exercise.duration / 60)}:${
+                        exercise.duration % 60
+                      }`}</Table.Cell>
+                    </Table.Row>
+                  ))
+                : !!patients.length &&
+                  patients.map((patient) => (
+                    <Table.Row key={patient.id}>
+                      <Table.Cell>{patient.id}</Table.Cell>
+                      <Table.Cell>{patient.name}</Table.Cell>
+                      <Table.Cell>{patient.exercise}</Table.Cell>
+                      <Table.Cell>{patient.marks}</Table.Cell>
+                    </Table.Row>
+                  ))}
             </Table.Body>
           </Table.Root>
         </motion.div>

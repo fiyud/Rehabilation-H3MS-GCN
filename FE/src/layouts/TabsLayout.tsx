@@ -19,6 +19,7 @@ import {
   Separator,
   Text,
   TextField,
+  Tooltip,
 } from "@radix-ui/themes";
 import {
   Bell,
@@ -270,6 +271,15 @@ const TabsLayout = ({ children }: { children: React.ReactNode }) => {
                   </Flex>
                 </AlertDialog.Content>
               </AlertDialog.Root>
+            </li>
+            <li>
+              <Tooltip content="Download our console app">
+                <Button variant="classic" color="green">
+                  <a href="/vite.svg" className="no-underline text-white" download>
+                    Download
+                  </a>
+                </Button>
+              </Tooltip>
             </li>
           </ul>
         </div>

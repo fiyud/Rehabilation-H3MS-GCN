@@ -1,8 +1,18 @@
 ﻿namespace KinectAppAPI
 {
     public record LoginRequest(string Username, string Id);
-    public record AddPatientRequest(string Id, string Name, int Age, string? Address, string? Phone);
-    public record AddExerciseRequest(ExerciseType Type, decimal Score);
+    public record AddPatientRequest(string Id, string Name, int? Age, string? Address, string? Phone);
+    public record AddExerciseRequest(ExerciseType Type, decimal Score, decimal? Duration);
+    public record DoctorPatientResponse(
+        string Id, 
+        string Name, 
+        int Age, 
+        string Address, 
+        string Phone, 
+        ExerciseType Type, 
+        decimal Score, 
+        decimal Duration, 
+        DateTime SubmittedAt);
 
     public enum Role { Doctor, Patient }
     public class User
@@ -42,6 +52,7 @@
         public required string PatientId { get; set; }
         public required ExerciseType Type { get; set; }
         public required decimal Score { get; set; }
+        public decimal? Duration { get; set; } = 180.0m;
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
     }
 }

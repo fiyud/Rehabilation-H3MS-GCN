@@ -6,13 +6,12 @@ function App() {
   const { isAuthenticated } = useAuth();
   return (
     <Routes>
-      <Route caseSensitive path="/" element={<Main />} />
       <Route caseSensitive path="/exercises" element={<Exercises />} />
-      {isAuthenticated && (
+      {isAuthenticated ? (
         <>
           <Route
             caseSensitive
-            path="/obs-viewer"
+            path="/"
             element={
               <ProtectedRoute>
                 <OBSViewer />
@@ -29,6 +28,8 @@ function App() {
             }
           />
         </>
+      ) : (
+        <Route caseSensitive path="/" element={<Main />} />
       )}
       <Route path="*" element={<NotFound />} />
     </Routes>

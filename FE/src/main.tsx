@@ -5,22 +5,29 @@ import "./index.css";
 import App from "./App.tsx";
 import { Theme } from "@radix-ui/themes";
 import { BrowserRouter } from "react-router";
-import { AuthProvider, ExerciseProvider, DeviceProvider } from "./lib";
+import {
+  AuthProvider,
+  ExerciseProvider,
+  DeviceProvider,
+  StreamProvider,
+} from "./lib";
 import { StartMaskLayout } from "./layouts";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Theme appearance="dark">
       <BrowserRouter>
-        <DeviceProvider>
-          <AuthProvider>
-            <ExerciseProvider>
-              <StartMaskLayout>
+        <AuthProvider>
+          <DeviceProvider>
+            <StreamProvider>
+              <ExerciseProvider>
+                <StartMaskLayout>
                   <App />
-              </StartMaskLayout>
-            </ExerciseProvider>
-          </AuthProvider>
-        </DeviceProvider>
+                </StartMaskLayout>
+              </ExerciseProvider>
+            </StreamProvider>
+          </DeviceProvider>
+        </AuthProvider>
       </BrowserRouter>
     </Theme>
   </StrictMode>
