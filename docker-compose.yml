@@ -42,14 +42,19 @@ services:
     networks:
       - app-network
     environment:
-      NVIDIA_VISIBLE_DEVICES: all
+      # NVIDIA_VISIBLE_DEVICES: all
       SERVER_URL: http://server:8080/kinecthub?type=ai
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-    runtime: nvidia
+    devices:
+      - /dev/fkd
+      - /dev/dri
+    group_add:
+      - video
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+    # runtime: nvidia
 
 volumes:
   mysql_data:
