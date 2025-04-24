@@ -192,30 +192,32 @@ const Main: React.FC = () => {
                 <Spinner size={"3"} />
               </Flex>
             ) : (
-              <Webcam
-                ref={webcamRef}
-                controls={controls}
-                style={getVideoStyle()}
-                className={`rounded-lg ${isVideoEnabled ? "" : "hidden"}`}
-                videoConstraints={{
-                  width: { ideal: 1920, min: 640 },
-                  height: { ideal: 1080, min: 480 },
-                  deviceId: selectedCamera
-                    ? { exact: selectedCamera }
-                    : undefined,
-                  facingMode: "user",
-                }}
-                audio={!isMuted}
-                muted={isMuted}
-                onUserMediaError={(error) => {
-                  console.error("Webcam error:", error);
-                  setDeviceError(
-                    `Webcam error: ${
-                      error instanceof Error ? error.message : String(error)
-                    }`
-                  );
-                }}
-              />
+              <div className="aspect-video bg-black rounded-lg h-full overflow-hidden flex items-center">
+                <Webcam
+                  ref={webcamRef}
+                  controls={controls}
+                  style={getVideoStyle()}
+                  className={`rounded-lg ${isVideoEnabled ? "" : "hidden"}`}
+                  videoConstraints={{
+                    width: { ideal: 1920, min: 640 },
+                    height: { ideal: 1080, min: 480 },
+                    deviceId: selectedCamera
+                      ? { exact: selectedCamera }
+                      : undefined,
+                    facingMode: "user",
+                  }}
+                  audio={!isMuted}
+                  muted={isMuted}
+                  // onUserMediaError={(error) => {
+                  //   console.error("Webcam error:", error);
+                  //   setDeviceError(
+                  //     `Webcam error: ${
+                  //       error instanceof Error ? error.message : String(error)
+                  //     }`
+                  //   );
+                  // }}
+                />
+              </div>
             )}
           </div>
           <CamControl

@@ -3,15 +3,34 @@ import prmd from "@/assets/exercise-svgrepo-com (2).svg";
 import { useExercise } from "@/lib";
 import { Button, Dialog, Flex, RadioCards, Tooltip } from "@radix-ui/themes";
 import { AnimatePresence, motion } from "motion/react";
-import React from "react";
+import React, { useState } from "react";
+
+enum Exercises {
+  Kimore_JumpingJacks,
+  Kimore_ArmCircles,
+  Kimore_TorsoTwists,
+  Kimore_Squats,
+  Kimore_LateralArmRaises,
+  UIPRMD_DeepSquat,
+  UIPRMD_HurdleStep,
+  UIPRMD_InlineLunge,
+  UIPRMD_SideLunge,
+  UIPRMD_SitToStand,
+  UIPRMD_StandingActiveStraightLegRaise,
+  UIPRMD_StandingShoulderAbduction,
+  UIPRMD_StandingShoulderExtension,
+  UIPRMD_StandingShoulderInternalExternalRotation,
+  UIPRMD_StandingShoulderScaption,
+}
 
 const ExerciseDialog: React.FC = () => {
   const { setStartExercise, setSelectedExerciseType, selectedExerciseType } =
     useExercise();
+  const [exercise, setExercise] = useState<string>("");
   function handleChooseExercise(formData: FormData) {
     const query = formData.get("exercise");
     if (query) {
-      setSelectedExerciseType(query as string);
+      setSelectedExerciseType(query as unknown as Exercises);
     }
     setStartExercise(true);
   }
@@ -20,7 +39,7 @@ const ExerciseDialog: React.FC = () => {
       <form action={handleChooseExercise} method="post">
         <Dialog.Title>Choose your exercise type</Dialog.Title>
         <Dialog.Description size="2" my={"6"}>
-          {selectedExerciseType == "" ? (
+          {exercise == "" ? (
             <AnimatePresence mode="wait">
               <motion.div
                 className="flex items-center gap-2 justify-center"
@@ -32,9 +51,9 @@ const ExerciseDialog: React.FC = () => {
                 <Tooltip content="Kimore">
                   <motion.button
                     value={"Kimore"}
-                    onClick={(e) =>
-                      setSelectedExerciseType(e.currentTarget.value)
-                    }
+                    onClick={(e) => {
+                      setExercise(e.currentTarget.value);
+                    }}
                     type="button"
                     whileHover={{
                       rotateX: 20,
@@ -53,9 +72,9 @@ const ExerciseDialog: React.FC = () => {
                   <motion.button
                     type="button"
                     value={"PRMD"}
-                    onClick={(e) =>
-                      setSelectedExerciseType(e.currentTarget.value)
-                    }
+                    onClick={(e) => {
+                      setExercise(e.currentTarget.value);
+                    }}
                     className="border border-gray-300 rounded-lg cursor-pointer p-4 bg-[#1e1f21]"
                     whileHover={{
                       rotateX: 20,
@@ -81,13 +100,13 @@ const ExerciseDialog: React.FC = () => {
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.3 }}
               >
-                {ExtractSelectedExercise(selectedExerciseType)}
+                {ExtractSelectedExercise(exercise)}
               </motion.div>
             </AnimatePresence>
           )}
         </Dialog.Description>
         <Flex gap={"2"} justify="end">
-          {selectedExerciseType == "" ? (
+          {exercise == "" ? (
             <Dialog.Close>
               <Button variant="soft" className="cursor-pointer" color="gray">
                 Cancel
@@ -98,7 +117,7 @@ const ExerciseDialog: React.FC = () => {
               <Button
                 variant="soft"
                 onClick={() => {
-                  setSelectedExerciseType("");
+                  setExercise("");
                 }}
                 className="cursor-pointer"
                 color="gray"
@@ -122,65 +141,44 @@ const ExerciseDialog: React.FC = () => {
     </Dialog.Content>
   );
 };
-const ExtractSelectedExercise = (exercise: string) => {
-  enum KimoreExercises {
-    JumpingJacks = "Kimore_JumpingJacks",
-    ArmCircles = "Kimore_ArmCircles",
-    TorsoTwists = "Kimore_TorsoTwists",
-    Squats = "Kimore_Squats",
-    LateralArmRaises = "Kimore_LateralArmRaises",
-  }
-
-  enum PRMDExercises {
-    DeepSquat = "UIPRMD_DeepSquat",
-    HurdleStep = "UIPRMD_HurdleStep",
-    InlineLunge = "UIPRMD_InlineLunge",
-    SideLunge = "UIPRMD_SideLunge",
-    SitToStand = "UIPRMD_SitToStand",
-    StandingActiveStraightLegRaise = "UIPRMD_StandingActiveStraightLegRaise",
-    StandingShoulderAbduction = "UIPRMD_StandingShoulderAbduction",
-    StandingShoulderExtension = "UIPRMD_StandingShoulderExtension",
-    StandingShoulderInternalExternalRotation = "UIPRMD_StandingShoulderInternalExternalRotation",
-    StandingShoulderScaption = "UIPRMD_StandingShoulderScaption",
-  }
-
+const ExtractSelectedExercise = (chosenExercise: string) => {
   const kimoreExercises = [
-    { name: "Jumping jacks", value: KimoreExercises.JumpingJacks },
-    { name: "Arm circles", value: KimoreExercises.ArmCircles },
-    { name: "Torso twists", value: KimoreExercises.TorsoTwists },
-    { name: "Squats", value: KimoreExercises.Squats },
-    { name: "Lateral arm raises", value: KimoreExercises.LateralArmRaises },
+    { name: "Jumping jacks", value: Exercises.Kimore_JumpingJacks },
+    { name: "Arm circles", value: Exercises.Kimore_ArmCircles },
+    { name: "Torso twists", value: Exercises.Kimore_TorsoTwists },
+    { name: "Squats", value: Exercises.Kimore_Squats },
+    { name: "Lateral arm raises", value: Exercises.Kimore_LateralArmRaises },
   ];
 
   const prmdExercises = [
-    { name: "Deep Squat", value: PRMDExercises.DeepSquat },
-    { name: "Hurdle Step", value: PRMDExercises.HurdleStep },
-    { name: "Inline Lunge", value: PRMDExercises.InlineLunge },
-    { name: "Side Lunge", value: PRMDExercises.SideLunge },
-    { name: "Sit to Stand", value: PRMDExercises.SitToStand },
+    { name: "Deep Squat", value: Exercises.UIPRMD_DeepSquat },
+    { name: "Hurdle Step", value: Exercises.UIPRMD_HurdleStep },
+    { name: "Inline Lunge", value: Exercises.UIPRMD_InlineLunge },
+    { name: "Side Lunge", value: Exercises.UIPRMD_SideLunge },
+    { name: "Sit to Stand", value: Exercises.UIPRMD_SitToStand },
     {
       name: "Standing Active Straight Leg Raise",
-      value: PRMDExercises.StandingActiveStraightLegRaise,
+      value: Exercises.UIPRMD_StandingActiveStraightLegRaise,
     },
     {
       name: "Standing Shoulder Abduction",
-      value: PRMDExercises.StandingShoulderAbduction,
+      value: Exercises.UIPRMD_StandingShoulderAbduction,
     },
     {
       name: "Standing Shoulder Extension",
-      value: PRMDExercises.StandingShoulderExtension,
+      value: Exercises.UIPRMD_StandingShoulderExtension,
     },
     {
       name: "Standing Shoulder Internal-External Rotation",
-      value: PRMDExercises.StandingShoulderInternalExternalRotation,
+      value: Exercises.UIPRMD_StandingShoulderInternalExternalRotation,
     },
     {
       name: "Standing Shoulder Scaption",
-      value: PRMDExercises.StandingShoulderScaption,
+      value: Exercises.UIPRMD_StandingShoulderScaption,
     },
   ];
 
-  switch (exercise) {
+  switch (chosenExercise) {
     case "Kimore":
       return (
         <RadioCards.Root
@@ -190,7 +188,10 @@ const ExtractSelectedExercise = (exercise: string) => {
           columns={{ initial: "1", sm: "3" }}
         >
           {kimoreExercises.map((ex, index) => (
-            <RadioCards.Item key={`kimore-${index + 1}`} value={ex?.value}>
+            <RadioCards.Item
+              key={`kimore-${index + 1}`}
+              value={ex?.value.toString()}
+            >
               <Flex direction="column" width="100%">
                 <p>{ex?.name}</p>
               </Flex>
@@ -207,7 +208,7 @@ const ExtractSelectedExercise = (exercise: string) => {
           columns={{ initial: "1", sm: "3" }}
         >
           {prmdExercises.map((ex, index) => (
-            <RadioCards.Item key={`prmd-${index + 1}`} value={ex?.value}>
+            <RadioCards.Item key={`prmd-${index + 1}`} value={ex?.value.toString()}>
               <Flex direction="column" width="100%">
                 <p>{ex?.name}</p>
               </Flex>

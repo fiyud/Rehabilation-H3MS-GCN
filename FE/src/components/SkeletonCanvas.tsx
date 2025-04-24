@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import React, { useRef, useEffect } from "react";
 
 interface Joint {
   X: number;
@@ -10,6 +10,9 @@ interface Joint {
 interface Skeleton {
   TrackingId: number;
   Joints: { [jointName: string]: Joint };
+  HandLeftState?: string;
+  HandRightState?: string;
+  ClippedEdges?: string[];
 }
 
 export interface Frame {
@@ -19,117 +22,133 @@ export interface Frame {
 
 interface Props {
   data?: Frame;
+  width?: number;
+  height?: number;
+  sizingFactor?: number;
 }
+// Constants
+const TRACKED_BONE_THICKNESS = 4;
+const INFERRED_BONE_THICKNESS = 1;
+const JOINT_RADIUS = 3;
+const CLAMP_Z = 0.1;
+
+// Kinect v2 Field of View
+const FOV_X = 74 * (Math.PI / 180); // Horizontal ~70°
+const FOV_Y = 60 * (Math.PI / 180); // Vertical ~60°
 
 const jointPairs: [string, string][] = [
-  ["SpineBase", "SpineMid"],
-  ["SpineMid", "Neck"],
-  ["Neck", "Head"],
-  ["ShoulderLeft", "ElbowLeft"],
-  ["ElbowLeft", "WristLeft"],
-  ["WristLeft", "HandLeft"],
+  ["Head", "Neck"],
+  ["Neck", "SpineShoulder"],
+  ["SpineShoulder", "SpineMid"],
+  ["SpineMid", "SpineBase"],
+  ["SpineShoulder", "ShoulderRight"],
+  ["SpineShoulder", "ShoulderLeft"],
+  ["SpineBase", "HipRight"],
+  ["SpineBase", "HipLeft"],
   ["ShoulderRight", "ElbowRight"],
   ["ElbowRight", "WristRight"],
   ["WristRight", "HandRight"],
-  ["SpineShoulder", "ShoulderLeft"],
-  ["SpineShoulder", "ShoulderRight"],
-  ["SpineBase", "HipLeft"],
-  ["SpineBase", "HipRight"],
-  ["HipLeft", "KneeLeft"],
-  ["KneeLeft", "AnkleLeft"],
-  ["AnkleLeft", "FootLeft"],
+  ["ShoulderLeft", "ElbowLeft"],
+  ["ElbowLeft", "WristLeft"],
+  ["WristLeft", "HandLeft"],
   ["HipRight", "KneeRight"],
   ["KneeRight", "AnkleRight"],
   ["AnkleRight", "FootRight"],
+  ["HipLeft", "KneeLeft"],
+  ["KneeLeft", "AnkleLeft"],
+  ["AnkleLeft", "FootLeft"],
 ];
 
-export const SkeletonCanvas: React.FC<Props> = ({ data }) => {
-  if (!data) {
-    return null;
-  }
+const bodyColors = [
+  "#FF0000",
+  "#FFA500",
+  "#00FF00",
+  "#0000FF",
+  "#4B0082",
+  "#EE82EE",
+];
+
+export const SkeletonCanvas: React.FC<Props> = ({
+  data,
+  width = 512,
+  height = 424,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+    if (!canvas || !ctx || !data) return;
 
+    canvas.width = width;
+    canvas.height = height;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // follow video orientation
+    ctx.save();
+    const scaleX = width / 512;
+    const scaleY = height / 424;
+    ctx.translate((width - 512 * scaleX) / 2 + 60, (height - 424 * scaleY) / 2);
+    ctx.scale(scaleX, scaleY);
 
-    // Calculate a dynamic scale factor based on skeleton height
-    let scale = 80; // Default scale
+    const projectJoint = (joint: Joint) => {
+      let Z = joint.Z;
+      if (joint.Z < 0) {
+        Z = CLAMP_Z;
+      }
+      const x = (joint.X / (Z * Math.tan(FOV_X / 2))) * (512 / 2) + (512 / 2);
+      const y = (-joint.Y / (Z * Math.tan(FOV_Y / 2))) * (424 / 2) + (424 / 2);
+      return { x, y };
+    };
 
-    // if (data.Skeletons.length > 0) {
-    //   const joints = data.Skeletons[0].Joints;
-    //   if (
-    //     joints["Head"] &&
-    //     joints["FootLeft"] &&
-    //     joints["Head"].TrackingState !== "Inferred" &&
-    //     joints["FootLeft"].TrackingState !== "Inferred"
-    //   ) {
-    //     const skeletonHeight = Math.abs(
-    //       joints["Head"].Y - joints["FootLeft"].Y
-    //     );
+    data.Skeletons.forEach((skeleton, i) => {
+      const joints = skeleton.Joints;
+      const stroke = bodyColors[i % bodyColors.length];
 
-    //     const targetHeight = canvas.height * 0.7; 
+      const jointPoints: { [key: string]: { x: number; y: number } } = {};
+      Object.keys(joints).forEach((jointName) => {
+        const joint = joints[jointName];
+        jointPoints[jointName] = projectJoint(joint);
+      });
 
-    //     if (skeletonHeight > 0) {
-    //       scale = targetHeight / skeletonHeight;
-    //       console.log(
-    //         "Dynamic scale:",
-    //         scale,
-    //         "Skeleton height:",
-    //         skeletonHeight
-    //       );
-    //     }
-    //   }
-    // }
-    const offsetX = canvas.width / 2;
-    const offsetY = canvas.height / 2;
+      // Draw bones
+      jointPairs.forEach(([j1, j2]) => {
+        const joint1 = joints[j1];
+        const joint2 = joints[j2];
+        const p1 = jointPoints[j1];
+        const p2 = jointPoints[j2];
 
-    console.log(data.Skeletons);
-    const skeleton = data.Skeletons[0];
-    const joints = skeleton.Joints;
+        if (!joint1 || !joint2 || !p1 || !p2) return;
 
-    // Draw bones
-    jointPairs.forEach(([from, to]) => {
-      const j1 = joints[from];
-      const j2 = joints[to];
-      if (
-        j1 &&
-        j2 &&
-        j1.TrackingState !== "Inferred" &&
-        j2.TrackingState !== "Inferred"
-      ) {
+        const bothTracked = joint1.TrackingState === "Tracked" && joint2.TrackingState === "Tracked";
         ctx.beginPath();
-        ctx.moveTo(j1.X * scale + offsetX + 6, -j1.Y * scale + offsetY + 4);
-        ctx.lineTo(j2.X * scale + offsetX + 6, -j2.Y * scale + offsetY + 4);
-        ctx.strokeStyle = "#00FF00";
-        ctx.lineWidth = 2;
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = bothTracked ? stroke : "gray";
+        ctx.lineWidth = bothTracked ? TRACKED_BONE_THICKNESS : INFERRED_BONE_THICKNESS;
         ctx.stroke();
-      }
-    });
+      });
 
-    // Draw joints
-    Object.entries(joints).forEach(([_, joint]) => {
-      if (joint.TrackingState !== "Inferred") {
+      // Draw joints
+      Object.entries(jointPoints).forEach(([name, point]) => {
+        const joint = joints[name];
+        if (!joint) return;
+
         ctx.beginPath();
-        ctx.arc(
-          joint.X * scale + offsetX + 6,
-          -joint.Y * scale + offsetY + 4,
-          3,
-          0,
-          2 * Math.PI
-        );
-        ctx.fillStyle = "#00FF00";
+        ctx.arc(point.x, point.y, JOINT_RADIUS, 0, 2 * Math.PI);
+        ctx.fillStyle =
+          joint.TrackingState === "Tracked"
+            ? "green"
+            : joint.TrackingState === "Inferred"
+            ? "yellow"
+            : "gray";
         ctx.fill();
-      }
+      });
+      ctx.restore();
     });
-  }, [data]);
+  }, [data, width, height]);
   return (
     <canvas
       ref={canvasRef}
-      className="w-full h-full absolute top-0 left-0 z-100"
+      className="absolute w-full h-full top-0 left-0 bg-transparent z-30"
     />
   );
 };

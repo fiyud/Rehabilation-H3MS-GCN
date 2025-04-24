@@ -22,7 +22,7 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const path = useLocation().pathname.split("/")[1];
   const toggleSidebar = () => setIsOpen(!isOpen);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   return (
     <motion.div
       initial={{ width: 80 }}
@@ -43,19 +43,88 @@ const Sidebar = () => {
 
         <NavigationMenu className="flex flex-col space-y-4">
           <NavigationMenuList className="space-y-2">
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
-                <Link
-                  to="/"
-                  className={`w-full *:text-[#373737] group ${
-                    isOpen
-                      ? "flex items-center gap-2"
-                      : "flex flex-col items-center "
-                  } ${path == "" ? "*:text-white" : ""}`}
-                >
-                  <HouseWifi className="group-hover:text-[#ccc] duration-200" />
-                  <h1
-                    className={`
+            {isAuthenticated ? (
+              <>
+                {user?.role == "Doctor" ? (
+                  ""
+                ) : (
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
+                      <Link
+                        to="/"
+                        className={`w-full *:text-[#373737] group ${
+                          isOpen
+                            ? "flex items-center gap-2"
+                            : "flex flex-col items-center "
+                        } ${path == "" ? "*:text-white" : ""}`}
+                      >
+                        <Video className="group-hover:text-[#ccc] duration-200" />
+                        <h1
+                          className={`
+                        text-[1rem] group-hover:text-[#ccc]
+                        transition-all duration-300 ease-in-out
+                        overflow-hidden whitespace-nowrap
+                        ${
+                          isOpen
+                            ? "block opacity-100 max-w-[160px]"
+                            : "hidden opacity-0 max-w-0"
+                        }
+                      `}
+                        >
+                          OBS Viewer
+                        </h1>
+                      </Link>
+                    </NavigationMenuTrigger>
+                  </NavigationMenuItem>
+                )}
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
+                    <Link
+                      to="/statistics"
+                      className={`w-full *:text-[#373737] group ${
+                        isOpen
+                          ? "flex items-center gap-2"
+                          : "flex flex-col items-center "
+                      } ${
+                        path == "statistics" ||
+                        (user?.role == "Doctor" && path === "")
+                          ? "*:text-white"
+                          : ""
+                      }`}
+                    >
+                      <ChartColumnDecreasing className="group-hover:text-[#ccc] duration-200" />
+                      <h1
+                        className={`
+                        text-[1rem] group-hover:text-[#ccc]
+                        transition-all duration-300 ease-in-out
+                        overflow-hidden whitespace-nowrap
+                        ${
+                          isOpen
+                            ? "block opacity-100 max-w-[160px]"
+                            : "hidden opacity-0 max-w-0"
+                        }
+                      `}
+                      >
+                        Exercises
+                      </h1>
+                    </Link>
+                  </NavigationMenuTrigger>
+                </NavigationMenuItem>
+              </>
+            ) : (
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
+                  <Link
+                    to="/"
+                    className={`w-full *:text-[#373737] group ${
+                      isOpen
+                        ? "flex items-center gap-2"
+                        : "flex flex-col items-center "
+                    } ${path == "" ? "*:text-white" : ""}`}
+                  >
+                    <HouseWifi className="group-hover:text-[#ccc] duration-200" />
+                    <h1
+                      className={`
                       text-[1rem] group-hover:text-[#ccc]
                       transition-all duration-300 ease-in-out
                       overflow-hidden whitespace-nowrap
@@ -65,12 +134,13 @@ const Sidebar = () => {
                           : "hidden opacity-0 max-w-0"
                       }
                     `}
-                  >
-                    Trang chủ
-                  </h1>
-                </Link>
-              </NavigationMenuTrigger>
-            </NavigationMenuItem>
+                    >
+                      Trang chủ
+                    </h1>
+                  </Link>
+                </NavigationMenuTrigger>
+              </NavigationMenuItem>
+            )}
             <NavigationMenuItem>
               <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
                 <Link
@@ -99,67 +169,6 @@ const Sidebar = () => {
                 </Link>
               </NavigationMenuTrigger>
             </NavigationMenuItem>
-
-            {isAuthenticated && (
-              <>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
-                    <Link
-                      to="/obs-viewer"
-                      className={`w-full *:text-[#373737] group ${
-                        isOpen
-                          ? "flex items-center gap-2"
-                          : "flex flex-col items-center "
-                      } ${path == "obs-viewer" ? "*:text-white" : ""}`}
-                    >
-                      <Video className="group-hover:text-[#ccc] duration-200" />
-                      <h1
-                        className={`
-                        text-[1rem] group-hover:text-[#ccc]
-                        transition-all duration-300 ease-in-out
-                        overflow-hidden whitespace-nowrap
-                        ${
-                          isOpen
-                            ? "block opacity-100 max-w-[160px]"
-                            : "hidden opacity-0 max-w-0"
-                        }
-                      `}
-                      >
-                        OBS Viewer
-                      </h1>
-                    </Link>
-                  </NavigationMenuTrigger>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="border-none w-full bg-[#101010]">
-                    <Link
-                      to="/statistics"
-                      className={`w-full *:text-[#373737] group ${
-                        isOpen
-                          ? "flex items-center gap-2"
-                          : "flex flex-col items-center "
-                      } ${path == "statistics" ? "*:text-white" : ""}`}
-                    >
-                      <ChartColumnDecreasing className="group-hover:text-[#ccc] duration-200" />
-                      <h1
-                        className={`
-                        text-[1rem] group-hover:text-[#ccc]
-                        transition-all duration-300 ease-in-out
-                        overflow-hidden whitespace-nowrap
-                        ${
-                          isOpen
-                            ? "block opacity-100 max-w-[160px]"
-                            : "hidden opacity-0 max-w-0"
-                        }
-                      `}
-                      >
-                        Exercises
-                      </h1>
-                    </Link>
-                  </NavigationMenuTrigger>
-                </NavigationMenuItem>
-              </>
-            )}
           </NavigationMenuList>
         </NavigationMenu>
       </div>

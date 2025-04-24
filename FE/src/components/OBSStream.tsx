@@ -1,26 +1,58 @@
 import { Badge, Button, Spinner } from "@radix-ui/themes";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { useExercise, useDevice, useAuth } from "@/lib";
+import { useExercise, useDevice, useAuth, http, useStream } from "@/lib";
 import { SkeletonCanvas, Frame } from "@/components";
 import * as signalR from "@microsoft/signalr";
-interface OBSStreamProps {
-  onStreamReady?: (stream: MediaStream) => void;
-  onError?: (error: string) => void;
+enum Exercises {
+  Kimore_JumpingJacks,
+  Kimore_ArmCircles,
+  Kimore_TorsoTwists,
+  Kimore_Squats,
+  Kimore_LateralArmRaises,
+  UIPRMD_DeepSquat,
+  UIPRMD_HurdleStep,
+  UIPRMD_InlineLunge,
+  UIPRMD_SideLunge,
+  UIPRMD_SitToStand,
+  UIPRMD_StandingActiveStraightLegRaise,
+  UIPRMD_StandingShoulderAbduction,
+  UIPRMD_StandingShoulderExtension,
+  UIPRMD_StandingShoulderInternalExternalRotation,
+  UIPRMD_StandingShoulderScaption,
 }
 
-const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [conn, setConn] = useState<signalR.HubConnection | undefined>();
+const OBSStream: React.FC = () => {
+  const [frame, setFrame] = useState<Frame | undefined>();
+  const { conn, setConn, setLoading, loading } = useDevice();
   const { setPoints, points, startExercise, timer, finishExercise } =
     useExercise();
-  const [frame, setFrame] = useState<Frame | undefined>();
-  const { devices, reserveDevice, releaseDevice } = useDevice();
+  const {
+    videoRef,
+    connectionStatus,
+    connectToOBS,
+    disconnectFromOBS,
+    isConnecting,
+    setConnectionStatus,
+  } = useStream();
   const { isAuthenticated, user } = useAuth();
-  const { selectedExerciseType } = useExercise();
+  const { selectedExerciseType, setStartExercise, setFinishExercise } =
+    useExercise();
+  const [limit, setLimit] = useState<number>();
+
+  console.log(
+    selectedExerciseType && Exercises[selectedExerciseType].split("_")[0]
+  );
+  console.log(
+    selectedExerciseType &&
+      Exercises[selectedExerciseType].split("_")[0] == "Kimore"
+  );
+  console.log(limit);
+  // mark checks
+  const [totalMark, setTotalMark] = useState<number>(0);
+  const [resetView, setResetView] = useState(false);
+  const [count, setCount] = useState<number>(0);
+
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -44,13 +76,15 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
         .then(() => {
           console.log("Connected!");
           conn.on("ReceiveScore", (data: number) => {
-            console.log(data);
             setPoints(data);
+            setTotalMark((prev) => prev + data);
+            setCount((prev) => prev + 1);
           });
           conn.on("ReceiveFrame", (data: string) => {
             setFrame(JSON.parse(data));
           });
         })
+
         .catch((err) => console.error("Connection failed: ", err));
     }
   }, [conn]);
@@ -58,145 +92,119 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
   useEffect(() => {
     const handleExercise = async () => {
       if (selectedExerciseType) {
-        console.log(selectedExerciseType);
-        await conn?.invoke("SetExerciseType", user?.id, selectedExerciseType);
+        await conn?.invoke(
+          "SetExerciseType",
+          user?.id,
+          Number(selectedExerciseType)
+        );
       }
     };
-
+    selectedExerciseType &&
+    Exercises[selectedExerciseType].split("_")[0] == "Kimore"
+      ? setLimit(50)
+      : setLimit(1);
     handleExercise();
   }, [selectedExerciseType]);
 
-  const connectToOBS = async () => {
-    try {
-      setLoading(true);
-      setIsConnecting(true);
-      setConnectionStatus("connecting");
+  useEffect(() => {
+    if (finishExercise) {
+      conn?.stop().then(async () => {
+        try {
+          setLoading(true);
+          const resp = await http.post("/exercises", {
+            type: selectedExerciseType
+              ? Exercises[selectedExerciseType]
+              : undefined,
+            score: totalMark / count,
+            duration: 180 - timer,
+          });
 
-      // Find OBS Virtual Camera
-      const obsDevice = devices?.find(
-        (device) =>
-          device.label.toLowerCase().includes("obs") ||
-          device.label.toLowerCase().includes("virtual")
-      );
-      if (!obsDevice) {
-        throw new Error(
-          "OBS Virtual Camera not found. Please make sure OBS is running and Virtual Camera is started."
-        );
-      }
-      // Reserve the device
-      reserveDevice(obsDevice.deviceId);
-
-      console.log("OBS Device:", obsDevice);
-      if (!obsDevice) {
-        throw new Error(
-          "OBS Virtual Camera not found. Please make sure OBS is running and Virtual Camera is started."
-        );
-      }
-
-      // Get stream from OBS Virtual Camera
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          deviceId: obsDevice.deviceId ? obsDevice.deviceId : undefined,
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-        audio: false,
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        if (onStreamReady) {
-          onStreamReady(stream);
+          if (resp.status === 200) {
+            console.log("Exercise finished successfully");
+            setTimeout(() => {
+              setResetView(true);
+            }, 5000);
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
         }
-      }
-      window.open(`kinect://start?userId=${user?.id}`);
-      setIsConnecting(false);
-      setConnectionStatus("connected");
-    } catch (error) {
-      console.error("Error connecting to OBS:", error);
-      setIsConnecting(false);
-      setConnectionStatus("failed");
-      if (onError) {
-        onError(
-          `Failed to connect to OBS: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
-      }
-    } finally {
-      setLoading(false);
+      });
     }
-  };
-
-  const disconnectFromOBS = () => {
-    try {
-      setLoading(true);
-      if (videoRef?.current && videoRef?.current?.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach((track) => track.stop());
-        videoRef.current.srcObject = null;
-      }
-      releaseDevice();
-      setConnectionStatus("disconnected");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [finishExercise]);
 
   useEffect(() => {
     return () => {
       disconnectFromOBS();
+      setConnectionStatus("disconnected");
+      setStartExercise(false);
+      setFinishExercise(false);
     };
   }, []);
 
   return (
     <>
-      <a href={`kinectapp://start?userId=${user?.id}`} target="_blank" className="z-100 text-white">dat sieu nhan</a>
-
       <div className="relative h-full">
         <div className="relative w-full h-full rounded-lg overflow-hidden">
-          <SkeletonCanvas data={frame} />
+          <SkeletonCanvas
+            data={frame}
+            width={videoRef.current?.width || 1280}
+            height={videoRef.current?.height || 720}
+            sizingFactor={0.9}
+          />
           <video
             ref={videoRef}
             autoPlay
             muted
             playsInline
-            className="w-full h-full rounded-lg"
+            className="w-full h-full rounded-lg "
           />
         </div>
-        {finishExercise && (
+        {finishExercise && resetView == false && (
           <motion.div
             key="finish"
             exit={{ opacity: 0 }}
-            className="absolute w-full h-full z-30 top-0 left-0 bg-black/50 flex items-center justify-center text-white text-2xl font-bold "
+            className="absolute w-full h-full z-30 top-0 left-0 bg-gray-600/30 backdrop-blur-md flex flex-col items-center justify-center text-white text-2xl font-bold "
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            Exercise Finished !
+            <h1>Exercise Finished !</h1>
+            <dl className="flex item-center justify-between w-full max-w-[50rem] p-4 bg-white/10 rounded-lg text-white">
+              <dt className="text-lg font-bold underline">Score:</dt>
+              <dd className="text-lg">{points.toFixed(2)}</dd>
+              <dt className="text-lg font-bold underline">Duration:</dt>
+              <dd className="text-lg ">
+                {Math.floor((180 - timer) / 60)}:
+                {(180 - timer) % 60 < 10
+                  ? `0${(180 - timer) % 60}`
+                  : `${(180 - timer) % 60}`}{" "}
+                seconds
+              </dd>
+              <dt className="text-lg font-bold underline">Average:</dt>
+              <dd className="text-lg">{(totalMark / count).toFixed(2)}</dd>
+            </dl>
           </motion.div>
         )}
         {startExercise && (
           <Badge
-            color="gray"
+            color="grass"
             className="absolute top-2 left-2 text-[0.875rem] p-2  "
           >
             {timer && timer > 0
               ? `Time left: ${Math.floor(timer / 60)}:${
                   timer % 60 < 10 ? `0${timer % 60}` : `${timer % 60}`
-                } minutes`
+                } seconds`
               : "Done !"}
           </Badge>
         )}
         {startExercise && (
           <Badge
-            color="amber"
+            color="yellow"
             size={"3"}
             className="absolute bottom-2 left-2 text-[22px] p-2"
           >
-            Points: {points.toFixed(2)}
+            Points: {points.toFixed(2)} / {limit}
           </Badge>
         )}
         <Badge
@@ -212,7 +220,7 @@ const OBSStream: React.FC<OBSStreamProps> = ({ onStreamReady, onError }) => {
           }
           color={connectionStatus !== "connected" ? "blue" : "red"}
           variant="classic"
-          className="cursor-pointer absolute top-2 right-2 text-white px-3 py-1 rounded"
+          className="cursor-pointer absolute top-2 right-2 text-white px-3 py-1 rounded z-30"
         >
           {isConnecting ? (
             <Spinner size={"2"} />

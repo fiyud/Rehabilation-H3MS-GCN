@@ -11,13 +11,9 @@ export interface User {
   name: string;
   // Add other user properties as needed
   age?: string;
-  address?: {
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
+  address?: string;
   phone?: string;
+  role: string;
 }
 
 interface AuthContextType {
@@ -37,7 +33,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

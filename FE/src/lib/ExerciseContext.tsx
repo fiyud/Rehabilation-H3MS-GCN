@@ -12,14 +12,35 @@ interface ExerciseContextType {
   points: number;
   setPoints: React.Dispatch<React.SetStateAction<number>>;
   timer: number;
-  selectedExerciseType: string;
-  setSelectedExerciseType: React.Dispatch<React.SetStateAction<string>>;
+  selectedExerciseType: Exercises | undefined;
+  setSelectedExerciseType: React.Dispatch<
+    React.SetStateAction<Exercises | undefined>
+  >;
   finishExercise: boolean;
   setFinishExercise: React.Dispatch<React.SetStateAction<boolean>>;
   setExerciseError: React.Dispatch<React.SetStateAction<string>>;
   exerciseError: string;
+  stopExercise: () => void;
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
 }
-
+enum Exercises {
+  Kimore_JumpingJacks,
+  Kimore_ArmCircles,
+  Kimore_TorsoTwists,
+  Kimore_Squats,
+  Kimore_LateralArmRaises,
+  UIPRMD_DeepSquat,
+  UIPRMD_HurdleStep,
+  UIPRMD_InlineLunge,
+  UIPRMD_SideLunge,
+  UIPRMD_SitToStand,
+  UIPRMD_StandingActiveStraightLegRaise,
+  UIPRMD_StandingShoulderAbduction,
+  UIPRMD_StandingShoulderExtension,
+  UIPRMD_StandingShoulderInternalExternalRotation,
+  UIPRMD_StandingShoulderScaption,
+}
 const ExerciseContext = createContext<ExerciseContextType | undefined>(
   undefined
 );
@@ -31,18 +52,23 @@ interface ExerciseProviderProps {
 export const ExerciseProvider: React.FC<ExerciseProviderProps> = ({
   children,
 }) => {
-  const [selectedExerciseType, setSelectedExerciseType] = useState<string>("");
+  const [selectedExerciseType, setSelectedExerciseType] = useState<
+    Exercises | undefined
+  >(undefined);
   const [startExercise, setStartExercise] = useState(false);
   const [finishExercise, setFinishExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState("");
   const [points, setPoints] = useState(0);
   const [timer, setTimer] = useState(180);
+  const [search, setSearch] = useState<string>("");
   const triggerTimer = () => {
-    setTimer((prev) => prev - 1);
-    if (timer <= 0) {
-      setFinishExercise(true);
-      setStartExercise(false);
-      setTimer(180);
+    if (startExercise && !finishExercise) {
+      setTimer((prev) => prev - 1);
+      if (timer <= 0) {
+        setFinishExercise(true);
+        setStartExercise(false);
+        setTimer(180);
+      }
     }
   };
   useEffect(() => {
@@ -53,6 +79,10 @@ export const ExerciseProvider: React.FC<ExerciseProviderProps> = ({
       return () => clearInterval(interval);
     }
   });
+  const stopExercise = () => {
+    setStartExercise(false);
+    setFinishExercise(true);
+  };
   const value = {
     startExercise,
     setStartExercise,
@@ -65,6 +95,9 @@ export const ExerciseProvider: React.FC<ExerciseProviderProps> = ({
     setFinishExercise,
     setExerciseError,
     exerciseError,
+    stopExercise,
+    search,
+    setSearch,
   };
 
   return (

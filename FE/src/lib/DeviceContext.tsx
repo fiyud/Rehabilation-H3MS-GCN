@@ -26,6 +26,13 @@ interface DeviceContextType {
   isMuted: boolean;
   isVideoEnabled: boolean;
   setIsVideoEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  conn: signalR.HubConnection | undefined;
+  setConn: React.Dispatch<
+    React.SetStateAction<signalR.HubConnection | undefined>
+  >;
+  openedConsole: boolean;
+  setOpenedConsole: React.Dispatch<React.SetStateAction<boolean>>;
+ 
 }
 
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
@@ -44,7 +51,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const [activeDevice, setActiveDevice] = useState<string | null>(null);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
-
+  const [conn, setConn] = useState<signalR.HubConnection | undefined>();
+  const [openedConsole, setOpenedConsole] = useState(false);
   // Function to reserve a device
   const reserveDevice = (deviceId: string) => {
     if (activeDevice && activeDevice !== deviceId) {
@@ -91,7 +99,6 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       setDeviceError("");
-      // First try to get any video device without specific constraints
       const initialStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
@@ -108,14 +115,15 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       setIsVideoEnabled(true);
     } catch (err) {
       console.error("Error initializing devices:", err);
-      setDeviceError(
-        "Please make sure your camera is connected and permissions are granted."
-      );
+      // setDeviceError(
+      //   "Please make sure your camera is connected and permissions are granted."
+      // );
     } finally {
       setLoading(false);
     }
   }, [handleDevices]);
 
+  
   useEffect(() => {
     initializeDevices();
   }, [initializeDevices]);
@@ -138,6 +146,10 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     isMuted,
     isVideoEnabled,
     setIsVideoEnabled,
+    conn,
+    setConn,
+    openedConsole,
+    setOpenedConsole,
   };
   return (
     <DeviceContext.Provider value={value}>{children}</DeviceContext.Provider>
