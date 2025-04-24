@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:VnuRehab.Views"
+             xmlns:viewmodels="clr-namespace:VnuRehab.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:ExerciseViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -23,7 +25,7 @@
             </Border.Background>
             <Border CornerRadius="10">
                 <Border.Background>
-                    <ImageBrush ImageSource="/Assets/Images/LoginBackground.jpeg"
+                    <ImageBrush ImageSource="{Binding ImageSource}"
                                 Stretch="UniformToFill"/>
                 </Border.Background>
             </Border>
@@ -35,6 +37,13 @@
                     <GradientStop Color="{StaticResource secondaryBackColor2}" Offset="1"/>
                 </LinearGradientBrush>
             </Border.Background>
+            <StackPanel>
+                <Button Command="{Binding ToggleServicesCommand}"
+                        Content="Toggle device"
+                        Width="100"
+                        Height="50"
+                        Margin="0,25,0,0"></Button>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>
