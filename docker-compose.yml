@@ -28,7 +28,7 @@ services:
       ConnectionStrings_MySQLConnection: Server=db;Port=3306;Database=rehab;User=root;Password=root;
       Logging_LogLevel_Default: Warning
     ports:
-      - "80:8080"
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -42,19 +42,19 @@ services:
     networks:
       - app-network
     environment:
-      # NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_VISIBLE_DEVICES: all
       SERVER_URL: http://server:8080/kinecthub?type=ai
-    devices:
-      - /dev/fkd
-      - /dev/dri
-    group_add:
-      - video
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - capabilities: [gpu]
-    # runtime: nvidia
+    # devices:
+    #   - /dev/fkd
+    #   - /dev/dri
+    # group_add:
+    #   - video
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
 
 volumes:
   mysql_data:

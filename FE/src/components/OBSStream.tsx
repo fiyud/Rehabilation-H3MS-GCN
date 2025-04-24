@@ -41,11 +41,11 @@ const OBSStream: React.FC = () => {
   const [limit, setLimit] = useState<number>();
 
   console.log(
-    selectedExerciseType && Exercises[selectedExerciseType].split("_")[0]
+    selectedExerciseType && Exercises[selectedExerciseType].split("_")[0],
   );
   console.log(
     selectedExerciseType &&
-      Exercises[selectedExerciseType].split("_")[0] == "Kimore"
+      Exercises[selectedExerciseType].split("_")[0] == "Kimore",
   );
   console.log(limit);
   // mark checks
@@ -61,7 +61,7 @@ const OBSStream: React.FC = () => {
         .withUrl(
           `${import.meta.env.VITE_SERVER_URL}/kinecthub?type=ui&userId=${
             user?.id
-          }`
+          }`,
         )
         .withAutomaticReconnect()
         .build();
@@ -76,11 +76,13 @@ const OBSStream: React.FC = () => {
         .then(() => {
           console.log("Connected!");
           conn.on("ReceiveScore", (data: number) => {
+            console.log(data);
             setPoints(data);
             setTotalMark((prev) => prev + data);
             setCount((prev) => prev + 1);
           });
           conn.on("ReceiveFrame", (data: string) => {
+            console.log(data);
             setFrame(JSON.parse(data));
           });
         })
@@ -95,7 +97,7 @@ const OBSStream: React.FC = () => {
         await conn?.invoke(
           "SetExerciseType",
           user?.id,
-          Number(selectedExerciseType)
+          Number(selectedExerciseType),
         );
       }
     };
