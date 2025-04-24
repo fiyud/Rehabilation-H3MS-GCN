@@ -34,6 +34,8 @@ namespace VnuRehab.ViewModels
         }
 
         private readonly UserSessionService _userSessionService;
+        private readonly KinectService _kinectService;
+        private readonly SignalRService _signalRService;
         public ICommand ShowHomeViewCommand { get; }
         public ICommand ShowExerciseViewCommand { get; }
         public ICommand ShowStatisticsViewCommand { get; }
@@ -41,8 +43,10 @@ namespace VnuRehab.ViewModels
         public MainViewModel(UserSessionService userSessionService)
         {
             _userSessionService = userSessionService;
+            _kinectService = new KinectService();
             _userSessionService.TryLoadUser(out _);
             CurrentUser = _userSessionService.CurrentUser;
+            _signalRService = new SignalRService(CurrentUser.Id);
             ShowHomeViewCommand = new RelayCommand<HomeView>(ShowHomeView);
             ShowExerciseViewCommand = new RelayCommand<ExerciseView>(ShowExerciseView);
             ShowStatisticsViewCommand = new RelayCommand<StatisticsView>(ShowStatisticsView);
@@ -60,7 +64,7 @@ namespace VnuRehab.ViewModels
         {
             Title = "Exercises";
             Icon = IconChar.Dumbbell;
-            CurrentChildView = new ExerciseViewModel(_userSessionService);
+            CurrentChildView = new ExerciseViewModel(_userSessionService, _kinectService, _signalRService);
         }
         
         private void ShowStatisticsView(StatisticsView view)
