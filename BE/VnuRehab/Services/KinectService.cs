@@ -160,7 +160,7 @@ namespace VnuRehab.Services
                                 position.Z = InferredZPositionClamp;
                             }
 
-                            DepthSpacePoint depthSpacePoint = _coordinateMapper.MapCameraPointToDepthSpace(position);
+                            ColorSpacePoint depthSpacePoint = _coordinateMapper.MapCameraPointToColorSpace(position);
                             jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
                         }
                         DrawBody(joints, jointPoints, dc, drawPen);
@@ -169,7 +169,7 @@ namespace VnuRehab.Services
                     }
                 }
                 // prevent drawing outside of our render area
-                FrameDescription desc = _sensor.DepthFrameSource.FrameDescription;
+                FrameDescription desc = _sensor.ColorFrameSource.FrameDescription;
                 _drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, desc.Width, desc.Height));
             }
             FrameReady?.Invoke(new DrawingImage(_drawingGroup));

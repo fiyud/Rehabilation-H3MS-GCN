@@ -54,6 +54,7 @@ namespace VnuRehab.ViewModels
             {
                 await _signalRService.DisconnectAsync();
                 _kinectService.Stop();
+                ImageSource = null;
                 IsServicesConnected = false;
             }
             else
