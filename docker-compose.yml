@@ -37,6 +37,8 @@ services:
 
   nginx:
     image: nginx:latest
+    depends_on:
+      - webapi
     ports:
       - "80:80"
       - "443:443"
