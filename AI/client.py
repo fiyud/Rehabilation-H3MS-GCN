@@ -8,13 +8,6 @@ from predict import *
 import signal
 import threading
 
-if torch.cuda.is_available() and torch.version.hip:
-    print("HIP available")
-elif torch.cuda.is_available() and torch.version.cuda:
-    print("CUDA available")
-else:
-    print("Torch CUDA not available")
-
 exercises = [
     "weights/kimore/model_ex1.pth",
     "weights/kimore/model_ex2.pth",
@@ -44,22 +37,32 @@ signal.signal(signal.SIGTERM, handle_shutdown)
 server_url = os.environ.get("SERVER_URL", "http://localhost:8080/kinecthub?type=ai")
 hub_conn = HubConnectionBuilder().with_url(server_url).build()
 
+use_cuda = torch.cuda_is_available()
+if use_cuda:
+    print("GPU available")
+else:
+    print("GPU unavailable. Use CPU")
+device = torch.device("cuda" if use_cuda else "cpu")
+map_location = torch.device("cuda:0" if use_cuda else "cpu")
+
 def handle_kimore(data, weight):
     kimore = Kimore()
-    sample_tensor = kimore.load_sample_from_json(data, device='cuda')
+    sample_tensor = kimore.load_sample_from_json(data, device)
     model = FiveStreamGCN_Model(num_joints=25, num_features=7, hidden_dim=128, num_layers=3, 
                                 output_dim=1, feat_d=300, nhead=4, dropout=0.15)
-    model.load_state_dict(torch.load(weight, map_location='cuda:0'))
-    y_pred = kimore.predict_single_sample(model, sample_tensor, device='cuda', model_name='FiveStreamGCN_Model')
+    print("Loading: ", weight)
+    model.load_state_dict(torch.load(weight, map_location))
+    y_pred = kimore.predict_single_sample(model, sample_tensor, device, model_name='FiveStreamGCN_Model')
     return y_pred
 
 def handle_uiprmd(data, weight):
     uiprmd = UIPRMD()
-    sample_tensor = uiprmd.load_sample_from_json(data, device='cuda')
+    sample_tensor = uiprmd.load_sample_from_json(data, device)
     model = FiveStreamGCN_Model(num_joints=39, num_features=3, hidden_dim=128, num_layers=3,  feat_d=741,
                                 output_dim=1, dropout=0.15)
-    model.load_state_dict(torch.load(weight, map_location='cuda:0'))
-    y_pred = uiprmd.predict_single_sample(model, sample_tensor, device='cuda', model_name='FiveStreamGCN_Model')
+    print("Loading: ", weight)
+    model.load_state_dict(torch.load(weight, map_location))
+    y_pred = uiprmd.predict_single_sample(model, sample_tensor, device, model_name='FiveStreamGCN_Model')
     return y_pred
     
 def handle_skeleton_data(args):
