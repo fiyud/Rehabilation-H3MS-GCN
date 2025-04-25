@@ -44,7 +44,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt/live/rehabgcn.eastus.cloudapp.azure.com:/etc/nginx/certs:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
     networks:
       - app-network
 
@@ -55,10 +55,11 @@ services:
     networks:
       - app-network
     environment:
-      NVIDIA_VISIBLE_DEVICES: all
+      # NVIDIA_VISIBLE_DEVICES: all
       SERVER_URL: http://webapi:8080/kinecthub?type=ai
     devices:
       - /dev/kfd
+      - /dev/dri
     group_add:
       - video
     # deploy:

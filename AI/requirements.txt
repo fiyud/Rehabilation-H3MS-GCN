@@ -1,3 +1,2 @@
-torch
 torch_geometric
 signalrcore

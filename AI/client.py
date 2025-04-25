@@ -8,6 +8,13 @@ from predict import *
 import signal
 import threading
 
+if torch.cuda.is_available() and torch.version.hip:
+    print("HIP available")
+elif torch.cuda.is_available() and torch.version.cuda:
+    print("CUDA available")
+else:
+    print("Torch CUDA not available")
+
 exercises = [
     "weights/kimore/model_ex1.pth",
     "weights/kimore/model_ex2.pth",
