@@ -34,6 +34,12 @@ app.UseAuthorization();
 
 app.MapHub<KinectHub>("/kinecthub");
 
+app.MapGet("/test", async (IDataAccess data) =>
+{
+    var users = await data.GetAllAsync();
+    return users.Any() ? Results.Ok(users) : Results.NotFound();
+});
+
 app.MapPost("/login", async (LoginRequest login, IDataAccess data) =>
 {
     var user = await data.GetByIdAsync(login.Id);
