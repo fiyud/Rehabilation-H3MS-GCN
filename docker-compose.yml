@@ -57,11 +57,11 @@ services:
     environment:
       # NVIDIA_VISIBLE_DEVICES: all
       SERVER_URL: http://webapi:8080/kinecthub?type=ai
-    devices:
-      - /dev/kfd
-      - /dev/dri
-    group_add:
-      - video
+    # devices:
+    #   - /dev/kfd
+    #   - /dev/dri
+    # group_add:
+    #   - video
     # deploy:
     #   resources:
     #     reservations:
