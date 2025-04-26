@@ -68,6 +68,7 @@ namespace VnuRehab.Services
         };
 
         private KinectSensor _sensor;
+        private bool _isAvailable;
         private CoordinateMapper _coordinateMapper;
         private ColorFrameReader _colorReader;
         private BodyFrameReader _bodyReader;
@@ -78,17 +79,27 @@ namespace VnuRehab.Services
 
         public event Action<DrawingImage> FrameReady;
         public event Action<List<SkeletonFrame>> BatchReady;
-        public event EventHandler<IsAvailableChangedEventArgs> SensorAvailableChanged;
+        public event EventHandler<EventArgs> OnSensorAvailableChanged;
+        public bool IsAvailable
+        {
+            get => _isAvailable;
+            set
+            {
+                _isAvailable = value;
+                OnSensorAvailableChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         public void Start()
         {
             _sensor = KinectSensor.GetDefault();
+            if (_sensor == null) return;
             _coordinateMapper = _sensor.CoordinateMapper;
             _colorReader = _sensor.ColorFrameSource.OpenReader();
             _bodyReader = _sensor.BodyFrameSource.OpenReader();
             FrameDescription desc = _sensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
             _colorBitmap = new WriteableBitmap(desc.Width, desc.Height, 96.0, 96.0, PixelFormats.Bgra32, null);
-            _sensor.IsAvailableChanged += (s, e) => SensorAvailableChanged?.Invoke(s, e);
+            _sensor.IsAvailableChanged += (s, e) => IsAvailable = e.IsAvailable;
             _colorReader.FrameArrived += ColorFrameReader_FrameArrived;
             _bodyReader.FrameArrived += BodyFrameReader_FrameArrived;
             _sensor.Open();

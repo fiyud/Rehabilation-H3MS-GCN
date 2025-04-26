@@ -14,15 +14,6 @@ public class KinectHub : Hub
     private static string? _aiConnectionId;
     private static readonly ConcurrentDictionary<string, ClientContext> _clients = [];
 
-    public async Task SendFrameToUser(string userId, string data)
-    {
-        if (_clients.TryGetValue(userId, out var context) && !string.IsNullOrEmpty(context.ConnectionId))
-        {
-            Console.WriteLine($"Sending frame to {userId}");
-            await Clients.Client(context.ConnectionId).SendAsync("ReceiveFrame", data);
-        }
-    }
-
     public Task SetExerciseType(string userId, ExerciseType type)
     {
         if (_clients.TryGetValue(userId, out var context))

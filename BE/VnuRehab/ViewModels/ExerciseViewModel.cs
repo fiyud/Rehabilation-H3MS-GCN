@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
-using Microsoft.Kinect;
 using VnuRehab.Services;
 
 namespace VnuRehab.ViewModels
@@ -9,22 +9,22 @@ namespace VnuRehab.ViewModels
     public class ExerciseViewModel : BaseViewModel
     {
         private DrawingImage _imageSource;
-        private string _statusText;
-        private bool _isServicesConnected;
+        private bool _isServicesAvailable;
+        private decimal _score;
         public DrawingImage ImageSource
         {
             get => _imageSource;
-            set { _imageSource = value; OnPropertyChanged(nameof(ImageSource)); }
+            set => SetProperty(ref _imageSource, value);
         }
-        public string StatusText
+        public bool IsServicesAvailable
         {
-            get => _statusText;
-            set { _statusText = value; OnPropertyChanged(nameof(StatusText)); }
+            get => _isServicesAvailable;
+            set => SetProperty(ref _isServicesAvailable, value);
         }
-        public bool IsServicesConnected
+        public decimal Score
         {
-            get => _isServicesConnected;
-            set { _isServicesConnected = value; OnPropertyChanged(nameof(IsServicesConnected)); }
+            get => _score;
+            set => SetProperty(ref _score, value);
         }
 
         private readonly UserSessionService _userSessionService;
@@ -43,31 +43,33 @@ namespace VnuRehab.ViewModels
 
             _kinectService.FrameReady += image => ImageSource = image;
             _kinectService.BatchReady += async batch => await _signalRService.SendBatchAsync(batch);
-            _kinectService.SensorAvailableChanged += KinectSensor_IsAvailableChanged;
+            _signalRService.OnScoreReceived += (score) => Score = score;
+            _signalRService.OnConnectionChanged += ServiceAvailableChanged;
+            _kinectService.OnSensorAvailableChanged += ServiceAvailableChanged;
 
             ToggleServicesCommand = new RelayCommand<object>(async _ => await ToggleServices());
         }
 
         private async Task ToggleServices()
         {
-            if (IsServicesConnected)
+            if (IsServicesAvailable)
             {
                 await _signalRService.DisconnectAsync();
                 _kinectService.Stop();
                 ImageSource = null;
-                IsServicesConnected = false;
+                IsServicesAvailable = false;
             }
             else
             {
                 _kinectService.Start();
                 await _signalRService.ConnectAsync();
-                IsServicesConnected = true;
+                IsServicesAvailable = true;
             }
         }
 
-        private void KinectSensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
+        private void ServiceAvailableChanged(object sender, EventArgs e)
         {
-            StatusText = e.IsAvailable ? "Available" : "Unavailable";
+            IsServicesAvailable = _signalRService.IsConnected && _kinectService.IsAvailable;
         }
     }
 }
