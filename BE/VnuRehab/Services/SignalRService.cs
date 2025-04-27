@@ -8,7 +8,7 @@ using VnuRehab.Models;
 
 namespace VnuRehab.Services
 {
-    public class SignalRService : IDisposable
+    public class SignalRService : IAsyncDisposable
     {
         private readonly string _userId;
         private HubConnection _connection;
@@ -28,11 +28,6 @@ namespace VnuRehab.Services
         public SignalRService(UserSessionService userSessionService)
         {
             _userId = userSessionService.CurrentUser?.Id ?? throw new InvalidOperationException("User not logged in.");
-        }
-
-        public async Task ConnectAsync()
-        {
-            if (_isConnected) return;
             _connection = new HubConnectionBuilder()
                 .WithUrl($"http://localhost:8080/kinecthub?type=ui&userId={_userId}")
                 .WithAutomaticReconnect()
@@ -41,9 +36,12 @@ namespace VnuRehab.Services
             _connection.Closed += async (error) =>
             {
                 IsConnected = false;
-                MessageBox.Show("SignalR connection closed.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                await Task.Delay(TimeSpan.FromSeconds(2));
-                await ConnectAsync();
+                if (error != null)
+                {
+                    MessageBox.Show("SignalR connection closed.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+                    await ConnectAsync();
+                }
             };
             _connection.Reconnecting += (error) =>
             {
@@ -55,6 +53,12 @@ namespace VnuRehab.Services
                 IsConnected = true;
                 return Task.CompletedTask;
             };
+            IsConnected = false;
+        }
+
+        public async Task ConnectAsync()
+        {
+            if (_connection is null || IsConnected) return;
             try
             {
                 await _connection.StartAsync();
@@ -95,9 +99,9 @@ namespace VnuRehab.Services
             }
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
-            DisconnectAsync().Wait();
+            await DisconnectAsync();
         }
     }
 }
