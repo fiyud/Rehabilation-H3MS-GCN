@@ -8,28 +8,55 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:ExerciseViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <CollectionViewSource Source="{Binding Exercises}" x:Key="GroupedData">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="Group"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="250"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0"
-                CornerRadius="10"
-                Margin="0,0,10,100"
-                Padding="10">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0.7">
-                    <GradientStop Color="{StaticResource secondaryBackColor1}" Offset="0"/>
-                    <GradientStop Color="{StaticResource secondaryBackColor2}" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <Border CornerRadius="10">
+        <Grid Grid.Column="0" Margin="0,0,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="100"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0"
+                    CornerRadius="10"
+                    Padding="10">
                 <Border.Background>
-                    <ImageBrush ImageSource="{Binding ImageSource}"
-                                Stretch="UniformToFill"/>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0.7">
+                        <GradientStop Color="{StaticResource secondaryBackColor1}" Offset="0"/>
+                        <GradientStop Color="{StaticResource secondaryBackColor2}" Offset="1"/>
+                    </LinearGradientBrush>
                 </Border.Background>
+                <Border CornerRadius="10">
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding ImageSource}"
+                                    Stretch="UniformToFill"/>
+                    </Border.Background>
+                </Border>
             </Border>
-        </Border>
+            <StackPanel Grid.Row="1" Margin="0,20,0,0">
+                <TextBlock Text="Kimore - Arm Circle"
+                           FontFamily="Montserrat"
+                           FontSize="24" 
+                           FontWeight="Bold"
+                           Foreground="{StaticResource titleColor3}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Do this or else"
+                           FontFamily="Montserrat"
+                           FontSize="16" 
+                           FontWeight="Regular"
+                           Foreground="{StaticResource titleColor3}"
+                           HorizontalAlignment="Center"
+                           Margin="0,10,0,0"/>
+            </StackPanel>
+        </Grid>
         <Border Grid.Column="1" CornerRadius="10,10,10,10" Margin="10,0,0,0">
             <Border.Background>
                 <LinearGradientBrush StartPoint="1,1" EndPoint="0,0">
@@ -38,15 +65,140 @@
                 </LinearGradientBrush>
             </Border.Background>
             <StackPanel>
-                <Button Command="{Binding ToggleServicesCommand}"
-                        Content="Toggle device"
-                        Background="Transparent"
-                        Foreground="{StaticResource plainTextColor3}"
-                        BorderBrush="Transparent"
-                        Width="100"
-                        Height="50"
-                        Margin="0,25,0,0">
-                </Button>
+                <TextBlock>
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="Montserrat"/>
+                            <Setter Property="FontSize" Value="18"/>
+                            <Setter Property="FontWeight" Value="Medium"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="Margin" Value="0,20,0,0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDeviceAvailable}" Value="True">
+                                    <Setter Property="Text" Value="Device Available" />
+                                    <Setter Property="Foreground" Value="{StaticResource color9}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsDeviceAvailable}" Value="False">
+                                    <Setter Property="Text" Value="Device Unavailable" />
+                                    <Setter Property="Foreground" Value="{StaticResource color4}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Stretch"
+                            Margin="0,30">
+                    <TextBlock Text="Toggle Device"
+                               FontFamily="Montserrat"
+                               FontSize="16" 
+                               FontWeight="Regular"
+                               Foreground="{StaticResource titleColor3}"
+                               VerticalAlignment="Center"
+                               Margin="20,0,30,0"/>
+                    <ToggleButton Command="{Binding ToggleDeviceCommand}"
+                                  IsChecked="{Binding IsDeviceOpen, Mode=OneWay}"
+                                  IsEnabled="{Binding IsDeviceAvailable}"
+                                  Style="{StaticResource SwitchToggleButton}"/>
+                </StackPanel>
+                <TextBlock Text="Choose an exercise"
+                           FontFamily="Montserrat"
+                           FontSize="20" 
+                           FontWeight="Medium"
+                           Foreground="{StaticResource titleColor3}"
+                           VerticalAlignment="Center"
+                           Margin="20,0"/>
+                <ComboBox Margin="20,10,20,0" Padding="10,5,10,5"
+                          Background="{StaticResource panelColor}"
+                          ItemsSource="{Binding Source={StaticResource GroupedData}}">
+                    <!-- Custom style with rounded corners -->
+                    <ComboBox.Style>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="Padding" Value="10,5,10,5"/>
+                            <Setter Property="Background" Value="{StaticResource panelColor}"/>
+                            <Setter Property="BorderBrush" Value="#6D2FFF"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Height" Value="40"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            <Setter Property="FontSize" Value="16"/>
+                        </Style>
+                    </ComboBox.Style>
+
+                    <ComboBox.Template>
+                        <ControlTemplate TargetType="ComboBox">
+                            <Grid>
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="2"
+                                        x:Name="ComboContent"
+                                        CornerRadius="10">
+                                    <ContentPresenter x:Name="ContentPresenter"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                      HorizontalAlignment="Left"
+                                                      VerticalAlignment="Center"
+                                                      Margin="10,0,25,0"
+                                                      RecognizesAccessKey="True" />
+                                </Border>
+                                <!-- ToggleButton to open the ComboBox -->
+                                <ToggleButton x:Name="ToggleButton"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                              ClickMode="Press"
+                                              Focusable="False">
+                                    <Path Data="M 0 0 L 8 8 L 16 0"
+                                            Stroke="#6D2FFF"
+                                            StrokeThickness="2"
+                                            StrokeLineJoin="Round"
+                                            StrokeEndLineCap="Round"
+                                            StrokeStartLineCap="Round"
+                                            Width="16"
+                                            Height="8"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            Margin="170,0,10,0" />
+                                </ToggleButton>
+
+                                <!-- Drop-down list (will show when the ToggleButton is checked) -->
+                                <Popup x:Name="DropDownPopup"
+                                       IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Placement="Bottom"
+                                       Width="{Binding ActualWidth, ElementName=ComboContent}"
+                                       PopupAnimation="Scroll">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
+                                        <ScrollViewer>
+                                            <StackPanel>
+                                                <ItemsPresenter />
+                                            </StackPanel>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </ControlTemplate>
+                    </ComboBox.Template>
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource titleColor3}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+
+                    <ComboBox.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="Bold" Foreground="{StaticResource titleColor2}" Text="{Binding Name}" />
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                        </GroupStyle>
+                    </ComboBox.GroupStyle>
+                </ComboBox>
             </StackPanel>
         </Border>
     </Grid>

@@ -49,7 +49,7 @@ namespace VnuRehab
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
-            ServiceProvider?.Dispose();
+            ServiceProvider?.DisposeAsync();
         }
     }
 }

@@ -8,7 +8,7 @@ using VnuRehab.Models;
 
 namespace VnuRehab.Services
 {
-    public class ApiService
+    public class ApiService : IDisposable
     {
         private const string BaseUrl = "http://localhost:8080";
         private readonly HttpClient _client;
@@ -36,6 +36,11 @@ namespace VnuRehab.Services
                 return user;
             }
             return null;
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
         }
     }
 }

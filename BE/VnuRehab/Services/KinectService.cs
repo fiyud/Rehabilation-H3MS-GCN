@@ -12,8 +12,8 @@ namespace VnuRehab.Services
     public class KinectService : IDisposable
     {
         private const int FrameThreshold = 50;
-        private const double HandSize = 30;
-        private const double JointThickness = 3;
+        private const double HandSize = 50;
+        private const double JointThickness = 10;
         private const float InferredZPositionClamp = 0.1f;
         private readonly Brush _handClosedBrush = new SolidColorBrush(Color.FromArgb(128, 255, 0, 0));
         private readonly Brush _handOpenBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 0));
@@ -68,7 +68,7 @@ namespace VnuRehab.Services
         };
 
         private KinectSensor _sensor;
-        private bool _isAvailable;
+        private bool _isOpen;
         private CoordinateMapper _coordinateMapper;
         private ColorFrameReader _colorReader;
         private BodyFrameReader _bodyReader;
@@ -79,30 +79,50 @@ namespace VnuRehab.Services
 
         public event Action<DrawingImage> FrameReady;
         public event Action<List<SkeletonFrame>> BatchReady;
-        public event EventHandler<EventArgs> OnSensorAvailableChanged;
-        public bool IsAvailable
-        {
-            get => _isAvailable;
-            set
+        public event EventHandler<IsAvailableChangedEventArgs> OnSensorAvailableChanged;
+        public event Action<bool> OnSensorOpenChanged;
+        public bool IsAvailable { get; private set; }
+        public bool IsOpen
+        { 
+            get => _isOpen;
+            private set
             {
-                _isAvailable = value;
-                OnSensorAvailableChanged?.Invoke(this, EventArgs.Empty);
+                _isOpen = value;
+                OnSensorOpenChanged?.Invoke(value);
             }
+        }
+
+        public KinectService()
+        {
+            _sensor = KinectSensor.GetDefault();
+            if (_sensor == null) return;
+            _sensor.IsAvailableChanged += Sensor_IsAvailableChanged;
+            _sensor.Open();
         }
 
         public void Start()
         {
-            _sensor = KinectSensor.GetDefault();
+            if (IsOpen) return;
+            _sensor = _sensor ?? KinectSensor.GetDefault();
             if (_sensor == null) return;
             _coordinateMapper = _sensor.CoordinateMapper;
             _colorReader = _sensor.ColorFrameSource.OpenReader();
             _bodyReader = _sensor.BodyFrameSource.OpenReader();
-            FrameDescription desc = _sensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
-            _colorBitmap = new WriteableBitmap(desc.Width, desc.Height, 96.0, 96.0, PixelFormats.Bgra32, null);
-            _sensor.IsAvailableChanged += (s, e) => IsAvailable = e.IsAvailable;
+            if (_colorBitmap == null)
+            {
+                FrameDescription desc = _sensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
+                _colorBitmap = new WriteableBitmap(desc.Width, desc.Height, 96.0, 96.0, PixelFormats.Bgra32, null);
+            }
             _colorReader.FrameArrived += ColorFrameReader_FrameArrived;
             _bodyReader.FrameArrived += BodyFrameReader_FrameArrived;
-            _sensor.Open();
+            IsOpen = true;
+        }
+
+        private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
+        {
+            IsAvailable = e.IsAvailable;
+            if (!e.IsAvailable) Stop();
+            OnSensorAvailableChanged?.Invoke(sender, e);
         }
 
         private void BodyFrameReader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
@@ -275,14 +295,27 @@ namespace VnuRehab.Services
 
         public void Stop()
         {
-            _colorReader?.Dispose();
-            _bodyReader?.Dispose();
-            _sensor?.Close();
+            if (_colorReader != null)
+            {
+                _colorReader.FrameArrived -= ColorFrameReader_FrameArrived;
+                _colorReader.Dispose();
+                _colorReader = null;
+            }
+            if (_bodyReader != null)
+            {
+                _bodyReader.FrameArrived -= BodyFrameReader_FrameArrived;
+                _bodyReader.Dispose();
+                _bodyReader = null;
+            }
+            IsOpen = false;
         }
 
         public void Dispose()
         {
             Stop();
+            _sensor?.Close();
+            _sensor.IsAvailableChanged -= Sensor_IsAvailableChanged;
+            _sensor = null;
         }
     }
 }

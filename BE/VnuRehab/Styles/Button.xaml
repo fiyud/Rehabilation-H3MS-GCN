@@ -112,4 +112,103 @@
         <Setter Property="Width" Value="16"/>
         <Setter Property="Height" Value="16"/>
     </Style>
+    
+    <!-- Toggle button -->
+    <Style x:Key="SwitchToggleButton" TargetType="ToggleButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border Background="Transparent">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+                            <ContentPresenter VerticalAlignment="Center" />
+                            <Grid Grid.Column="1" Width="50" Height="25" Cursor="Hand">
+                                <Border x:Name="SwitchBackground"
+                                        CornerRadius="12.5"
+                                        Background="LightGray" />
+                                <Ellipse x:Name="SwitchThumb"
+                                         Width="20" Height="20"
+                                         Fill="White"
+                                         Margin="2.5,2.5,27.5,2.5">
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform x:Name="ThumbTransform" />
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Toggle ON -->
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="{StaticResource color9}" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ThumbTransform"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="25" Duration="0:0:0.2" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ThumbTransform"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="0" Duration="0:0:0.2" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <!-- Toggle OFF -->
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="{StaticResource color4}" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ThumbTransform"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="0" Duration="0:0:0.2" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ThumbTransform"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="25" Duration="0:0:0.2" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <!-- Mouse Over and ON -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="True"/>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="#51F7D3"/>
+                        </MultiTrigger>
+                        <!-- Mouse Over and OFF -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="False"/>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="#FC86B9"/>
+                        </MultiTrigger>
+                        <!-- Disabled -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="SwitchBackground" Property="Background" Value="#AAA" />
+                            <Setter TargetName="SwitchThumb" Property="Fill" Value="#DDD" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
