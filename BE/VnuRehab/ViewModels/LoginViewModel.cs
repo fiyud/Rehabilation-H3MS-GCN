@@ -12,26 +12,30 @@ namespace VnuRehab.ViewModels
         private string _patientId;
         private bool _isLoggingIn;
         private readonly UserSessionService _userSessionService;
+        private readonly WindowService _windowService;
+        private readonly ApiService _apiService;
         public string PatientName
         {
             get => _patientName;
-            set { _patientName = value; OnPropertyChanged(nameof(PatientName)); }
+            set => SetProperty(ref _patientName, value);
         }
         public string PatientId
         {
             get => _patientId;
-            set { _patientId = value; OnPropertyChanged(nameof(PatientId)); }
+            set => SetProperty(ref _patientId, value);
         }
         public bool IsLoggingIn
         {
             get => _isLoggingIn;
-            set { _isLoggingIn = value; OnPropertyChanged(nameof(IsLoggingIn)); }
+            set => SetProperty(ref _isLoggingIn, value);
         }
 
         public ICommand LoginCommand { get; }
 
-        public LoginViewModel(UserSessionService userSessionService)
+        public LoginViewModel(ApiService apiService, WindowService windowService, UserSessionService userSessionService)
         {
+            _apiService = apiService;
+            _windowService = windowService;
             _userSessionService = userSessionService;
             LoginCommand = new RelayCommand<LoginWindow>(Login);
         }
@@ -46,14 +50,11 @@ namespace VnuRehab.ViewModels
             IsLoggingIn = true;
             try
             {
-                var user = await ApiService.LoginAsync(PatientName, PatientId);
+                var user = await _apiService.LoginAsync(PatientName, PatientId);
                 if (user != null)
                 {
                     _userSessionService.SaveUser(user);
-                    var mainWindow = new MainWindow(_userSessionService);
-                    mainWindow.Show();
-                    Application.Current.MainWindow.Close();
-                    Application.Current.MainWindow = mainWindow;
+                    _windowService.SwitchMainWindow<MainWindow>();
                 }
                 else
                 {

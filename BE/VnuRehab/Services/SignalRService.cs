@@ -3,38 +3,87 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows;
 using VnuRehab.Models;
 
 namespace VnuRehab.Services
 {
-    public class SignalRService
+    public class SignalRService : IDisposable
     {
+        private readonly string _userId;
         private HubConnection _connection;
-        private string _userId;
+        private bool _isConnected;
+        public bool IsConnected
+        {
+            get => _isConnected;
+            set
+            {
+                _isConnected = value;
+                OnConnectionChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public event EventHandler<EventArgs> OnConnectionChanged;
         public event Action<decimal> OnScoreReceived;
 
-        public SignalRService(string userId)
+        public SignalRService(UserSessionService userSessionService)
         {
-            _userId = userId;
+            _userId = userSessionService.CurrentUser?.Id ?? throw new InvalidOperationException("User not logged in.");
         }
 
         public async Task ConnectAsync()
         {
+            if (_isConnected) return;
             _connection = new HubConnectionBuilder()
-                .WithUrl($"http://localhost:8080/kinecthub")
+                .WithUrl($"http://localhost:8080/kinecthub?type=ui&userId={_userId}")
                 .WithAutomaticReconnect()
                 .Build();
             _connection.On<decimal>("ReceiveScore", score => OnScoreReceived?.Invoke(score));
-            await _connection.StartAsync();
+            _connection.Closed += async (error) =>
+            {
+                IsConnected = false;
+                MessageBox.Show("SignalR connection closed.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                await Task.Delay(TimeSpan.FromSeconds(2));
+                await ConnectAsync();
+            };
+            _connection.Reconnecting += (error) =>
+            {
+                IsConnected = false;
+                return Task.CompletedTask;
+            };
+            _connection.Reconnected += (id) =>
+            {
+                IsConnected = true;
+                return Task.CompletedTask;
+            };
+            try
+            {
+                await _connection.StartAsync();
+                IsConnected = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error connecting to SignalR: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public async Task DisconnectAsync()
         {
             if (_connection != null)
             {
-                await _connection.StopAsync();
-                await _connection.DisposeAsync();
-                _connection = null;
+                try
+                {
+                    await _connection.StopAsync();
+                    await _connection.DisposeAsync();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error disconnecting from SignalR: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    IsConnected = false;
+                    _connection = null;
+                }
             }
         }
 
@@ -42,15 +91,13 @@ namespace VnuRehab.Services
         {
             if (_connection != null && _connection.State == HubConnectionState.Connected)
             {
-                try
-                {
-                    await _connection.InvokeAsync("SendBatchToAI", _userId, JsonConvert.SerializeObject(batch));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error sending batch: {ex.Message}");
-                }
+                await _connection.InvokeAsync("SendBatchToAI", _userId, JsonConvert.SerializeObject(batch));
             }
+        }
+
+        public void Dispose()
+        {
+            DisconnectAsync().Wait();
         }
     }
 }

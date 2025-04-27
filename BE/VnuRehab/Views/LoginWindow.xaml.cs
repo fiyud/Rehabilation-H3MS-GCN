@@ -1,16 +1,15 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using VnuRehab.Services;
 using VnuRehab.ViewModels;
 
 namespace VnuRehab.Views
 {
     public partial class LoginWindow : Window
     {
-        public LoginWindow(UserSessionService userSessionService)
+        public LoginWindow(LoginViewModel viewModel)
         {
             InitializeComponent();
-            DataContext = new LoginViewModel(userSessionService);
+            DataContext = viewModel;
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)

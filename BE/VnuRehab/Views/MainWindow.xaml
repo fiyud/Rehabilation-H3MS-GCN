@@ -13,17 +13,6 @@
         WindowStyle="None"
         Background="Transparent"
         AllowsTransparency="True">
-    <Window.Resources>
-        <DataTemplate DataType="{x:Type viewmodels:HomeViewModel}">
-            <local:HomeView/>
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type viewmodels:ExerciseViewModel}">
-            <local:ExerciseView/>
-        </DataTemplate>
-        <DataTemplate DataType="{x:Type viewmodels:StatisticsViewModel}">
-            <local:StatisticsView/>
-        </DataTemplate>
-    </Window.Resources>
     <Border CornerRadius="10" BorderThickness="2">
         <Border.BorderBrush>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -172,7 +161,7 @@
                             </Ellipse>
                         </StackPanel>
                     </Grid>
-                    <ContentControl Content="{Binding CurrentChildView}" Grid.Row="2" Margin="25"/>
+                    <ContentControl Content="{Binding Navigation.CurrentView}" Grid.Row="2" Margin="25"/>
                 </Grid>
             </Border>
         </Grid>

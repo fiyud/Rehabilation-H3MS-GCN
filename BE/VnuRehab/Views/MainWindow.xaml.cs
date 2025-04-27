@@ -2,7 +2,6 @@
 using System.Windows.Input;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
-using VnuRehab.Services;
 using VnuRehab.ViewModels;
 using System;
 
@@ -10,10 +9,10 @@ namespace VnuRehab.Views
 {
     public partial class MainWindow : Window
     {
-        public MainWindow(UserSessionService userSessionService)
+        public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
-            DataContext = new MainViewModel(userSessionService);
+            DataContext = viewModel;
         }
 
         [DllImport("user32.dll")]

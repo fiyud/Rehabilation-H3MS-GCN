@@ -8,18 +8,23 @@ using VnuRehab.Models;
 
 namespace VnuRehab.Services
 {
-    public static class ApiService
+    public class ApiService
     {
-        private static readonly string _baseUrl = "http://localhost:8080";
-        private static readonly HttpClient _client = new HttpClient();
-        static ApiService()
+        private const string BaseUrl = "http://localhost:8080";
+        private readonly HttpClient _client;
+        public ApiService()
         {
-            _client.BaseAddress = new Uri(_baseUrl);
-            _client.DefaultRequestHeaders.Accept.Clear();
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _client = new HttpClient
+            {
+                BaseAddress = new Uri(BaseUrl),
+                DefaultRequestHeaders =
+                {
+                    Accept = { new MediaTypeWithQualityHeaderValue("application/json") },
+                }
+            };
         }
 
-        public static async Task<User> LoginAsync(string username, string id)
+        public async Task<User> LoginAsync(string username, string id)
         {
             var payload = new { Username = username, Id = id };
             var json = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
