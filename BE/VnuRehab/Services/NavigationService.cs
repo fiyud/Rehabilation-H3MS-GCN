@@ -35,7 +35,8 @@ namespace VnuRehab.Services
 
         public ICommand CreateCommand<TView>(Action<TView> extra = null) where TView : UserControl
         {
-            return new RelayCommand<TView>(view => {
+            return new RelayCommand<TView>(view =>
+            {
                 NavigateTo<TView>();
                 extra?.Invoke(view);
             });

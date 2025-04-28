@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Windows;
+﻿using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using VnuRehab.Services;
 using VnuRehab.ViewModels;
 using VnuRehab.Views;

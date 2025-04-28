@@ -1,9 +1,9 @@
-﻿using System.Windows;
-using System.Windows.Input;
+﻿using System;
 using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 using VnuRehab.ViewModels;
-using System;
 
 namespace VnuRehab.Views
 {
@@ -17,7 +17,7 @@ namespace VnuRehab.Views
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(IntPtr hWnd, int wMsg, int wParam, int lParam);
-        
+
         private void PanelControlBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             WindowInteropHelper helper = new WindowInteropHelper(this);

@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value = {
     user,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: !user,
     login,
     logout,
     authError,

@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json;
 using VnuRehab.Models;
 
 namespace VnuRehab.Services

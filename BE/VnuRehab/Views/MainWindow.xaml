@@ -36,6 +36,7 @@
                 </Border.Background>
                 <StackPanel>
                     <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
                                 Height="35"
                                 Margin="15,25,0,40">
                         <Image Source="/Assets/Images/Logo.png" Height="30"/>
