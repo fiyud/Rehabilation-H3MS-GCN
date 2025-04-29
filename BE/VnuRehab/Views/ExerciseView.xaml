@@ -118,7 +118,6 @@
                             <Setter Property="Padding" Value="10,5,10,5"/>
                             <Setter Property="Background" Value="{StaticResource panelColor}"/>
                             <Setter Property="BorderBrush" Value="#6D2FFF"/>
-                            <Setter Property="BorderThickness" Value="1"/>
                             <Setter Property="Height" Value="40"/>
                             <Setter Property="VerticalContentAlignment" Value="Center"/>
                             <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -198,13 +197,83 @@
                             </Setter>
                         </Style>
                     </ComboBox.Style>
-                    
+                    <ComboBox.Template>
+                        <ControlTemplate TargetType="ComboBox">
+                            <Grid>
+                                <Border Background="{StaticResource panelColor}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="0"
+                                        x:Name="ComboContent">
+                                    <ContentPresenter x:Name="ContentPresenter"
+                                                        Content="{TemplateBinding SelectionBoxItem}"
+                                                        ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                        ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        Margin="10,0,25,0"
+                                                        RecognizesAccessKey="True" />
+                                </Border>
+                                <!-- ToggleButton to open the ComboBox -->
+                                <ToggleButton x:Name="ToggleButton"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                              ClickMode="Press"
+                                              Focusable="False">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border x:Name="border"
+                                                    CornerRadius="10"
+                                                    Background="Transparent"
+                                                    BorderBrush="#6D2FFF"
+                                                    BorderThickness="2">
+                                                <Path x:Name="path"
+                                                      Data="M 0 0 L 8 8 L 16 0"
+                                                      Stroke="#6D2FFF"
+                                                      StrokeThickness="2"
+                                                      StrokeLineJoin="Round"
+                                                      StrokeEndLineCap="Round"
+                                                      StrokeStartLineCap="Round"
+                                                      HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center"
+                                                      Width="16" Height="8"
+                                                      Margin="170,0,10,0" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="border" Property="BorderBrush" Value="#A077FF"/>
+                                                    <Setter TargetName="path" Property="Stroke" Value="#A077FF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                </ToggleButton>
+                                <!-- Drop-down list (will show when the ToggleButton is checked) -->
+                                <Popup x:Name="DropDownPopup"
+                                       IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Placement="Bottom"
+                                       Width="{Binding ActualWidth, ElementName=ComboContent}"
+                                       PopupAnimation="Scroll">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
+                                        <ScrollViewer Padding="5"
+                                                      MaxHeight="300"
+                                                      HorizontalScrollBarVisibility="Disabled"
+                                                      VerticalScrollBarVisibility="Hidden">
+                                            <ItemsPresenter />
+                                        </ScrollViewer>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </ControlTemplate>
+                    </ComboBox.Template>
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" Foreground="{StaticResource titleColor3}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
-
                     <ComboBox.GroupStyle>
                         <GroupStyle>
                             <GroupStyle.HeaderTemplate>
@@ -215,6 +284,42 @@
                         </GroupStyle>
                     </ComboBox.GroupStyle>
                 </ComboBox>
+                <Button Content="Start Exercise"
+                        Width="150" Height="35"
+                        Margin="20"
+                        Foreground="{StaticResource titleColor3}"   
+                        HorizontalAlignment="Left">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder"
+                                    Background="Transparent"
+                                    BorderBrush="{StaticResource color9}"
+                                    BorderThickness="2"
+                                    CornerRadius="10">
+                                <TextBlock x:Name="TextContent"
+                                           Text="{TemplateBinding Content}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           FontFamily="Montserrat"
+                                           FontSize="16"
+                                           FontWeight="Medium"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#06B59C"/>
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="{StaticResource color9}"/>
+                                    <Setter TargetName="TextContent" Property="Foreground" Value="#003D2E"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#06B59C"/>
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="#06B59C"/>
+                                    <Setter TargetName="TextContent" Property="Foreground" Value="#003D2E"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
             </StackPanel>
         </Border>
     </Grid>
