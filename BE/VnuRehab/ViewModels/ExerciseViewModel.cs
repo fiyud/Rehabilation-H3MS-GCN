@@ -39,21 +39,21 @@ namespace VnuRehab.ViewModels
         }
         public ObservableCollection<ExerciseItem> Exercises { get; set; } = new ObservableCollection<ExerciseItem>
         {
-            new ExerciseItem { Group = "Kimore", Name = "Exercise1" },
-            new ExerciseItem { Group = "Kimore", Name = "Exercise2" },
-            new ExerciseItem { Group = "Kimore", Name = "Exercise3" },
-            new ExerciseItem { Group = "Kimore", Name = "Exercise4" },
-            new ExerciseItem { Group = "Kimore", Name = "Exercise5" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise6" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise7" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise8" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise9" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise10" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise11" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise12" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise13" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise14" },
-            new ExerciseItem { Group = "UIPRMD", Name = "Exercise15" }
+            new ExerciseItem { Group = "Kimore", Name = "Jumping Jacks" },
+            new ExerciseItem { Group = "Kimore", Name = "Arm Circles" },
+            new ExerciseItem { Group = "Kimore", Name = "Torso Twists" },
+            new ExerciseItem { Group = "Kimore", Name = "Squats" },
+            new ExerciseItem { Group = "Kimore", Name = "Lateral Arm Raises" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Deep Squat" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Hurdle Step" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Inline Lunge" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Side Lunge" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Sit to Stand" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Standing Active Straight Leg Raise" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Standing Shoulder Abduction" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Standing Shoulder Extension" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Standing Shoulder Internal-External Rotation" },
+            new ExerciseItem { Group = "UIPRMD", Name = "Standing Shoulder Scaption" }
         };
         public KinectService KinectService => _kinectService;
 
