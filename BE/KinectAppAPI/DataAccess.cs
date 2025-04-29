@@ -20,7 +20,7 @@ public class DataAccess(IConfiguration configuration) : IDataAccess
         using var conn = GetConnection();
         return await conn.QueryFirstOrDefaultAsync<User>(Constants.GetUserById, new { Id = id });
     }
-    
+
     public async Task<bool> AddAsync(User user)
     {
         using var conn = GetConnection();

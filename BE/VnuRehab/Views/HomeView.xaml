@@ -7,8 +7,258 @@
              xmlns:viewmodels="clr-namespace:VnuRehab.ViewModels"
              d:DataContext="{d:DesignInstance Type=viewmodels:HomeViewModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="700" d:DesignWidth="900">
+    
+    <!-- Custom Resources for this View -->
+    <UserControl.Resources>
+        <!-- Exercise Card Style using existing colors -->
+        <Style x:Key="ExerciseCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource panelColor}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="30"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        
+        <!-- Exercise Title Style using existing colors -->
+        <Style x:Key="ExerciseTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Foreground" Value="{StaticResource titleColor1}"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        
+        <!-- Instruction Header Style using existing colors -->
+        <Style x:Key="InstructionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource titleColor2}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        
+        <!-- Instruction Step Style using existing colors -->
+        <Style x:Key="InstructionStepStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource plainTextColor1}"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        
+        <!-- Tip Style using existing colors -->
+        <Style x:Key="TipStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource plainTextColor2}"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        
+        <!-- Toggle Button Style for exercise type selection -->
+        <Style x:Key="ExerciseToggleButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource plainTextColor3}"/>
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="MinWidth" Value="260"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="0,0,0,2"
+                                CornerRadius="4,4,0,0">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource panelOverColor}"/>
+                    <Setter Property="Foreground" Value="{StaticResource titleColor3}"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="{StaticResource panelActiveColor}"/>
+                    <Setter Property="Foreground" Value="{Binding Path=Tag, RelativeSource={RelativeSource Self}}"/>
+                    <Setter Property="BorderBrush" Value="{Binding Path=Tag, RelativeSource={RelativeSource Self}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
     <Grid>
-            
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0">
+                <!-- Page Title -->
+                <TextBlock Text="Exercise Instructions" 
+                           FontFamily="Montserrat"
+                           FontWeight="Bold"
+                           FontSize="28"
+                           Foreground="{StaticResource titleColor1}"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,30"/>
+                
+                <!-- Exercise Type Toggle Buttons (RadioButtons for mutual exclusivity) -->
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,30">
+                    <RadioButton x:Name="UiPrmdToggle" 
+                                Content="UI-PRMD" 
+                                Style="{StaticResource ExerciseToggleButtonStyle}"
+                                Tag="{StaticResource color2}"
+                                IsChecked="True"
+                                GroupName="ExerciseTypeGroup"/>
+                    <RadioButton x:Name="KimoreToggle"
+                                Content="KIMORE" 
+                                Style="{StaticResource ExerciseToggleButtonStyle}"
+                                Tag="{StaticResource color3}"
+                                GroupName="ExerciseTypeGroup"/>
+                </StackPanel>
+                
+                <!-- UI-PRMD Exercises Container -->
+                <Grid x:Name="UiPrmdExercises" Visibility="Visible">
+                    <ItemsControl>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.Items>
+                            <!-- UI-PRMD Exercise Card 1 -->
+                            <Border Style="{StaticResource ExerciseCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Deep Squat" 
+                                              Style="{StaticResource ExerciseTitleStyle}"/>
+                                    <TextBlock Text="Instructions:" 
+                                              Style="{StaticResource InstructionHeaderStyle}"/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="1. Stand with feet shoulder-width apart."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="2. Keep your back straight and chest up."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="3. Lower your body by bending your knees and hips."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="4. Go as low as comfortable while keeping heels on the ground."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="5. Return to the starting position."/>
+                                    <TextBlock Style="{StaticResource TipStyle}" 
+                                              Text="Tip: Keep your knees aligned with your toes throughout the movement."/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- UI-PRMD Exercise Card 2 -->
+                            <Border Style="{StaticResource ExerciseCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Shoulder Abduction" 
+                                              Style="{StaticResource ExerciseTitleStyle}"/>
+                                    <TextBlock Text="Instructions:" 
+                                              Style="{StaticResource InstructionHeaderStyle}"/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="1. Stand with your arms by your sides."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="2. Keep your elbows straight."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="3. Raise both arms out to the sides up to shoulder height."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="4. Hold for 2-3 seconds."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="5. Lower your arms back to the starting position."/>
+                                    <TextBlock Style="{StaticResource TipStyle}" 
+                                              Text="Tip: Keep your shoulders relaxed and avoid shrugging throughout the exercise."/>
+                                </StackPanel>
+                            </Border>
+                        </ItemsControl.Items>
+                    </ItemsControl>
+                </Grid>
+                
+                <!-- KIMORE Exercises Container -->
+                <Grid x:Name="KimoreExercises" Visibility="Collapsed">
+                    <ItemsControl>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.Items>
+                            <!-- KIMORE Exercise Card 1 -->
+                            <Border Style="{StaticResource ExerciseCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Forward Lunge" 
+                                              Style="{StaticResource ExerciseTitleStyle}"/>
+                                    <TextBlock Text="Instructions:" 
+                                              Style="{StaticResource InstructionHeaderStyle}"/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="1. Stand tall with feet hip-width apart."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="2. Step forward with one leg and lower your body."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="3. Both knees should form 90-degree angles."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="4. Push back up to the starting position."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="5. Repeat with the opposite leg."/>
+                                    <TextBlock Style="{StaticResource TipStyle}" 
+                                              Text="Tip: Keep your front knee aligned with your ankle and don't let it extend past your toes."/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- KIMORE Exercise Card 2 -->
+                            <Border Style="{StaticResource ExerciseCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Shoulder Flexion" 
+                                              Style="{StaticResource ExerciseTitleStyle}"/>
+                                    <TextBlock Text="Instructions:" 
+                                              Style="{StaticResource InstructionHeaderStyle}"/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="1. Stand with your arms by your sides."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="2. Keep your elbows straight."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="3. Raise both arms forward and up above your head."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="4. Hold for 2-3 seconds at the top."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="5. Lower your arms back to the starting position."/>
+                                    <TextBlock Style="{StaticResource TipStyle}" 
+                                              Text="Tip: Maintain good posture and avoid arching your back during this exercise."/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- KIMORE Exercise Card 3 -->
+                            <Border Style="{StaticResource ExerciseCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Trunk Rotation" 
+                                              Style="{StaticResource ExerciseTitleStyle}"/>
+                                    <TextBlock Text="Instructions:" 
+                                              Style="{StaticResource InstructionHeaderStyle}"/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="1. Sit on a chair with feet flat on the ground."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="2. Cross your arms over your chest."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="3. Rotate your upper body to the right."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="4. Hold for 2-3 seconds."/>
+                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
+                                              Text="5. Return to center and rotate to the left."/>
+                                    <TextBlock Style="{StaticResource TipStyle}" 
+                                              Text="Tip: Keep your hips facing forward and rotate only from your waist up."/>
+                                </StackPanel>
+                            </Border>
+                        </ItemsControl.Items>
+                    </ItemsControl>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

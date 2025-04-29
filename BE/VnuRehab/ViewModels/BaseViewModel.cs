@@ -35,11 +35,11 @@ namespace VnuRehab.ViewModels
     {
         private readonly Action<T> _execute;
         private readonly Predicate<T> _canExecute;
-        
+
         public RelayCommand(Action<T> execute) : this(execute, null)
         {
         }
-        
+
         public RelayCommand(Action<T> execute, Predicate<T> canExecute)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));

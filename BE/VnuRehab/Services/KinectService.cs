@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -83,7 +83,7 @@ namespace VnuRehab.Services
         public event Action<bool> OnSensorOpenChanged;
         public bool IsAvailable { get; private set; }
         public bool IsOpen
-        { 
+        {
             get => _isOpen;
             private set
             {

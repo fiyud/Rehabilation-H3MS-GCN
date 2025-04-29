@@ -1,6 +1,5 @@
-﻿using FontAwesome.Sharp;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using FontAwesome.Sharp;
 using VnuRehab.Models;
 using VnuRehab.Services;
 using VnuRehab.Views;
@@ -41,7 +40,7 @@ namespace VnuRehab.ViewModels
             _userSessionService = userSessionService;
             _userSessionService.TryLoadUser(out _);
             CurrentUser = _userSessionService.CurrentUser;
-            
+
             ShowHomeViewCommand = _navigationService.CreateCommand<HomeView>(view =>
             {
                 Title = "Home";

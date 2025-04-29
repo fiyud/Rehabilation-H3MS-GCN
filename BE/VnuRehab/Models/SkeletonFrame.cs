@@ -1,6 +1,6 @@
-﻿using Microsoft.Kinect;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.Kinect;
 
 namespace VnuRehab.Models
 {
@@ -11,7 +11,7 @@ namespace VnuRehab.Models
         public float Z { get; set; }
         public TrackingState TrackingState { get; set; }
     }
-    
+
     public class Skeleton
     {
         public ulong TrackingId { get; set; }
