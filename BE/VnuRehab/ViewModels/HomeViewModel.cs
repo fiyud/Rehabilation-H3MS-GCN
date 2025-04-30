@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows;
+using System.Diagnostics;
 using System.Windows.Input;
 namespace VnuRehab.ViewModels
 {
@@ -9,7 +9,7 @@ namespace VnuRehab.ViewModels
         private ObservableCollection<ExerciseData> _kimoreExercises;
         private bool _isPrmdVisible = true;
         private bool _isKimoreVisible = false;
-
+        private string _currentVideoUrl; 
         public ObservableCollection<ExerciseData> PrmdExercises
         {
             get => _prmdExercises;
@@ -33,9 +33,16 @@ namespace VnuRehab.ViewModels
             get => _isKimoreVisible;
             set => SetProperty(ref _isKimoreVisible, value);
         }
+    
+
+        public string CurrentVideoUrl
+        {
+            get => _currentVideoUrl;
+            set => SetProperty(ref _currentVideoUrl, value);
+        }
 
         public ICommand ToggleExerciseTypeCommand { get; }
-
+        public ICommand OpenVideoCommand { get; }
         public HomeViewModel()
         {
             // Initialize PRMD exercises
@@ -285,6 +292,37 @@ namespace VnuRehab.ViewModels
 
             // Initialize command for toggling between exercise types
             ToggleExerciseTypeCommand = new RelayCommand<string>(ToggleExerciseType);
+            OpenVideoCommand = new RelayCommand<string>(OpenVideo);
+        }
+        private void OpenVideo(string videoUrl)
+        {
+            // MODIFIED: Switched from modal approach to browser approach
+
+            // Use regular YouTube URL instead of embed URL for opening in browser
+            string watchUrl = videoUrl;
+
+            // Convert from embed URL to regular YouTube URL if needed
+            if (videoUrl.Contains("embed/"))
+            {
+                // Extract video ID from embed URL
+                int startIndex = videoUrl.IndexOf("embed/") + 6;
+                int endIndex = videoUrl.IndexOf("?", startIndex);
+                string videoId = endIndex > startIndex
+                    ? videoUrl.Substring(startIndex, endIndex - startIndex)
+                    : videoUrl.Substring(startIndex);
+
+                // Create regular YouTube URL
+                watchUrl = $"https://www.youtube.com/watch?v={videoId}";
+            }
+
+            // Open in browser
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = watchUrl,
+                UseShellExecute = true
+            });
+
+          
         }
 
         private void ToggleExerciseType(string exerciseType)
@@ -302,33 +340,34 @@ namespace VnuRehab.ViewModels
         }
     }
 
-    public class ExerciseData
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string VideoUrl { get; set; }
-        public ObservableCollection<string> Instructions { get; set; }
-        public string Tips { get; set; }
-    }
+     public class ExerciseData
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string VideoUrl { get; set; }
+    public ObservableCollection<string> Instructions { get; set; }
+    public string Tips { get; set; }
+}
 
-    // This is a placeholder class for ExerciseVideos reference
-    // Should be replaced with your actual ExerciseVideos static class
-    public static class ExerciseVideos
-    {
-        public static string DeepSquat => "path/to/deepsquat.mp4";
-        public static string HurdleStep => "path/to/hurdlestep.mp4";
-        public static string InlineLunge => "path/to/inlinelunge.mp4";
-        public static string SideLunge => "path/to/sidelunge.mp4";
-        public static string SitToStand => "path/to/sittostand.mp4";
-        public static string StandingActiveStraightLegRaise => "path/to/straightlegraise.mp4";
-        public static string StandingShoulderAbduction => "path/to/shoulderabduction.mp4";
-        public static string StandingShoulderExtension => "path/to/shoulderextension.mp4";
-        public static string StandingShoulderInternalExternalRotation => "path/to/shoulderrotation.mp4";
-        public static string StandingShoulderScaption => "path/to/shoulderscaption.mp4";
-        public static string JumpingJacks => "path/to/jumpingjacks.mp4";
-        public static string ArmCircles => "path/to/armcircles.mp4";
-        public static string TorsoTwists => "path/to/torsotwists.mp4";
-        public static string Squats => "path/to/squats.mp4";
-        public static string LateralArmRaises => "path/to/lateralarmraises.mp4";
-    }
+
+// This is a placeholder class for ExerciseVideos reference
+// Should be replaced with your actual ExerciseVideos static class
+public static class ExerciseVideos
+{
+    public static string DeepSquat => "https://www.youtube.com/embed/bjV07PRoGGo?si=-4JXc2T9eITgqAnJ";
+    public static string HurdleStep => "https://www.youtube.com/embed/U-n_Ar3RcLk?si=JzjUaz9H2bX-nS8v";
+    public static string InlineLunge => "https://www.youtube.com/embed/gNm2Nkc4_o0?si=ahBPvS3wjuEEbkme";
+    public static string SideLunge => "https://www.youtube.com/embed/URQvRQT0XMA?si=6c_NimLz4f5b8KHK";
+    public static string SitToStand => "https://www.youtube.com/embed/eutszbtbJM8?si=J0GUkTHX1_K4lqHx";
+    public static string StandingActiveStraightLegRaise => "https://www.youtube.com/embed/hB2n_pPw_aY?si=88jJMapos8CqqpK_";
+    public static string StandingShoulderAbduction => "https://www.youtube.com/embed/ah4ckpaWd-Y?si=_-CoYsOj_VKDW2v3";
+    public static string StandingShoulderExtension => "https://www.youtube.com/embed/EDQMlxrAHb0?si=uSN-a2cSPHPXW7eu";
+    public static string StandingShoulderInternalExternalRotation => "https://www.youtube.com/embed/8zJtj0Bw6D0?si=yuGUl1MWnMUFIr2V";
+    public static string StandingShoulderScaption => "https://www.youtube.com/embed/mPulP1J7QOw?si=2OCISBEqC-KSPAMF";
+    public static string JumpingJacks => "https://www.youtube.com/embed/uLVt6u15L98?si=lveFuhFng2HiQNMf";
+    public static string ArmCircles => "https://www.youtube.com/embed/UVMEnIaY8aU?si=ejJhQOVDlDnoxHGa";
+    public static string TorsoTwists => "https://www.youtube.com/embed/HMKbmG1L7vc?si=hSLGU2wCoqtOYg7F";
+    public static string Squats => "https://www.youtube.com/embed/YaXPRqUwItQ?si=vSuYqu6ayIyNU1-v";
+    public static string LateralArmRaises => "https://www.youtube.com/embed/XPPfnSEATJA?si=7EZU-MuQekcizUFQ";
+}
 }

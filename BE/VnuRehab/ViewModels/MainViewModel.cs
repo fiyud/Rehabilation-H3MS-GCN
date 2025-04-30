@@ -3,7 +3,6 @@ using FontAwesome.Sharp;
 using VnuRehab.Models;
 using VnuRehab.Services;
 using VnuRehab.Views;
-
 namespace VnuRehab.ViewModels
 {
     public class MainViewModel : BaseViewModel
@@ -57,6 +56,10 @@ namespace VnuRehab.ViewModels
                 Icon = IconChar.ChartBar;
             });
             _navigationService.NavigateTo<HomeView>();
+        }
+        public void Logout()
+        {
+            _userSessionService.Logout();
         }
     }
 }

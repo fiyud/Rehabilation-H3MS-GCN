@@ -19,7 +19,37 @@
             <Setter Property="Padding" Value="30"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
-        
+        <!-- Add this style for the Watch Video button -->
+        <Style x:Key="WatchVideoButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource color2}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource color1}"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <!-- Exercise Title Style using existing colors -->
         <Style x:Key="ExerciseTitleStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Montserrat"/>
@@ -154,6 +184,12 @@
                                         </ItemsControl>
                                         <TextBlock Style="{StaticResource TipStyle}" 
                                   Text="{Binding Tips}"/>
+                                        <!-- Watch Video Button -->
+                                        <Button Content="Watch Video" 
+       Style="{StaticResource WatchVideoButtonStyle}"
+       Command="{Binding DataContext.OpenVideoCommand, 
+                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+       CommandParameter="{Binding VideoUrl}"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
@@ -188,12 +224,18 @@
                                         </ItemsControl>
                                         <TextBlock Style="{StaticResource TipStyle}" 
           Text="{Binding Tips}"/>
+                                        <Button Content="Watch Video" 
+       Style="{StaticResource WatchVideoButtonStyle}"
+       Command="{Binding DataContext.OpenVideoCommand, 
+                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+       CommandParameter="{Binding VideoUrl}"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Grid>
+               
             </StackPanel>
         </ScrollViewer>
     </Grid>
