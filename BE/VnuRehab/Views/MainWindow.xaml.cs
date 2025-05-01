@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using VnuRehab.ViewModels;
-
+using System.Windows.Controls;
 namespace VnuRehab.Views
 {
     public partial class MainWindow : Window
@@ -48,6 +48,15 @@ namespace VnuRehab.Views
             else
             {
                 WindowState = WindowState.Normal;
+            }
+        }
+        private void UserMenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.ContextMenu != null)
+            {
+                // Open the ContextMenu
+                button.ContextMenu.PlacementTarget = button;
+                button.ContextMenu.IsOpen = true;
             }
         }
     }

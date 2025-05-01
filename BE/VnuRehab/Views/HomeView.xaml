@@ -19,7 +19,37 @@
             <Setter Property="Padding" Value="30"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
-        
+        <!-- Add this style for the Watch Video button -->
+        <Style x:Key="WatchVideoButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource color2}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource color1}"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <!-- Exercise Title Style using existing colors -->
         <Style x:Key="ExerciseTitleStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Montserrat"/>
@@ -111,153 +141,101 @@
                             HorizontalAlignment="Center"
                             Margin="0,0,0,30">
                     <RadioButton x:Name="UiPrmdToggle" 
-                                Content="UI-PRMD" 
-                                Style="{StaticResource ExerciseToggleButtonStyle}"
-                                Tag="{StaticResource color2}"
-                                IsChecked="True"
-                                GroupName="ExerciseTypeGroup"/>
+             Content="UI-PRMD" 
+             Style="{StaticResource ExerciseToggleButtonStyle}"
+             Tag="{StaticResource color2}"
+             IsChecked="True"
+             Command="{Binding ToggleExerciseTypeCommand}"
+             CommandParameter="PRMD"
+             GroupName="ExerciseTypeGroup"/>
                     <RadioButton x:Name="KimoreToggle"
-                                Content="KIMORE" 
-                                Style="{StaticResource ExerciseToggleButtonStyle}"
-                                Tag="{StaticResource color3}"
-                                GroupName="ExerciseTypeGroup"/>
+             Content="KIMORE" 
+             Style="{StaticResource ExerciseToggleButtonStyle}"
+             Tag="{StaticResource color3}"
+             Command="{Binding ToggleExerciseTypeCommand}"
+             CommandParameter="KIMORE"
+             GroupName="ExerciseTypeGroup"/>
                 </StackPanel>
                 
                 <!-- UI-PRMD Exercises Container -->
-                <Grid x:Name="UiPrmdExercises" Visibility="Visible">
-                    <ItemsControl>
+                <Grid x:Name="UiPrmdExercises" Visibility="{Binding IsPrmdVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl ItemsSource="{Binding PrmdExercises}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Columns="2"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        
-                        <ItemsControl.Items>
-                            <!-- UI-PRMD Exercise Card 1 -->
-                            <Border Style="{StaticResource ExerciseCardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="Deep Squat" 
-                                              Style="{StaticResource ExerciseTitleStyle}"/>
-                                    <TextBlock Text="Instructions:" 
-                                              Style="{StaticResource InstructionHeaderStyle}"/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="1. Stand with feet shoulder-width apart."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="2. Keep your back straight and chest up."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="3. Lower your body by bending your knees and hips."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="4. Go as low as comfortable while keeping heels on the ground."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="5. Return to the starting position."/>
-                                    <TextBlock Style="{StaticResource TipStyle}" 
-                                              Text="Tip: Keep your knees aligned with your toes throughout the movement."/>
-                                </StackPanel>
-                            </Border>
-                            
-                            <!-- UI-PRMD Exercise Card 2 -->
-                            <Border Style="{StaticResource ExerciseCardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="Shoulder Abduction" 
-                                              Style="{StaticResource ExerciseTitleStyle}"/>
-                                    <TextBlock Text="Instructions:" 
-                                              Style="{StaticResource InstructionHeaderStyle}"/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="1. Stand with your arms by your sides."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="2. Keep your elbows straight."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="3. Raise both arms out to the sides up to shoulder height."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="4. Hold for 2-3 seconds."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="5. Lower your arms back to the starting position."/>
-                                    <TextBlock Style="{StaticResource TipStyle}" 
-                                              Text="Tip: Keep your shoulders relaxed and avoid shrugging throughout the exercise."/>
-                                </StackPanel>
-                            </Border>
-                        </ItemsControl.Items>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ExerciseCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" 
+                                  Style="{StaticResource ExerciseTitleStyle}"/>
+                                        <TextBlock Text="Instructions:" 
+                                  Style="{StaticResource InstructionHeaderStyle}"/>
+                                        <ItemsControl ItemsSource="{Binding Instructions}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" 
+                                              Style="{StaticResource InstructionStepStyle}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Style="{StaticResource TipStyle}" 
+                                  Text="{Binding Tips}"/>
+                                        <!-- Watch Video Button -->
+                                        <Button Content="Watch Video" 
+       Style="{StaticResource WatchVideoButtonStyle}"
+       Command="{Binding DataContext.OpenVideoCommand, 
+                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+       CommandParameter="{Binding VideoUrl}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Grid>
-                
+
                 <!-- KIMORE Exercises Container -->
-                <Grid x:Name="KimoreExercises" Visibility="Collapsed">
-                    <ItemsControl>
+                <Grid x:Name="KimoreExercises" Visibility="{Binding IsKimoreVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl ItemsSource="{Binding KimoreExercises}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Columns="2"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        
-                        <ItemsControl.Items>
-                            <!-- KIMORE Exercise Card 1 -->
-                            <Border Style="{StaticResource ExerciseCardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="Forward Lunge" 
-                                              Style="{StaticResource ExerciseTitleStyle}"/>
-                                    <TextBlock Text="Instructions:" 
-                                              Style="{StaticResource InstructionHeaderStyle}"/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="1. Stand tall with feet hip-width apart."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="2. Step forward with one leg and lower your body."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="3. Both knees should form 90-degree angles."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="4. Push back up to the starting position."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="5. Repeat with the opposite leg."/>
-                                    <TextBlock Style="{StaticResource TipStyle}" 
-                                              Text="Tip: Keep your front knee aligned with your ankle and don't let it extend past your toes."/>
-                                </StackPanel>
-                            </Border>
-                            
-                            <!-- KIMORE Exercise Card 2 -->
-                            <Border Style="{StaticResource ExerciseCardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="Shoulder Flexion" 
-                                              Style="{StaticResource ExerciseTitleStyle}"/>
-                                    <TextBlock Text="Instructions:" 
-                                              Style="{StaticResource InstructionHeaderStyle}"/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="1. Stand with your arms by your sides."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="2. Keep your elbows straight."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="3. Raise both arms forward and up above your head."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="4. Hold for 2-3 seconds at the top."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="5. Lower your arms back to the starting position."/>
-                                    <TextBlock Style="{StaticResource TipStyle}" 
-                                              Text="Tip: Maintain good posture and avoid arching your back during this exercise."/>
-                                </StackPanel>
-                            </Border>
-                            
-                            <!-- KIMORE Exercise Card 3 -->
-                            <Border Style="{StaticResource ExerciseCardStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="Trunk Rotation" 
-                                              Style="{StaticResource ExerciseTitleStyle}"/>
-                                    <TextBlock Text="Instructions:" 
-                                              Style="{StaticResource InstructionHeaderStyle}"/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="1. Sit on a chair with feet flat on the ground."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="2. Cross your arms over your chest."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="3. Rotate your upper body to the right."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="4. Hold for 2-3 seconds."/>
-                                    <TextBlock Style="{StaticResource InstructionStepStyle}" 
-                                              Text="5. Return to center and rotate to the left."/>
-                                    <TextBlock Style="{StaticResource TipStyle}" 
-                                              Text="Tip: Keep your hips facing forward and rotate only from your waist up."/>
-                                </StackPanel>
-                            </Border>
-                        </ItemsControl.Items>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ExerciseCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" 
+          Style="{StaticResource ExerciseTitleStyle}"/>
+                                        <TextBlock Text="Instructions:" 
+          Style="{StaticResource InstructionHeaderStyle}"/>
+                                        <ItemsControl ItemsSource="{Binding Instructions}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" 
+                      Style="{StaticResource InstructionStepStyle}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Style="{StaticResource TipStyle}" 
+          Text="{Binding Tips}"/>
+                                        <Button Content="Watch Video" 
+       Style="{StaticResource WatchVideoButtonStyle}"
+       Command="{Binding DataContext.OpenVideoCommand, 
+                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+       CommandParameter="{Binding VideoUrl}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Grid>
+               
             </StackPanel>
         </ScrollViewer>
     </Grid>
