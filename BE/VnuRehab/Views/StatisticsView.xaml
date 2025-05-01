@@ -128,14 +128,12 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid>
-                                        <ComboBox ItemsSource="{Binding ExerciseOptions}" 
-                                                  SelectedItem="{Binding SelectedExercise, UpdateSourceTrigger=PropertyChanged}"
-                                                  Height="30"
-                                                  Background="{StaticResource lightPanelColor}"
-                                                  BorderThickness="1"
-                                                  BorderBrush="{StaticResource lightBorderColor}"
-                                                  Foreground="{StaticResource lightTextColor}"
-                                                  Padding="10,5"/>
+                                        <TextBlock Text="{Binding SelectedExercise.Name, FallbackValue='No Exercise Selected'}"
+           FontFamily="Montserrat"
+           FontSize="14"
+           FontWeight="Medium"
+           VerticalAlignment="Center"
+           TextWrapping="Wrap"/>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
