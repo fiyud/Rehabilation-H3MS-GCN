@@ -19,10 +19,10 @@ namespace VnuRehab.Services
             set
             {
                 _isConnected = value;
-                OnConnectionChanged?.Invoke(this, EventArgs.Empty);
+                OnConnectionChanged?.Invoke(this, value);
             }
         }
-        public event EventHandler<EventArgs> OnConnectionChanged;
+        public event EventHandler<bool> OnConnectionChanged;
         public event Action<decimal> OnScoreReceived;
 
         public SignalRService(UserSessionService userSessionService)
@@ -91,11 +91,11 @@ namespace VnuRehab.Services
             }
         }
 
-        public async Task SendBatchAsync(List<SkeletonFrame> batch)
+        public async Task SendBatchAsync(List<SkeletonFrame> batch, ExerciseType type)
         {
             if (_connection != null && _connection.State == HubConnectionState.Connected)
             {
-                await _connection.InvokeAsync("SendBatchToAI", _userId, JsonConvert.SerializeObject(batch));
+                await _connection.InvokeAsync("SendBatchToAI", _userId, type, JsonConvert.SerializeObject(batch));
             }
         }
 

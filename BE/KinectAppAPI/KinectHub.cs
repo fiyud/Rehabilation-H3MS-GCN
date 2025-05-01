@@ -5,55 +5,27 @@ namespace KinectAppAPI;
 
 public class KinectHub : Hub
 {
-    public struct ClientContext
-    {
-        public string ConnectionId { get; set; }
-        public ExerciseType? ExerciseType { get; set; }
-    }
-
     private static string? _aiConnectionId;
-    private static readonly ConcurrentDictionary<string, ClientContext> _clients = [];
+    private static readonly ConcurrentDictionary<string, string> _clients = [];
 
-    public Task SetExerciseType(string userId, ExerciseType type)
+    public async Task SendBatchToAI(string userId, ExerciseType type, string data)
     {
-        if (_clients.TryGetValue(userId, out var context))
+        if (_aiConnectionId != null)
         {
-            _clients[userId] = new ClientContext { ConnectionId = context.ConnectionId, ExerciseType = type };
-            Console.WriteLine($"Exercise type set for {userId}: {type}");
+            Console.WriteLine($"Sending batch to AI for {userId}: {type}");
+            await Clients.Client(_aiConnectionId).SendAsync("ReceiveBatch", userId, type, data);
         }
         else
-        {
-            Console.WriteLine($"User {userId} not found.");
-        }
-        return Task.CompletedTask;
-    }
-
-    public async Task SendBatchToAI(string userId, string data)
-    {
-        if (_clients.TryGetValue(userId, out var context) && _aiConnectionId != null && context.ExerciseType != null)
-        {
-            Console.WriteLine($"Sending batch to AI for {userId}: {context.ExerciseType}");
-            await Clients.Client(_aiConnectionId).SendAsync("ReceiveBatch", userId, context.ExerciseType, data);
-        }
-        else if (_aiConnectionId == null)
         {
             Console.WriteLine("No AI client connected.");
-        }
-        else if (context.ExerciseType == null)
-        {
-            Console.WriteLine($"User {userId} hasn't choose a exercise type.");
-        }
-        else
-        {
-            Console.WriteLine($"User {userId} not found.");
         }
     }
 
     public async Task SendScore(string userId, float data)
     {
-        if (_clients.TryGetValue(userId, out var context) && !string.IsNullOrEmpty(context.ConnectionId))
+        if (_clients.TryGetValue(userId, out var connectionId) && !string.IsNullOrEmpty(connectionId))
         {
-            await Clients.Client(context.ConnectionId).SendAsync("ReceiveScore", data);
+            await Clients.Client(connectionId).SendAsync("ReceiveScore", data);
         }
         else
         {
@@ -68,7 +40,7 @@ public class KinectHub : Hub
 
         if (clientType == "ui" && !string.IsNullOrEmpty(userId))
         {
-            _clients[userId] = new ClientContext { ConnectionId = Context.ConnectionId };
+            _clients[userId] = Context.ConnectionId;
             Console.WriteLine($"UI client connected: {userId} - {Context.ConnectionId}");
         }
         else if (clientType == "ai")
@@ -85,10 +57,10 @@ public class KinectHub : Hub
 
     public override Task OnDisconnectedAsync(Exception? exception)
     {
-        var userId = _clients.FirstOrDefault(c => c.Value.ConnectionId == Context.ConnectionId).Key;
+        var userId = _clients.FirstOrDefault(c => c.Value == Context.ConnectionId).Key;
         if (!string.IsNullOrEmpty(userId))
         {
-            _clients.Remove(userId, out var context);
+            _clients.Remove(userId, out var _);
             Console.WriteLine($"UI client disconnected: {userId} - {Context.ConnectionId}");
         }
         else if (_aiConnectionId == Context.ConnectionId)
