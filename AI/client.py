@@ -37,9 +37,13 @@ signal.signal(signal.SIGTERM, handle_shutdown)
 server_url = os.environ.get("SERVER_URL", "http://localhost:8080/kinecthub?type=ai")
 hub_conn = HubConnectionBuilder().with_url(server_url).build()
 
-use_cuda = torch.cuda_is_available()
+use_cuda = torch.cuda.is_available()
 if use_cuda:
     print("GPU available")
+    print("Device count: ", torch.cuda.device_count())
+    print("Current device: ", torch.cuda.current_device())
+    print(torch.cuda.device(torch.cuda.current_device()))
+    print("Device name: ", torch.cuda.get_device_name(torch.cuda.current_device()))
 else:
     print("GPU unavailable. Use CPU")
 device = torch.device("cuda" if use_cuda else "cpu")
