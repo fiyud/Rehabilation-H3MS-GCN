@@ -43,7 +43,8 @@
                                FontSize="14" 
                                FontWeight="Medium"
                                Foreground="{StaticResource color10}" 
-                               Margin="0,1,324,395"
+                               HorizontalAlignment="Left"
+                  VerticalAlignment="Top"
                                Text="{Binding TimeLeftText}"
                                Visibility="{Binding IsTimerVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
@@ -253,29 +254,42 @@
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
-                                                <Border x:Name="BtnBorder"
-                                                        Background="Transparent"
-                                                        BorderBrush="{StaticResource color10}"
-                                                        BorderThickness="2"
-                                                        CornerRadius="6">
+                                                <Grid>
+                                                    <!-- Progress Bar Border (serves as outline/background) -->
+                                                    <Border x:Name="ProgressBorder"
+                 Background="Transparent"
+                 BorderBrush="{StaticResource color10}"
+                 BorderThickness="2"
+                 CornerRadius="6"/>
+
+                                                    <!-- Actual Progress Bar (filling) -->
+                                                    <Border x:Name="ProgressFill"
+                 Background="{StaticResource color10}"
+                 BorderThickness="0"
+                 Opacity="0.3"
+                 CornerRadius="5"
+                 HorizontalAlignment="Left"
+                 Width="{Binding TimerProgress, Converter={StaticResource ProgressConverter}, ConverterParameter=199}"/>
+
+                                                    <!-- Button Content -->
                                                     <TextBlock x:Name="TextContent"
-                                                               Text="Stop Exercise"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{StaticResource color10}"
-                                                               FontFamily="Montserrat"
-                                                               FontSize="16"
-                                                               FontWeight="Medium"/>
-                                                </Border>
+                    Text="Stop Exercise"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Foreground="{StaticResource color10}"
+                    FontFamily="Montserrat"
+                    FontSize="16"
+                    FontWeight="Medium"/>
+                                                </Grid>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#FF4D4D"/>
-                                                        <Setter TargetName="BtnBorder" Property="Background" Value="{StaticResource color10}"/>
+                                                        <Setter TargetName="ProgressBorder" Property="BorderBrush" Value="#FF4D4D"/>
+                                                        <Setter TargetName="ProgressFill" Property="Background" Value="#FF4D4D"/>
                                                         <Setter TargetName="TextContent" Property="Foreground" Value="#FFFFFF"/>
                                                     </Trigger>
                                                     <Trigger Property="IsPressed" Value="True">
-                                                        <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#FF4D4D"/>
-                                                        <Setter TargetName="BtnBorder" Property="Background" Value="#FF4D4D"/>
+                                                        <Setter TargetName="ProgressBorder" Property="BorderBrush" Value="#FF4D4D"/>
+                                                        <Setter TargetName="ProgressFill" Property="Background" Value="#FF4D4D"/>
                                                         <Setter TargetName="TextContent" Property="Foreground" Value="#FFFFFF"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
@@ -300,16 +314,17 @@
                 </TextBlock>
             </StackPanel>
         </Border>
-        <TextBlock HorizontalAlignment="Right"
-                   FontFamily="Montserrat"
-                   FontSize="14" 
-                   FontWeight="Medium"
-                   Foreground="{StaticResource color3}" 
-                   Margin="0,580,606,11"
-                   Width="110"
-                   Visibility="{Binding IsScoreVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Run Text="Points: "/>
-            <Run Text="{Binding Score}"/>
+        <TextBlock HorizontalAlignment="Left"
+                  VerticalAlignment="Bottom"
+                  FontFamily="Montserrat"
+                   Margin="10,0,0,10"
+                  FontSize="14" 
+                  FontWeight="Medium"
+                  Foreground="{StaticResource color3}" 
+                  Width="110"
+                  Visibility="{Binding IsScoreVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+           <Run Text="Points: "/>
+           <Run Text="{Binding Score}"/>
         </TextBlock>
     </Grid>
 </UserControl>

@@ -18,9 +18,10 @@ namespace VnuRehab.ViewModels
         private decimal _score;
         private bool _isExerciseRunning;
         private TimeSpan _timeLeft = TimeSpan.FromMinutes(2); // Default 2 minutes
-        private string _timeLeftText = "Time left: 2:00";
+        private string _timeLeftText = "Time left: 2:00 seconds";
         private DispatcherTimer _exerciseTimer;
         private ExerciseType _selectedExercise;
+        private double _timerProgress = 1.0; // New property for timer progress (1.0 = 100%)
 
         public bool IsExerciseRunning
         {
@@ -32,6 +33,11 @@ namespace VnuRehab.ViewModels
         {
             get => _timeLeftText;
             set => SetProperty(ref _timeLeftText, value);
+        }
+        public double TimerProgress
+        {
+            get => _timerProgress;
+            set => SetProperty(ref _timerProgress, value);
         }
 
         public DrawingImage ImageSource { get => _imageSource; set => SetProperty(ref _imageSource, value); }
@@ -114,7 +120,8 @@ namespace VnuRehab.ViewModels
             if (_timeLeft > TimeSpan.Zero)
             {
                 _timeLeft = _timeLeft.Subtract(TimeSpan.FromSeconds(1));
-                TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00}";
+                TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
+                TimerProgress = _timeLeft.TotalSeconds / 120.0;
             }
             else
             {
@@ -156,13 +163,12 @@ namespace VnuRehab.ViewModels
                 // Optional: Show a warning but continue
                 System.Windows.MessageBox.Show("Warning: Kinect device is not connected.",
                     "Device Not Connected", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                return;
             }
 
             // Reset timer
             _timeLeft = TimeSpan.FromMinutes(2);
             TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
-
+            TimerProgress = 1.0;
             // Show timer and score
             IsTimerVisible = true;
             IsScoreVisible = true;
@@ -185,6 +191,7 @@ namespace VnuRehab.ViewModels
             // Reset time display
             _timeLeft = TimeSpan.FromMinutes(2);
             TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
+            TimerProgress = 1.0;
         }
 
         private void ToggleDevice()

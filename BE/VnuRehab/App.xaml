@@ -11,6 +11,7 @@
             </ResourceDictionary.MergedDictionaries>
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:ProgressToWidthConverter x:Key="ProgressConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
