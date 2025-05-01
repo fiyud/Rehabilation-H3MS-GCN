@@ -39,14 +39,13 @@
                         <ImageBrush ImageSource="{Binding ImageSource}"
                                     Stretch="UniformToFill"/>
                     </Border.Background>
-                    <TextBlock
-    FontFamily="Montserrat"
-    FontSize="14" 
-    FontWeight="Medium"
-    Foreground="{StaticResource color10}" 
-    Margin="0,1,324,395"
-    Text="{Binding TimeLeftText}"
-    Visibility="{Binding IsTimerVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <TextBlock FontFamily="Montserrat"
+                               FontSize="14" 
+                               FontWeight="Medium"
+                               Foreground="{StaticResource color10}" 
+                               Margin="0,1,324,395"
+                               Text="{Binding TimeLeftText}"
+                               Visibility="{Binding IsTimerVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                 </Border>
             </Border>
@@ -115,7 +114,7 @@
                         <Style TargetType="ComboBox">
                             <Setter Property="Background" Value="{StaticResource panelColor}"/>
                             <Setter Property="BorderBrush" Value="#6D2FFF"/>
-                            <Setter Property="BorderThickness" Value="2"/>
+                            <Setter Property="Height" Value="40"/>
                             <Setter Property="VerticalContentAlignment" Value="Center"/>
                             <Setter Property="HorizontalContentAlignment" Value="Left"/>
                             <Setter Property="FontSize" Value="16"/>
@@ -180,7 +179,7 @@
                                     <Border Background="{TemplateBinding Background}"
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="1"
-                                            CornerRadius="10">
+                                            CornerRadius="2">
                                         <ScrollViewer Padding="5"
                                                       MaxHeight="300"
                                                       HorizontalScrollBarVisibility="Disabled"
@@ -208,10 +207,10 @@
                     </ComboBox.GroupStyle>
                 </ComboBox>
                 <Button Command="{Binding ToggleExerciseCommand}"
-        Width="199" Height="35"
-        Margin="20"
-        Cursor="Hand"
-        HorizontalAlignment="Left">
+                        Width="199" Height="35"
+                        Margin="20"
+                        Cursor="Hand"
+                        HorizontalAlignment="Left">
                     <Button.Style>
                         <Style TargetType="Button">
                             <!-- Default style for "Start Exercise" button -->
@@ -219,18 +218,18 @@
                                 <Setter.Value>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="BtnBorder"
-                                Background="Transparent"
-                                BorderBrush="{StaticResource color9}"
-                                BorderThickness="2"
-                                CornerRadius="6">
+                                                Background="Transparent"
+                                                BorderBrush="{StaticResource color9}"
+                                                BorderThickness="2"
+                                                CornerRadius="6">
                                             <TextBlock x:Name="TextContent"
-                                       Text="Start Exercise"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="{StaticResource titleColor3}"
-                                       FontFamily="Montserrat"
-                                       FontSize="16"
-                                       FontWeight="Medium"/>
+                                                       Text="Start Exercise"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{StaticResource titleColor3}"
+                                                       FontFamily="Montserrat"
+                                                       FontSize="16"
+                                                       FontWeight="Medium"/>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
@@ -255,18 +254,18 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="BtnBorder"
-                                        Background="Transparent"
-                                        BorderBrush="{StaticResource color10}"
-                                        BorderThickness="2"
-                                        CornerRadius="6">
+                                                        Background="Transparent"
+                                                        BorderBrush="{StaticResource color10}"
+                                                        BorderThickness="2"
+                                                        CornerRadius="6">
                                                     <TextBlock x:Name="TextContent"
-                                               Text="Stop Exercise"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               Foreground="{StaticResource color10}"
-                                               FontFamily="Montserrat"
-                                               FontSize="16"
-                                               FontWeight="Medium"/>
+                                                               Text="Stop Exercise"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{StaticResource color10}"
+                                                               FontFamily="Montserrat"
+                                                               FontSize="16"
+                                                               FontWeight="Medium"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
@@ -289,29 +288,28 @@
                     </Button.Style>
                 </Button>
 
-                <TextBlock
-    FontFamily="Montserrat"
-    FontSize="14" 
-    FontWeight="Medium"
-    Foreground="{StaticResource color6}" 
-    Width="196">
-    <Run Text="Chosen exercise: "/>
-    <LineBreak/>
-    <Run Text="{Binding SelectedExercise.Name, FallbackValue='You should choose an Exercise.'}"/>
+                <TextBlock FontFamily="Montserrat"
+                           FontSize="14" 
+                           FontWeight="Medium"
+                           Foreground="{StaticResource color6}" 
+                           TextWrapping="Wrap"
+                           Width="196">
+                    <Run Text="Chosen exercise: "/>
+                    <LineBreak/>
+                    <Run Text="{Binding SelectedExercise, FallbackValue='You should choose an Exercise.'}"/>
                 </TextBlock>
             </StackPanel>
         </Border>
-        <TextBlock
-    HorizontalAlignment="Right"
-    FontFamily="Montserrat"
-    FontSize="14" 
-    FontWeight="Medium"
-    Foreground="{StaticResource color3}" 
-    Margin="0,580,606,11"
-    Width="110"
-    Visibility="{Binding IsScoreVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-    <Run Text="Points: "/>
-    <Run Text="{Binding Score}"/>
+        <TextBlock HorizontalAlignment="Right"
+                   FontFamily="Montserrat"
+                   FontSize="14" 
+                   FontWeight="Medium"
+                   Foreground="{StaticResource color3}" 
+                   Margin="0,580,606,11"
+                   Width="110"
+                   Visibility="{Binding IsScoreVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Run Text="Points: "/>
+            <Run Text="{Binding Score}"/>
         </TextBlock>
     </Grid>
 </UserControl>

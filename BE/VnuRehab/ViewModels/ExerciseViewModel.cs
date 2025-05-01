@@ -20,28 +20,8 @@ namespace VnuRehab.ViewModels
         private TimeSpan _timeLeft = TimeSpan.FromMinutes(2); // Default 2 minutes
         private string _timeLeftText = "Time left: 2:00";
         private DispatcherTimer _exerciseTimer;
-        private ExerciseItem _selectedExercise;
+        private ExerciseType _selectedExercise;
 
-        public DrawingImage ImageSource
-        {
-            get => _imageSource;
-            set => SetProperty(ref _imageSource, value);
-        }
-        public bool IsDeviceAvailable
-        {
-            get => _isDeviceAvailable;
-            set => SetProperty(ref _isDeviceAvailable, value);
-        }
-        public bool IsDeviceOpen
-        {
-            get => _isDeviceOpen;
-            set => SetProperty(ref _isDeviceOpen, value);
-        }
-        public decimal Score
-        {
-            get => _score;
-            set => SetProperty(ref _score, value);
-        }
         public bool IsExerciseRunning
         {
             get => _isExerciseRunning;
@@ -170,15 +150,6 @@ namespace VnuRehab.ViewModels
         //}
         private void StartExercise()
         {
-            // Check if exercise is selected
-            if (SelectedExercise == null)
-            {
-                // Add user feedback for missing selection
-                System.Windows.MessageBox.Show("Please select an exercise first.", "Exercise Required",
-                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-                return;
-            }
-
             // For testing without Kinect, allow exercise to start even if device isn't available
             if (!IsDeviceOpen)
             {
