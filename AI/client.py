@@ -42,7 +42,6 @@ def handle_kimore(data, weight):
     sample_tensor = kimore.load_sample_from_json(data, device='cuda')
     model = FiveStreamGCN_Model(num_joints=25, num_features=7, hidden_dim=128, num_layers=3, 
                                 output_dim=1, feat_d=300, nhead=4, dropout=0.15)
-    print("Loading: ", weight)
     model.load_state_dict(torch.load(weight, map_location='cuda:0'))
     y_pred = kimore.predict_single_sample(model, sample_tensor, device='cuda', model_name='FiveStreamGCN_Model')
     return y_pred
@@ -52,7 +51,6 @@ def handle_uiprmd(data, weight):
     sample_tensor = uiprmd.load_sample_from_json(data, device='cuda')
     model = FiveStreamGCN_Model(num_joints=39, num_features=3, hidden_dim=128, num_layers=3,  feat_d=741,
                                 output_dim=1, dropout=0.15)
-    print("Loading: ", weight)
     model.load_state_dict(torch.load(weight, map_location='cuda:0'))
     y_pred = uiprmd.predict_single_sample(model, sample_tensor, device='cuda', model_name='FiveStreamGCN_Model')
     return y_pred

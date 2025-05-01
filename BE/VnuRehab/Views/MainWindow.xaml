@@ -23,7 +23,7 @@
         </Border.BorderBrush>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <!-- Navigation sidebar -->
@@ -142,15 +142,15 @@
                                     VerticalAlignment="Center"
                                     Margin="0,0,10,0">
                             <Button Style="{StaticResource iconButton}"
-        Tag="{StaticResource color1}"
-        Click="UserMenuButton_Click">
+                                    Tag="{StaticResource color1}"
+                                    Click="UserMenuButton_Click">
                                 <fa:IconImage Icon="AngleDown"
-                  Width="12" Height="12"
-                  Style="{StaticResource iconButtonIcon}"/>
+                                              Width="12" Height="12"
+                                              Style="{StaticResource iconButtonIcon}"/>
                                 <Button.ContextMenu>
                                     <ContextMenu x:Name="UserMenuContextMenu"> 
                                         <MenuItem Header="Logout"
-                      Command="{Binding LogoutCommand}" />
+                                                  Command="{Binding LogoutCommand}" />
                                     </ContextMenu>
                                 </Button.ContextMenu>
                             </Button>

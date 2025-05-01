@@ -90,6 +90,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Exercises.cs" />
     <Compile Include="Models\SkeletonFrame.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Services\ApiService.cs" />
