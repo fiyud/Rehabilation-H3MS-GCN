@@ -160,7 +160,7 @@ namespace VnuRehab.Services
                 Timestamp = timestamp,
                 Skeletons = skeletons
             });
-            if (_batch.Count > FrameThreshold)
+            if (_batch.Count >= FrameThreshold)
             {
                 BatchReady?.Invoke(_batch);
                 _batch.Clear();
