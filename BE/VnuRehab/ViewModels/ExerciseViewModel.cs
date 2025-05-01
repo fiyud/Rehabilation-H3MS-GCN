@@ -70,9 +70,24 @@ namespace VnuRehab.ViewModels
         private readonly SignalRService _signalRService;
         public ICommand ToggleDeviceCommand { get; }
         public ICommand ToggleExerciseCommand { get; }
+        public ICommand ResetCommand { get; }
+
         private bool _isTimerVisible = false;
         private bool _isScoreVisible = false;
+        private bool _isPopupVisible;
+        private string _timeTakenText;
 
+        public bool IsPopupVisible
+        {
+            get => _isPopupVisible;
+            set => SetProperty(ref _isPopupVisible, value);
+        }
+
+        public string TimeTakenText
+        {
+            get => _timeTakenText;
+            set => SetProperty(ref _timeTakenText, value);
+        }
         public bool IsTimerVisible
         {
             get => _isTimerVisible;
@@ -114,6 +129,18 @@ namespace VnuRehab.ViewModels
             IsDeviceOpen = _kinectService.IsOpen;
             ToggleDeviceCommand = new RelayCommand(_ => ToggleDevice());
             ToggleExerciseCommand = new RelayCommand(_ => ToggleExercise());
+            ResetCommand = new RelayCommand(_=> ResetSession());
+        }
+
+        private void ResetSession()
+        {
+            // Reset all exercise data
+            StopExercise();
+            Score = 0;
+            TimeTakenText = string.Empty;
+
+            // Hide the popup
+            IsPopupVisible = false;
         }
         private void ExerciseTimer_Tick(object sender, EventArgs e)
         {
@@ -187,7 +214,13 @@ namespace VnuRehab.ViewModels
             // Hide timer and score
             IsTimerVisible = false;
             IsScoreVisible = false;
+            // Calculate time taken
+            TimeSpan totalDuration = TimeSpan.FromMinutes(2);
+            TimeSpan timeTaken = totalDuration - _timeLeft;
+            TimeTakenText = $"Time taken: {timeTaken.Minutes}:{timeTaken.Seconds:00}";
 
+            // Show the popup
+            IsPopupVisible = true;
             // Reset time display
             _timeLeft = TimeSpan.FromMinutes(2);
             TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
