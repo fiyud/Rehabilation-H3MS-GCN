@@ -201,46 +201,78 @@
                     </Border>
 
                     <Button Grid.Column="1"
-        VerticalAlignment="Center"
-        HorizontalAlignment="Right"
-        Margin="20,0,0,0"
-        Padding="14,10"
-        Background="#32C48D"  
-                        Foreground="White"
-                        FontFamily="Montserrat"
-        FontWeight="SemiBold"
-        Cursor="Hand"
-                        BorderThickness="0"
-        >
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"
+                            Margin="10,0,0,0"
+                            Padding="20,10"
+                            Background="#32C48D"
+                            Foreground="White"
+                            FontFamily="Montserrat"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            BorderThickness="0" Height="37" Width="83">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <!-- Icon -->
                                 <fa:IconImage Icon="FileExcel" Width="14" Foreground="White"/>
-                                <!-- Text -->
-                                <TextBlock Padding="10,0" Text="Export" FontSize="13" VerticalAlignment="Center"/>
+                                <TextBlock Padding="10,0" Text="Export" FontSize="13" VerticalAlignment="Center" Width="53"/>
                             </StackPanel>
                         </Button.Content>
+                        <Button.Effect>
+                            <DropShadowEffect ShadowDepth="2" Direction="315" Color="Black" Opacity="0.35" BlurRadius="4"/>
+                        </Button.Effect>
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                                            <Border x:Name="ButtonBorder" 
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    CornerRadius="4">
+                                                <Border.Effect>
+                                                    <DropShadowEffect ShadowDepth="1" Direction="315" Color="Black" Opacity="0.3" BlurRadius="2"/>
+                                                </Border.Effect>
+                                                <Grid>
+                                                    <Border x:Name="Overlay" 
+                                                            CornerRadius="4" 
+                                                            Opacity="0">
+                                                        <Border.Background>
+                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                                <GradientStop Color="#40FFFFFF" Offset="0"/>
+                                                                <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                                            </LinearGradientBrush>
+                                                        </Border.Background>
+                                                    </Border>
+                                                    <ContentPresenter HorizontalAlignment="Center" 
+                                                                  VerticalAlignment="Center"/>
+                                                </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{StaticResource color5}"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Background" Value="#3DD7A0"/>
+                                                    <Setter TargetName="ButtonBorder" Property="Effect">
+                                                        <Setter.Value>
+                                                            <DropShadowEffect ShadowDepth="2" Direction="315" Color="Black" Opacity="0.4" BlurRadius="4"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter TargetName="Overlay" Property="Opacity" Value="0.3"/>
                                                 </Trigger>
                                                 <Trigger Property="IsPressed" Value="True">
-                                                    <Setter Property="Background" Value="{StaticResource color4}"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Background" Value="#2CA677"/>
+                                                    <Setter TargetName="ButtonBorder" Property="Effect">
+                                                        <Setter.Value>
+                                                            <DropShadowEffect ShadowDepth="1" Direction="315" Color="Black" Opacity="0.3" BlurRadius="2"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter TargetName="ButtonBorder" Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                                        </Setter.Value>
+                                                    </Setter>
                                                 </Trigger>
                                                 <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Background" Value="#B5B5B5"/>
                                                     <Setter Property="Opacity" Value="0.6"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
