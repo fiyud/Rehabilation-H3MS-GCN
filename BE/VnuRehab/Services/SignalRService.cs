@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -10,6 +11,7 @@ namespace VnuRehab.Services
 {
     public class SignalRService : IAsyncDisposable
     {
+        private static readonly string BaseUrl = ConfigurationManager.AppSettings["APIUrl"] ?? "http://localhost:8080";
         private readonly string _userId;
         private HubConnection _connection;
         private bool _isConnected;
@@ -29,7 +31,7 @@ namespace VnuRehab.Services
         {
             _userId = userSessionService.CurrentUser?.Id ?? throw new InvalidOperationException("User not logged in.");
             _connection = new HubConnectionBuilder()
-                .WithUrl($"http://localhost:8080/kinecthub?type=ui&userId={_userId}")
+                .WithUrl($"{BaseUrl}/kinecthub?type=ui&userId={_userId}")
                 .WithAutomaticReconnect()
                 .Build();
             _connection.On<decimal>("ReceiveScore", score => OnScoreReceived?.Invoke(score));
