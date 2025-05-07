@@ -1,50 +1,43 @@
 using System;
+using System.Windows;
 using System.Windows.Threading;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using VnuRehab.Models;
 using VnuRehab.Services;
+using System.Threading.Tasks;
 
 namespace VnuRehab.ViewModels
 {
     public class ExerciseViewModel : BaseViewModel
     {
         private DrawingImage _imageSource;
-        private bool _isDeviceAvailable;
-        private bool _isDeviceOpen;
-        private bool _isServerConnected;
-        private decimal _score;
-        private bool _isExerciseRunning;
-        private TimeSpan _timeLeft = TimeSpan.FromMinutes(2); // Default 2 minutes
-        private string _timeLeftText = "Time left: 2:00 seconds";
-        private DispatcherTimer _exerciseTimer;
-        private ExerciseType _selectedExercise;
-        private double _timerProgress = 1.0; // New property for timer progress (1.0 = 100%)
-
-        public bool IsExerciseRunning
-        {
-            get => _isExerciseRunning;
-            set => SetProperty(ref _isExerciseRunning, value);
-        }
-
-        public string TimeLeftText
-        {
-            get => _timeLeftText;
-            set => SetProperty(ref _timeLeftText, value);
-        }
-        public double TimerProgress
-        {
-            get => _timerProgress;
-            set => SetProperty(ref _timerProgress, value);
-        }
-
         public DrawingImage ImageSource { get => _imageSource; set => SetProperty(ref _imageSource, value); }
+
+        private bool _isDeviceAvailable;
         public bool IsDeviceAvailable { get => _isDeviceAvailable; set => SetProperty(ref _isDeviceAvailable, value); }
+
+        private bool _isDeviceOpen;
         public bool IsDeviceOpen { get => _isDeviceOpen; set => SetProperty(ref _isDeviceOpen, value); }
+
+        private bool _isServerConnected;
         public bool IsServerConnected { get => _isServerConnected; set => SetProperty(ref _isServerConnected, value); }
+
+        private decimal _score;
         public decimal Score { get => _score; set => SetProperty(ref _score, value); }
+
+        private bool _isExerciseRunning;
+        public bool IsExerciseRunning { get => _isExerciseRunning; set => SetProperty(ref _isExerciseRunning, value); }
+
+        private readonly DispatcherTimer _exerciseTimer;
+        private static readonly TimeSpan ExerciseDuration = TimeSpan.FromMinutes(2); // Default 2 minutes
+        private TimeSpan _timeLeft = ExerciseDuration;
+        private string _timeLeftText = "Time left: 2:00 seconds";
+        public string TimeLeftText { get => _timeLeftText; set => SetProperty(ref _timeLeftText, value); }
+
+        private double _timerProgress = 1.0; // New property for timer progress (1.0 = 100%)
+        public double TimerProgress { get => _timerProgress; set => SetProperty(ref _timerProgress, value); }
 
         public List<ExerciseItem> Exercises { get; } = new List<ExerciseItem>
         {
@@ -64,6 +57,7 @@ namespace VnuRehab.ViewModels
             new ExerciseItem { Group = "UIPRMD", Name = "Standing Shoulder Internal-External Rotation", Value = ExerciseType.UIPRMD_StandingShoulderInternalExternalRotation },
             new ExerciseItem { Group = "UIPRMD", Name = "Standing Shoulder Scaption", Value = ExerciseType.UIPRMD_StandingShoulderScaption }
         };
+        private ExerciseType _selectedExercise;
         public ExerciseType SelectedExercise { get => _selectedExercise; set => SetProperty(ref _selectedExercise, value); }
 
         private readonly KinectService _kinectService;
@@ -71,43 +65,19 @@ namespace VnuRehab.ViewModels
         public ICommand ToggleDeviceCommand { get; }
         public ICommand ToggleExerciseCommand { get; }
         public ICommand ResetCommand { get; }
-
-        private bool _isTimerVisible = false;
-        private bool _isScoreVisible = false;
+        
         private bool _isPopupVisible;
+        public bool IsPopupVisible { get => _isPopupVisible; set => SetProperty(ref _isPopupVisible, value); }
+        
         private string _timeTakenText;
-
-        public bool IsPopupVisible
-        {
-            get => _isPopupVisible;
-            set => SetProperty(ref _isPopupVisible, value);
-        }
-
-        public string TimeTakenText
-        {
-            get => _timeTakenText;
-            set => SetProperty(ref _timeTakenText, value);
-        }
-        public bool IsTimerVisible
-        {
-            get => _isTimerVisible;
-            set => SetProperty(ref _isTimerVisible, value);
-        }
-
-        public bool IsScoreVisible
-        {
-            get => _isScoreVisible;
-            set => SetProperty(ref _isScoreVisible, value);
-        }
+        public string TimeTakenText { get => _timeTakenText; set => SetProperty(ref _timeTakenText, value); }
 
         public ExerciseViewModel(KinectService kinectService, SignalRService signalRService)
         {
             _kinectService = kinectService;
             _signalRService = signalRService;
 
-            // Initialize timer
-            _exerciseTimer = new DispatcherTimer();
-            _exerciseTimer.Interval = TimeSpan.FromSeconds(1);
+            _exerciseTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _exerciseTimer.Tick += ExerciseTimer_Tick;
 
 
@@ -116,10 +86,7 @@ namespace VnuRehab.ViewModels
             _kinectService.OnSensorAvailableChanged += (_, e) =>
             {
                 IsDeviceAvailable = e.IsAvailable;
-                if (!e.IsAvailable)
-                {
-                    ImageSource = null;
-                }
+                if (!e.IsAvailable) ImageSource = null;
             };
             _kinectService.OnSensorOpenChanged += (open) => IsDeviceOpen = open;
             _signalRService.OnScoreReceived += (score) => Score = score;
@@ -128,103 +95,32 @@ namespace VnuRehab.ViewModels
             IsDeviceAvailable = _kinectService.IsAvailable;
             IsDeviceOpen = _kinectService.IsOpen;
             ToggleDeviceCommand = new RelayCommand(_ => ToggleDevice());
-            ToggleExerciseCommand = new RelayCommand(_ => ToggleExercise());
-            ResetCommand = new RelayCommand(_=> ResetSession());
+            ToggleExerciseCommand = new RelayCommand(async _ => await ToggleExercise());
+            ResetCommand = new RelayCommand(async _ => await ResetSession());
         }
 
-        private void ResetSession()
+        private async Task ResetSession()
         {
             // Reset all exercise data
-            StopExercise();
+            await StopExercise();
             Score = 0;
             TimeTakenText = string.Empty;
 
             // Hide the popup
             IsPopupVisible = false;
         }
-        private void ExerciseTimer_Tick(object sender, EventArgs e)
+        private async void ExerciseTimer_Tick(object sender, EventArgs e)
         {
             if (_timeLeft > TimeSpan.Zero)
             {
                 _timeLeft = _timeLeft.Subtract(TimeSpan.FromSeconds(1));
                 TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
-                TimerProgress = _timeLeft.TotalSeconds / 120.0;
+                TimerProgress = _timeLeft.TotalSeconds / ExerciseDuration.TotalSeconds;
             }
             else
             {
-                // Time's up
-                StopExercise();
+                await StopExercise();
             }
-        }
-
-        private void ToggleExercise()
-        {
-            if (IsExerciseRunning)
-            {
-                StopExercise();
-            }
-            else
-            {
-                StartExercise();
-            }
-        }
-
-        //private void StartExercise()
-        //{
-        //    if (!IsDeviceOpen || SelectedExercise == null)
-        //        return;
-
-        //    // Reset timer
-        //    _timeLeft = TimeSpan.FromMinutes(2);
-        //    TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00}";
-
-        //    // Start timer
-        //    _exerciseTimer.Start();
-        //    IsExerciseRunning = true;
-        //}
-        private void StartExercise()
-        {
-            // For testing without Kinect, allow exercise to start even if device isn't available
-            if (!IsDeviceOpen)
-            {
-                // Optional: Show a warning but continue
-                System.Windows.MessageBox.Show("Warning: Kinect device is not connected.",
-                    "Device Not Connected", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-            }
-
-            // Reset timer
-            _timeLeft = TimeSpan.FromMinutes(2);
-            TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
-            TimerProgress = 1.0;
-            // Show timer and score
-            IsTimerVisible = true;
-            IsScoreVisible = true;
-
-            // Start timer
-            _exerciseTimer.Start();
-            IsExerciseRunning = true;   
-        }
-
-        private void StopExercise()
-        {
-            // Stop timer
-            _exerciseTimer.Stop();
-            IsExerciseRunning = false;
-
-            // Hide timer and score
-            IsTimerVisible = false;
-            IsScoreVisible = false;
-            // Calculate time taken
-            TimeSpan totalDuration = TimeSpan.FromMinutes(2);
-            TimeSpan timeTaken = totalDuration - _timeLeft;
-            TimeTakenText = $"Time taken: {timeTaken.Minutes}:{timeTaken.Seconds:00}";
-
-            // Show the popup
-            IsPopupVisible = true;
-            // Reset time display
-            _timeLeft = TimeSpan.FromMinutes(2);
-            TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
-            TimerProgress = 1.0;
         }
 
         private void ToggleDevice()
@@ -241,6 +137,59 @@ namespace VnuRehab.ViewModels
                     _kinectService.Start();
                 }
             }
+        }
+
+        private async Task ToggleExercise()
+        {
+            if (IsExerciseRunning)
+            {
+                await StopExercise();
+            }
+            else
+            {
+                await StartExercise();
+            }
+        }
+
+        private async Task StartExercise()
+        {
+            if (!IsDeviceOpen)
+            {
+                MessageBox.Show("Warning: Kinect device is not connected or not turned on.", "Device Not Connected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            await _signalRService.ConnectAsync();
+            if (!_signalRService.IsConnected) return;
+
+            // Reset timer
+            _timeLeft = ExerciseDuration;
+            TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
+            TimerProgress = 1.0;
+
+            // Start timer
+            _exerciseTimer.Start();
+            IsExerciseRunning = true;   
+        }
+
+        private async Task StopExercise()
+        {
+            await _signalRService.DisconnectAsync();
+            // Stop timer
+            _exerciseTimer.Stop();
+            IsExerciseRunning = false;
+
+            // Calculate time taken
+            TimeSpan totalDuration = ExerciseDuration;
+            TimeSpan timeTaken = totalDuration - _timeLeft;
+            TimeTakenText = $"Time taken: {timeTaken.Minutes}:{timeTaken.Seconds:00}";
+
+            // Show the popup
+            IsPopupVisible = true;
+            // Reset time display
+            _timeLeft = ExerciseDuration;
+            TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
+            TimerProgress = 1.0;
         }
     }
 

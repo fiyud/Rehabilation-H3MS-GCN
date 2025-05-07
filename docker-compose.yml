@@ -20,7 +20,7 @@ services:
       timeout: 3s
       retries: 5
 
-  server:
+  webapi:
     build:
       context: ./BE/KinectAppAPI
     environment:
@@ -35,20 +35,28 @@ services:
     networks:
       - app-network
 
+  nginx:
+    image: nginx:latest
+    depends_on:
+      - webapi
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - app-network
+
   ai:
     build: ./AI
     depends_on:
-      - server
+      - webapi
     networks:
       - app-network
     environment:
       NVIDIA_VISIBLE_DEVICES: all
-      SERVER_URL: http://server:8080/kinecthub?type=ai
-    # devices:
-    #   - /dev/fkd
-    #   - /dev/dri
-    # group_add:
-    #   - video
+      SERVER_URL: http://webapi:8080/kinecthub?type=ai
     deploy:
       resources:
         reservations:

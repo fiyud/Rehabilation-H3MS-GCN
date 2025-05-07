@@ -67,7 +67,7 @@ namespace KinectReaderConsole
 
         private static async void InitializeSignalR()
         {
-            string url = ConfigurationManager.AppSettings["SignalRHubUrl"] ?? "http://localhost:8080/kinecthub";
+            string url = "https://rehabgcn.eastus.cloudapp.azure.com/kinecthub";
             Console.WriteLine($"Connecting to SignalR hub at {url}...");
             connection = new HubConnectionBuilder()
                 .WithUrl(url)

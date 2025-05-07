@@ -48,8 +48,8 @@ namespace VnuRehab
 
         protected override void OnExit(ExitEventArgs e)
         {
+            ServiceProvider?.DisposeAsync().GetAwaiter().GetResult();
             base.OnExit(e);
-            ServiceProvider?.DisposeAsync();
         }
     }
 }

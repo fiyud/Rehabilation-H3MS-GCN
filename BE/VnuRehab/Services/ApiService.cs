@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -10,7 +11,7 @@ namespace VnuRehab.Services
 {
     public class ApiService : IDisposable
     {
-        private const string BaseUrl = "http://localhost:8080";
+        private static readonly string BaseUrl = ConfigurationManager.AppSettings["APIUrl"] ?? "http://localhost:8080";
         private readonly HttpClient _client;
         public ApiService()
         {
