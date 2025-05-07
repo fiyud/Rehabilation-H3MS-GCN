@@ -1,0 +1,239 @@
+﻿<UserControl x:Class="VnuRehab.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VnuRehab.Views"
+             xmlns:viewmodels="clr-namespace:VnuRehab.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:HomeViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="900">
+    
+    <!-- Custom Resources for this View -->
+    <UserControl.Resources>
+        <!-- Exercise Card Style using existing colors -->
+        <Style x:Key="ExerciseCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource panelColor}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="30"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <!-- Add this style for the Watch Video button -->
+        <Style x:Key="WatchVideoButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource color2}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource color1}"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!-- Exercise Title Style using existing colors -->
+        <Style x:Key="ExerciseTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Foreground" Value="{StaticResource titleColor1}"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        
+        <!-- Instruction Header Style using existing colors -->
+        <Style x:Key="InstructionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource titleColor2}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        
+        <!-- Instruction Step Style using existing colors -->
+        <Style x:Key="InstructionStepStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource plainTextColor1}"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        
+        <!-- Tip Style using existing colors -->
+        <Style x:Key="TipStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource plainTextColor2}"/>
+            <Setter Property="Margin" Value="0,10,0,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        
+        <!-- Toggle Button Style for exercise type selection -->
+        <Style x:Key="ExerciseToggleButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource plainTextColor3}"/>
+            <Setter Property="FontFamily" Value="Montserrat"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="MinWidth" Value="260"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="0,0,0,2"
+                                CornerRadius="4,4,0,0">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource panelOverColor}"/>
+                    <Setter Property="Foreground" Value="{StaticResource titleColor3}"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="{StaticResource panelActiveColor}"/>
+                    <Setter Property="Foreground" Value="{Binding Path=Tag, RelativeSource={RelativeSource Self}}"/>
+                    <Setter Property="BorderBrush" Value="{Binding Path=Tag, RelativeSource={RelativeSource Self}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+            <StackPanel Margin="0">
+                <!-- Page Title -->
+                <TextBlock Text="Exercise Instructions" 
+                           FontFamily="Montserrat"
+                           FontWeight="Bold"
+                           FontSize="28"
+                           Foreground="{StaticResource titleColor1}"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,30"/>
+                
+                <!-- Exercise Type Toggle Buttons (RadioButtons for mutual exclusivity) -->
+                <StackPanel Orientation="Horizontal" 
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,30">
+                    <RadioButton x:Name="UiPrmdToggle" 
+                                 Content="UI-PRMD" 
+                                 Style="{StaticResource ExerciseToggleButtonStyle}"
+                                 Tag="{StaticResource color2}"
+                                 IsChecked="True"
+                                 Command="{Binding ToggleExerciseTypeCommand}"
+                                 CommandParameter="PRMD"
+                                 GroupName="ExerciseTypeGroup"/>
+                    <RadioButton x:Name="KimoreToggle"
+                                 Content="KIMORE" 
+                                 Style="{StaticResource ExerciseToggleButtonStyle}"
+                                 Tag="{StaticResource color3}"
+                                 Command="{Binding ToggleExerciseTypeCommand}"
+                                 CommandParameter="KIMORE"
+                                 GroupName="ExerciseTypeGroup"/>
+                </StackPanel>
+                
+                <!-- UI-PRMD Exercises Container -->
+                <Grid x:Name="UiPrmdExercises" Visibility="{Binding IsPrmdVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl ItemsSource="{Binding PrmdExercises}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ExerciseCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" 
+                                                   Style="{StaticResource ExerciseTitleStyle}"/>
+                                        <TextBlock Text="Instructions:" 
+                                                   Style="{StaticResource InstructionHeaderStyle}"/>
+                                        <ItemsControl ItemsSource="{Binding Instructions}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" 
+                                                               Style="{StaticResource InstructionStepStyle}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Style="{StaticResource TipStyle}" 
+                                                   Text="{Binding Tips}"/>
+                                        <!-- Watch Video Button -->
+                                        <Button Content="Watch Video" 
+                                                Style="{StaticResource WatchVideoButtonStyle}"
+                                                Command="{Binding DataContext.OpenVideoCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding VideoUrl}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+
+                <!-- KIMORE Exercises Container -->
+                <Grid x:Name="KimoreExercises" Visibility="{Binding IsKimoreVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl ItemsSource="{Binding KimoreExercises}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ExerciseCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" 
+                                                   Style="{StaticResource ExerciseTitleStyle}"/>
+                                        <TextBlock Text="Instructions:" 
+                                                   Style="{StaticResource InstructionHeaderStyle}"/>
+                                        <ItemsControl ItemsSource="{Binding Instructions}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" 
+                                                               Style="{StaticResource InstructionStepStyle}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Style="{StaticResource TipStyle}" 
+                                                   Text="{Binding Tips}"/>
+                                        <Button Content="Watch Video" 
+                                                Style="{StaticResource WatchVideoButtonStyle}"
+                                                Command="{Binding DataContext.OpenVideoCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding VideoUrl}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

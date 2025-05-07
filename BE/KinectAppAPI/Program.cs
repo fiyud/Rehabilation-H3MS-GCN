@@ -1,8 +1,8 @@
+using System.Security.Claims;
+using System.Text.Json.Serialization;
 using KinectAppAPI;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Json;
-using System.Security.Claims;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
@@ -34,6 +34,12 @@ app.UseAuthorization();
 
 app.MapHub<KinectHub>("/kinecthub");
 
+app.MapGet("/test", async (IDataAccess data) =>
+{
+    var users = await data.GetAllAsync();
+    return users.Any() ? Results.Ok(users) : Results.NotFound();
+});
+
 app.MapPost("/login", async (LoginRequest login, IDataAccess data) =>
 {
     var user = await data.GetByIdAsync(login.Id);
@@ -48,7 +54,8 @@ app.MapGet("/patients", async (HttpContext context, IDataAccess data) =>
     return patients.Any() ? Results.Ok(patients) : Results.NotFound();
 }).RequireAuthorization(policy => policy.RequireRole(Role.Doctor.ToString()));
 
-app.MapPost("/patients", async (AddPatientRequest req, HttpContext context, IDataAccess data) => {
+app.MapPost("/patients", async (AddPatientRequest req, HttpContext context, IDataAccess data) =>
+{
     var doctorId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     if (doctorId == null) return Results.Unauthorized();
     return await data.AddAsync(new User
