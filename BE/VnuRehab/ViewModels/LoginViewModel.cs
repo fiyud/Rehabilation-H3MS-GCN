@@ -9,26 +9,17 @@ namespace VnuRehab.ViewModels
     public class LoginViewModel : BaseViewModel
     {
         private string _patientName;
+        public string PatientName { get => _patientName; set => SetProperty(ref _patientName, value); }
+
         private string _patientId;
+        public string PatientId { get => _patientId; set => SetProperty(ref _patientId, value); }
+
         private bool _isLoggingIn;
+        public bool IsLoggingIn { get => _isLoggingIn; set => SetProperty(ref _isLoggingIn, value); }
+
         private readonly UserSessionService _userSessionService;
         private readonly WindowService _windowService;
         private readonly ApiService _apiService;
-        public string PatientName
-        {
-            get => _patientName;
-            set => SetProperty(ref _patientName, value);
-        }
-        public string PatientId
-        {
-            get => _patientId;
-            set => SetProperty(ref _patientId, value);
-        }
-        public bool IsLoggingIn
-        {
-            get => _isLoggingIn;
-            set => SetProperty(ref _isLoggingIn, value);
-        }
 
         public ICommand LoginCommand { get; }
 
