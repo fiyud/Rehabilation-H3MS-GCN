@@ -22,7 +22,7 @@ services:
 
   webapi:
     build:
-      context: ./BE/KinectAppAPI
+      context: ./BE/VnuRehabAPI
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings_MySQLConnection: Server=db;Port=3306;Database=rehab;User=root;Password=root;

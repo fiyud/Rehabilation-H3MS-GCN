@@ -13,7 +13,8 @@ namespace VnuRehab.Services
     {
         private static readonly string BaseUrl = ConfigurationManager.AppSettings["APIUrl"] ?? "http://localhost:8080";
         private readonly HttpClient _client;
-        public ApiService()
+        private readonly UserSessionService _userSessionService;
+        public ApiService(UserSessionService userSessionService)
         {
             _client = new HttpClient
             {
@@ -23,6 +24,7 @@ namespace VnuRehab.Services
                     Accept = { new MediaTypeWithQualityHeaderValue("application/json") },
                 }
             };
+            _userSessionService = userSessionService;
         }
 
         public async Task<User> LoginAsync(string username, string id)

@@ -3,13 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinectReaderConsole", "KinectReaderConsole\KinectReaderConsole.csproj", "{2232CEF9-9E2B-48E2-B49F-FD6BDE89988D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinectAppAPI", "KinectAppAPI\KinectAppAPI.csproj", "{040F1D43-BF06-4415-87E2-4DAD21E31C5E}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "KinectReaderConsoleInstaller", "KinectReaderConsoleInstaller\KinectReaderConsoleInstaller.vdproj", "{7D330327-BCEF-2F2D-CB04-3D6209EC2C27}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VnuRehab", "VnuRehab\VnuRehab.csproj", "{A8F23A8E-1446-451F-BD2B-702D81076425}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VnuRehabAPI", "VnuRehabAPI\VnuRehabAPI.csproj", "{95B39CD1-EF7A-1E7A-1C06-FAA5D2DB5601}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,20 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2232CEF9-9E2B-48E2-B49F-FD6BDE89988D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2232CEF9-9E2B-48E2-B49F-FD6BDE89988D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2232CEF9-9E2B-48E2-B49F-FD6BDE89988D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2232CEF9-9E2B-48E2-B49F-FD6BDE89988D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{040F1D43-BF06-4415-87E2-4DAD21E31C5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{040F1D43-BF06-4415-87E2-4DAD21E31C5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{040F1D43-BF06-4415-87E2-4DAD21E31C5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{040F1D43-BF06-4415-87E2-4DAD21E31C5E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7D330327-BCEF-2F2D-CB04-3D6209EC2C27}.Debug|Any CPU.ActiveCfg = Debug
-		{7D330327-BCEF-2F2D-CB04-3D6209EC2C27}.Release|Any CPU.ActiveCfg = Release
 		{A8F23A8E-1446-451F-BD2B-702D81076425}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A8F23A8E-1446-451F-BD2B-702D81076425}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8F23A8E-1446-451F-BD2B-702D81076425}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8F23A8E-1446-451F-BD2B-702D81076425}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95B39CD1-EF7A-1E7A-1C06-FAA5D2DB5601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95B39CD1-EF7A-1E7A-1C06-FAA5D2DB5601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95B39CD1-EF7A-1E7A-1C06-FAA5D2DB5601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95B39CD1-EF7A-1E7A-1C06-FAA5D2DB5601}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
