@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
-using KinectAppAPI;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Json;
+using VnuRehabAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
