@@ -79,7 +79,6 @@ namespace VnuRehab.Services
                 try
                 {
                     await _connection.StopAsync();
-                    await _connection.DisposeAsync();
                 }
                 catch (Exception ex)
                 {
@@ -88,7 +87,6 @@ namespace VnuRehab.Services
                 finally
                 {
                     IsConnected = false;
-                    _connection = null;
                 }
             }
         }
@@ -103,7 +101,15 @@ namespace VnuRehab.Services
 
         public async ValueTask DisposeAsync()
         {
-            await DisconnectAsync();
+            if (IsConnected)
+            {
+                await DisconnectAsync();
+            }
+            if (_connection != null)
+            {
+                await _connection.DisposeAsync();
+                _connection = null;
+            }
         }
     }
 }
