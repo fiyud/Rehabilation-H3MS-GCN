@@ -1,4 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Windows.Data;
+using System.Windows.Input;
 using VnuRehab.Models;
 using VnuRehab.Services;
 
@@ -6,80 +11,82 @@ namespace VnuRehab.ViewModels
 {
     public class StatisticsViewModel : BaseViewModel
     {
-        private readonly UserSessionService _userSessionService;
+        private readonly ApiService _apiService;
 
-        public ObservableCollection<PatientStatisticsItem> Patients { get; } = new ObservableCollection<PatientStatisticsItem>();
+        private ObservableCollection<Exercise> _exercises;
+        public ObservableCollection<Exercise> Exercises
+        { 
+            get => _exercises;
+            set
+            {
+                if (SetProperty(ref _exercises, value))
+                {
+                    ExercisesView = CollectionViewSource.GetDefaultView(_exercises);
+                    ExercisesView.Filter = FilterExercises;
+                    OnPropertyChanged(nameof(ExercisesView));
+                }
+            }
+        }
+        public ICollectionView ExercisesView { get; private set; }
 
-        public StatisticsViewModel(UserSessionService userSessionService)
+        private string _searchText;
+        public string SearchText
         {
-            _userSessionService = userSessionService;
-            LoadPatientData();
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                {
+                    ExercisesView?.Refresh();
+                }
+            }
         }
 
-        private void LoadPatientData()
+        public ICommand ExportDataCommand { get; }
+
+        public StatisticsViewModel(ApiService apiService)
         {
-            // Sample data - replace with actual data loading logic
-            Patients.Add(new PatientStatisticsItem
-            {
-                Id = "P001",
-                Name = "John Doe",
-                Age = 45,
-                Address = "123 Main St",
-                Phone = "555-1234",
-                ExerciseOptions = new ObservableCollection<string> { "Exercise1", "Exercise2", "Exercise3" },
-                SelectedExercise = "Exercise1"
-            });
-
-            Patients.Add(new PatientStatisticsItem
-            {
-                Id = "P002",
-                Name = "Jane Smith",
-                Age = 38,
-                Address = "456 Park Ave",
-                Phone = "555-5678",
-                ExerciseOptions = new ObservableCollection<string> { "Exercise1", "Exercise2", "Exercise3" },
-                SelectedExercise = "Exercise2"
-            });
-
-            Patients.Add(new PatientStatisticsItem
-            {
-                Id = "P003",
-                Name = "Michael Johnson",
-                Age = 52,
-                Address = "789 Oak Rd",
-                Phone = "555-9012",
-                ExerciseOptions = new ObservableCollection<string> { "Exercise1", "Exercise2", "Exercise3" },
-                SelectedExercise = "Exercise3"
-            });
-
-            Patients.Add(new PatientStatisticsItem
-            {
-                Id = "P004",
-                Name = "Sarah Williams",
-                Age = 29,
-                Address = "321 Elm St",
-                Phone = "555-3456",
-                ExerciseOptions = new ObservableCollection<string> { "Exercise1", "Exercise2", "Exercise3" },
-                SelectedExercise = "Exercise1"
-            });
+            _apiService = apiService;
+            ExportDataCommand = new RelayCommand(_ => ExportToCsv());
         }
 
-    }
-
-    public class PatientStatisticsItem : BaseViewModel
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public int Age { get; set; }
-        public string Address { get; set; }
-        public string Phone { get; set; }
-        public ObservableCollection<string> ExerciseOptions { get; set; } = new ObservableCollection<string>();
-
-        private string _selectedExercise;
-        public string SelectedExercise
+        public async Task LoadPatientData()
         {
-            get => _selectedExercise;
-            set => SetProperty(ref _selectedExercise, value);
+            var result = await _apiService.GetExercisesAsync();
+            Exercises = new ObservableCollection<Exercise>(result ?? new List<Exercise>());
+        }
+
+        private void ExportToCsv()
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = "exercises",
+                Filter = "CSV files (*.csv)|*.csv",
+                DefaultExt = ".csv"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                using (var writer = new System.IO.StreamWriter(dialog.FileName))
+                {
+                    writer.WriteLine("Index,Exercise Type,Average Score,Duration,Submitted At");
+                    foreach (var exercise in Exercises)
+                    {
+                        writer.WriteLine($"{exercise.Id},{exercise.Type},{exercise.Score},{exercise.Duration?.ToString("0.##")},{exercise.SubmittedAt:yyyy-MM-dd HH:mm}");
+                    }
+                }
+            }
+        }
+
+        private bool FilterExercises(object item)
+        {
+            if (item is Exercise exercise)
+            {
+                if (string.IsNullOrEmpty(SearchText)) return true;
+                return exercise.Type.ToString()
+                                    .ToLowerInvariant()
+                                    .Contains(SearchText.ToLowerInvariant());
+            }
+            return false;
         }
     }
 }
