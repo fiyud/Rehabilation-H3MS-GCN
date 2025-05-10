@@ -1,9 +1,8 @@
 import { ExerciseVideos } from "@/assets/CustomAssets";
 import { ExerciseCard } from "@/components";
 import TabsLayout from "@/layouts/TabsLayout";
-import { SegmentedControl } from "@radix-ui/themes";
 import { AnimatePresence, motion } from "motion/react";
-import React from "react";
+import React, { useState } from "react";
 const Exercises: React.FC = () => {
   const prmd = [
     {
@@ -222,7 +221,7 @@ const Exercises: React.FC = () => {
       tips: "Avoid shrugging your shoulders and use light weights if needed for better form.",
     },
   ];
-  const [selectedSet, setSelectedSet] = React.useState("prmd");
+  const [selectedSet, setSelectedSet] = useState("prmd");
   return (
     <TabsLayout>
       <AnimatePresence mode="wait">
@@ -231,12 +230,12 @@ const Exercises: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="flex flex-col items-center  bg-[#161616] min-h-screen"
+          className="flex flex-col items-center min-h-screen"
         >
-          <h1 className="text-[2.5rem] font-bold py-4 text-white">
+          <h1 className="text-[2.5rem] font-bold py-4 text-main-3">
             Exercise Instructions
           </h1>
-          <SegmentedControl.Root
+          {/* <SegmentedControl.Root
             defaultValue="prmd"
             onValueChange={(value) => {
               setSelectedSet(value);
@@ -246,7 +245,7 @@ const Exercises: React.FC = () => {
           >
             <SegmentedControl.Item value="prmd">UI-PRMD</SegmentedControl.Item>
             <SegmentedControl.Item value="kimore">KIMORE</SegmentedControl.Item>
-          </SegmentedControl.Root>
+          </SegmentedControl.Root> */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
             {selectedSet == "prmd"
