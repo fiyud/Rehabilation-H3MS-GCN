@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:VnuRehab.Views"
         xmlns:viewmodels="clr-namespace:VnuRehab.ViewModels"
         xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
-        d:DataContext="{d:DesignInstance Type=viewmodels:PatientStatisticsItem}"
+        d:DataContext="{d:DesignInstance Type=viewmodels:StatisticsViewModel}"
         mc:Ignorable="d">
     <UserControl.Resources>
         <!-- Define lighter colors for the table -->
@@ -17,7 +17,6 @@
         <SolidColorBrush x:Key="lightBorderColor" Color="#CCCCDD"/>
         <SolidColorBrush x:Key="lightHeaderColor" Color="#EAEAF6"/>
     </UserControl.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -47,7 +46,7 @@
 
                 <!-- Data Grid with Patients Info -->
                 <DataGrid Grid.Row="1" 
-                          ItemsSource="{Binding Patients}"
+                          ItemsSource="{Binding ExercisesView}"
                           AutoGenerateColumns="False" 
                           IsReadOnly="True"
                           CanUserResizeRows="False"
@@ -61,7 +60,8 @@
                           RowHeaderWidth="0"
                           Foreground="{StaticResource lightTextColor}"
                           ColumnHeaderHeight="50"
-                          RowHeight="55">
+                          RowHeight="55"
+                          VerticalScrollBarVisibility="Hidden">
                     <DataGrid.Resources>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="Background" Value="#2D0C8A"/>
@@ -111,57 +111,19 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Id" 
                                             Binding="{Binding Id}" 
-                                            Width="0.8*"/>
-                        <DataGridTextColumn Header="Name" 
-                                            Binding="{Binding Name}"
+                                            Width="0.3*"/>
+                        <DataGridTextColumn Header="Exercise Type" 
+                                            Binding="{Binding Type}"
                                             Width="1.5*"/>
-                        <DataGridTextColumn Header="Age" 
-                                            Binding="{Binding Age}" 
+                        <DataGridTextColumn Header="Average Score" 
+                                            Binding="{Binding Score}" 
                                             Width="0.7*"/>
-                        <DataGridTextColumn Header="Address" 
-                                            Binding="{Binding Address}"
-                                            Width="2*"/>
-                        <DataGridTextColumn Header="Phone" 
-                                            Binding="{Binding Phone}"
+                        <DataGridTextColumn Header="Duration" 
+                                            Binding="{Binding Duration, StringFormat={}{0} seconds}"
                                             Width="1.2*"/>
-                        <DataGridTemplateColumn Header="Exercise" Width="1.5*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <TextBlock Text="{Binding SelectedExercise.Name, FallbackValue='No Exercise Selected'}"
-           FontFamily="Montserrat"
-           FontSize="14"
-           FontWeight="Medium"
-           VerticalAlignment="Center"
-           TextWrapping="Wrap"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Actions" Width="1.2*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Style="{StaticResource iconButton}" 
-                                                Margin="5 0"
-                                                VerticalAlignment="Center"
-                                                HorizontalAlignment="Center"
-                                                Tag="{StaticResource color1}" 
-                                                ToolTip="View Details">
-                                            <TextBlock Text="View" 
-                                                       Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                                        </Button>
-                                        <Button Style="{StaticResource iconButton}" 
-                                                Margin="5,0"
-                                               Tag="{StaticResource color8}" 
-                                                ToolTip="Edit Patient">
-                                            <TextBlock Text="Edit" 
-                                                       Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                                        </Button>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Submitted At" 
+                                            Binding="{Binding SubmittedAt, StringFormat='{}{0:MMM dd, yyyy HH:mm}'}"
+                                            Width="2*"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
@@ -174,31 +136,34 @@
 
                     <!-- Search box on the left -->
                     <Border Grid.Column="0" 
-            Background="#2D0C8A" 
-            CornerRadius="8"
-            Width="300"
-            HorizontalAlignment="Left"
-            BorderThickness="1"
-            BorderBrush="#5033B5">
+                            Background="#2D0C8A" 
+                            CornerRadius="8"
+                            Width="300"
+                            HorizontalAlignment="Left"
+                            BorderThickness="1"
+                            BorderBrush="#5033B5">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="🔍" 
-                       Grid.Column="0"
-                       Margin="12,10"
-                       VerticalAlignment="Center"
-                       Foreground="{StaticResource lightPanelOverColor}"/>
+                                       Grid.Column="0"
+                                       Margin="12,10"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource lightPanelOverColor}"/>
                             <TextBox Grid.Column="1"
-                     Background="Transparent"
-                     BorderThickness="0"
-                     Foreground="#D0C7FF"
-                     VerticalAlignment="Center"/>
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     CaretBrush="{StaticResource titleColor1}"
+                                     Foreground="#D0C7FF"
+                                     VerticalAlignment="Center"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
                         </Grid>
                     </Border>
 
                     <Button Grid.Column="1"
+                            Command="{Binding ExportDataCommand}"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Left"
                             Margin="10,0,0,0"
@@ -281,7 +246,6 @@
                         </Button.Style>
                     </Button>
                 </Grid>
-
             </Grid>
         </Border>
     </Grid>

@@ -1,4 +1,4 @@
-﻿namespace KinectAppAPI;
+﻿namespace VnuRehabAPI;
 
 public static class Constants
 {

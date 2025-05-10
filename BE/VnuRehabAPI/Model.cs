@@ -1,4 +1,4 @@
-﻿namespace KinectAppAPI;
+﻿namespace VnuRehabAPI;
 
 public record LoginRequest(string Username, string Id);
 public record AddPatientRequest(string Id, string Name, int? Age, string? Address, string? Phone);
