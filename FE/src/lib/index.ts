@@ -1,8 +1,6 @@
-export { AuthProvider, useAuth } from "./AuthContext";
-export { ExerciseProvider, useExercise } from "./ExerciseContext";
-export { default as ProtectedRoute } from "./ProtectedRoutes";
-export { default as NotFound } from "./NotFound";
-export { DeviceProvider, useDevice } from "./DeviceContext";
-export { StreamProvider, useStream } from "./StreamContext";
-export type { User } from "./AuthContext";
+export { AuthProvider, useAuth } from "./context/AuthContext";
+export { ExerciseProvider, useExercise } from "./context/ExerciseContext";
+export { default as ProtectedRoute } from "./router/ProtectedRoutes";
+export { default as NotFound } from "./router/NotFound";
+export type { User } from "./context/AuthContext";
 export { default as http } from "./axios";
