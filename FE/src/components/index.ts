@@ -1,7 +1,9 @@
-export { default as CamControl } from "./CamControl";
-export { default as OBSStream } from "./OBSStream";
-export { default as Sidebar } from "./Sidebar";
-export { default as ExerciseCard } from "./ExerciseCard";
-export { default as ExerciseDialog } from "./ExerciseDialog";
-export { SkeletonCanvas } from "./SkeletonCanvas";
-export type { Frame } from "./SkeletonCanvas";
+export { default as Sidebar } from "./layouts/Sidebar";
+export { default as LandingHeader } from "./layouts/LandingHeader";
+export { default as LandingFooter } from "./layouts/LandingFooter";
+export { default as ExerciseCard } from "./pages/exercises/ExerciseCard";
+export { default as HeroSection } from "./pages/landing/HeroSection";
+export { default as IntroductionSection } from "./pages/landing/IntroductionSection";
+export { default as ChallengesSection } from "./pages/landing/ChallengesSection";
+export { default as SolutionSection } from "./pages/landing/SolutionSection";
+export { default as TeamSection } from "./pages/landing/TeamSection";
