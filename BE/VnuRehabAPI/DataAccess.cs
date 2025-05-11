@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using MySql.Data.MySqlClient;
 
-namespace KinectAppAPI;
+namespace VnuRehabAPI;
 
 public class DataAccess(IConfiguration configuration) : IDataAccess
 {

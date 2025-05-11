@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -39,6 +40,41 @@ namespace VnuRehab.Services
                 return user;
             }
             return null;
+        }
+
+        public async Task<IEnumerable<Exercise>> GetExercisesAsync()
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "/exercises")
+            {
+                Headers = { Authorization = new AuthenticationHeaderValue("Bearer", _userSessionService.CurrentUser.Id) }
+            };
+            var resp = await _client.SendAsync(request);
+            if (resp.IsSuccessStatusCode)
+            {
+                var content = await resp.Content.ReadAsStringAsync();
+                var exercises = JsonConvert.DeserializeObject<IEnumerable<Exercise>>(content);
+                return exercises;
+            }
+            return null;
+        }
+
+        public async Task<bool> AddExerciseResultAsync(ExerciseType type, decimal score, TimeSpan duration)
+        {
+            if (_userSessionService.CurrentUser == null) throw new InvalidOperationException("User is not logged in.");
+            var payload = new
+            {
+                Type = type,
+                Score = score,
+                Duration = ((decimal)duration.TotalSeconds),
+            };
+            var json = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage(HttpMethod.Post, "/exercises")
+            {
+                Content = json,
+                Headers = { Authorization = new AuthenticationHeaderValue("Bearer", _userSessionService.CurrentUser.Id) }
+            };
+            var resp = await _client.SendAsync(request);
+            return resp.IsSuccessStatusCode;
         }
 
         public void Dispose()

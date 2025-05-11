@@ -27,8 +27,8 @@ namespace VnuRehab
                 .AddTransient<ExerciseViewModel>()
                 .AddTransient<StatisticsViewModel>()
                 // Views
-                .AddSingleton<MainWindow>()
-                .AddSingleton<LoginWindow>()
+                .AddTransient<MainWindow>()
+                .AddTransient<LoginWindow>()
                 .AddTransient<HomeView>()
                 .AddTransient<ExerciseView>()
                 .AddTransient<StatisticsView>()

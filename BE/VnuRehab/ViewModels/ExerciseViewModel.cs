@@ -7,6 +7,7 @@ using System.Windows.Media;
 using VnuRehab.Models;
 using VnuRehab.Services;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace VnuRehab.ViewModels
 {
@@ -26,6 +27,9 @@ namespace VnuRehab.ViewModels
 
         private decimal _score;
         public decimal Score { get => _score; set => SetProperty(ref _score, value); }
+
+        private ExerciseResult _exerciseResult;
+        public ExerciseResult ExerciseResult { get => _exerciseResult; set => SetProperty(ref _exerciseResult, value); }
 
         private bool _isExerciseRunning;
         public bool IsExerciseRunning { get => _isExerciseRunning; set => SetProperty(ref _isExerciseRunning, value); }
@@ -62,24 +66,27 @@ namespace VnuRehab.ViewModels
 
         private readonly KinectService _kinectService;
         private readonly SignalRService _signalRService;
+        private readonly ApiService _apiService;
         public ICommand ToggleDeviceCommand { get; }
         public ICommand ToggleExerciseCommand { get; }
-        public ICommand ResetCommand { get; }
-        
+        public ICommand SaveExerciseCommand { get; }
+
         private bool _isPopupVisible;
         public bool IsPopupVisible { get => _isPopupVisible; set => SetProperty(ref _isPopupVisible, value); }
         
         private string _timeTakenText;
         public string TimeTakenText { get => _timeTakenText; set => SetProperty(ref _timeTakenText, value); }
 
-        public ExerciseViewModel(KinectService kinectService, SignalRService signalRService)
+        private readonly List<decimal> _accumulatedScores = new List<decimal>();
+
+        public ExerciseViewModel(KinectService kinectService, SignalRService signalRService, ApiService apiService)
         {
             _kinectService = kinectService;
             _signalRService = signalRService;
+            _apiService = apiService;
 
             _exerciseTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _exerciseTimer.Tick += ExerciseTimer_Tick;
-
 
             _kinectService.FrameReady += image => ImageSource = image;
             _kinectService.BatchReady += async batch => await _signalRService.SendBatchAsync(batch, SelectedExercise);
@@ -89,26 +96,43 @@ namespace VnuRehab.ViewModels
                 if (!e.IsAvailable) ImageSource = null;
             };
             _kinectService.OnSensorOpenChanged += (open) => IsDeviceOpen = open;
-            _signalRService.OnScoreReceived += (score) => Score = score;
+            _signalRService.OnScoreReceived += (score) =>
+            {
+                Score = score;
+                if (IsExerciseRunning)
+                {
+                    _accumulatedScores.Add(score);
+                }
+            };
             _signalRService.OnConnectionChanged += (s, connected) => IsServerConnected = connected;
 
             IsDeviceAvailable = _kinectService.IsAvailable;
             IsDeviceOpen = _kinectService.IsOpen;
             ToggleDeviceCommand = new RelayCommand(_ => ToggleDevice());
             ToggleExerciseCommand = new RelayCommand(async _ => await ToggleExercise());
-            ResetCommand = new RelayCommand(async _ => await ResetSession());
+            SaveExerciseCommand = new RelayCommand(async _ => await SaveExercise());
+            _apiService = apiService;
         }
 
-        private async Task ResetSession()
+        private async Task SaveExercise()
         {
-            // Reset all exercise data
-            await StopExercise();
-            Score = 0;
-            TimeTakenText = string.Empty;
-
-            // Hide the popup
-            IsPopupVisible = false;
+            if (ExerciseResult == null)
+            {
+                MessageBox.Show("No exercise result to save.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (await _apiService.AddExerciseResultAsync(SelectedExercise, ExerciseResult.AverageScore, ExerciseResult.TimeTaken))
+            {
+                MessageBox.Show("Exercise result saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                ExerciseResult = null;
+                IsPopupVisible = false;
+            }
+            else
+            {
+                MessageBox.Show("Failed to save exercise result.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
         private async void ExerciseTimer_Tick(object sender, EventArgs e)
         {
             if (_timeLeft > TimeSpan.Zero)
@@ -164,12 +188,12 @@ namespace VnuRehab.ViewModels
 
             // Reset timer
             _timeLeft = ExerciseDuration;
-            TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
+            TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00}";
             TimerProgress = 1.0;
 
             // Start timer
             _exerciseTimer.Start();
-            IsExerciseRunning = true;   
+            IsExerciseRunning = true;
         }
 
         private async Task StopExercise()
@@ -180,16 +204,30 @@ namespace VnuRehab.ViewModels
             IsExerciseRunning = false;
 
             // Calculate time taken
-            TimeSpan totalDuration = ExerciseDuration;
-            TimeSpan timeTaken = totalDuration - _timeLeft;
-            TimeTakenText = $"Time taken: {timeTaken.Minutes}:{timeTaken.Seconds:00}";
+            TimeSpan timeTaken = ExerciseDuration - _timeLeft;
+            decimal averageScore = 0;
+
+            // Calculate average score
+            if (_accumulatedScores.Count > 0)
+            {
+                averageScore = Math.Round(_accumulatedScores.Average(), 2);
+                _accumulatedScores.Clear();
+            }
+
+            ExerciseResult = new ExerciseResult
+            {
+                AverageScore = averageScore,
+                TimeTaken = timeTaken
+            };
 
             // Show the popup
             IsPopupVisible = true;
-            // Reset time display
+
+            // Reset states
             _timeLeft = ExerciseDuration;
             TimeLeftText = $"Time left: {_timeLeft.Minutes}:{_timeLeft.Seconds:00} seconds";
             TimerProgress = 1.0;
+            Score = 0;
         }
     }
 
@@ -198,5 +236,11 @@ namespace VnuRehab.ViewModels
         public string Group { get; set; }
         public string Name { get; set; }
         public ExerciseType Value { get; set; }
+    }
+
+    public class ExerciseResult
+    {
+        public decimal AverageScore { get; set; }
+        public TimeSpan TimeTaken { get; set; }
     }
 }

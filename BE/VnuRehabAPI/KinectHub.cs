@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 
-namespace KinectAppAPI;
+namespace VnuRehabAPI;
 
 public class KinectHub : Hub
 {

@@ -1,5 +1,17 @@
-﻿namespace VnuRehab.Models
+﻿using System;
+
+namespace VnuRehab.Models
 {
+    public class Exercise
+    {
+        public int Id { get; set; }
+        public string PatientId { get; set; }
+        public ExerciseType Type { get; set; }
+        public decimal Score { get; set; }
+        public decimal? Duration { get; set; } = 180.0m;
+        public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
+    }
+
     public enum ExerciseType
     {
         Kimore_JumpingJacks,
