@@ -47,11 +47,17 @@ const LandingHeader: React.FC = () => {
     // { tag: "Features", href: "#features" },
   ];
   return (
-    <header className="flex justify-between items-center p-4 w-full">
-      <div className="bg-white text-white w-3/4 h-16 pl-4 rounded-full flex items-center justify-between mx-auto">
+    <header className="hidden sm:flex justify-between items-center p-4 w-full ">
+      <div className="bg-white text-white  xl:w-3/4 w-full sm:h-18 md:h-18 lg:h-16 pl-4 rounded-full flex items-center justify-between mx-auto">
         <div className="flex items-center space-x-2">
-          <img src="/icons/vnurehab.svg" alt="Logo" className="h-10 w-10" />
-          <h1 className="text-main-3 font-semibold text-2xl">VNU Rehab</h1>
+          <img
+            src="/icons/vnurehab.svg"
+            alt="Logo"
+            className="object-cover h-10 w-10"
+          />
+          <h1 className="text-main-3 font-semibold text-2xl md:text-xl sm:text-sm">
+            VNU Rehab
+          </h1>
         </div>
         <nav>
           <ul className="flex space-x-4 ">

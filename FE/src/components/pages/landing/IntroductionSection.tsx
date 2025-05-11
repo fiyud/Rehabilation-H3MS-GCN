@@ -23,23 +23,29 @@ const IntroductionSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 px-4  bg-main-1 max-w-[125rem]" id="introduction">
-      <div className="flex items-center justify-center gap-4 mb-10">
-        <div className="bg-main-3 p-4 rounded-lg shadow-lg">
-          <Projector size={50} className="text-main-2" />
+    <section
+      className="py-10 md:py-20 px-4  bg-main-1 max-w-[125rem]"
+      id="introduction"
+    >
+      <div className="flex items-center justify-center gap-4 mb-10 w-[18.75rem] md:w-full mx-auto ">
+        <div className="bg-main-3 p-4 rounded-lg shadow-lg ">
+          <Projector className="text-main-2 w-[30px] h-[30px] sm:w-[50px] sm:h-[50px]" />
         </div>
-        <h2 className="text-5xl text-main-3 font-semibold text-center">
+        <h2 className="md:text-5xl text-2xl text-left text-main-3 font-semibold md:text-center">
           Introduction to H3MS-GCN
         </h2>
       </div>
-      <dl className="flex h-full justify-between">
+      <dl className="flex flex-col lg:flex-row max-w-[25rem]  mx-auto md:max-w-[800px] lg:max-w-[62.5rem] xl:max-w-full  h-full justify-between">
         {introItems.map((item, index) => (
-          <div key={index} className="items-center gap-4 p-6">
+          <div
+            key={index}
+            className="items-center flex flex-row lg:flex-col gap-4 p-6"
+          >
             <div className="bg-main-3 p-4 rounded-lg shadow-lg inline-flex mb-4">
               {item.icon}
             </div>
             <div>
-              <dt className="text-xl font-semibold mb-2 text-primary-600">
+              <dt className=" text-xl sm:text-2xl font-semibold mb-2 text-primary-600">
                 {item.title}
               </dt>
               <dd className="relative group text-gray-700 text-[1rem] font-light max-h-[75px] overflow-hidden transition-[max-height] duration-300 ease-in-out hover:max-h-[25rem]">

@@ -62,9 +62,9 @@ const ChallengesSection: React.FC = () => {
   return (
     <section
       id="challenges"
-      className=" px-4 max-w-[125rem] py-20 justify-center  bg-main-1"
+      className=" hidden md:block px-4 max-w-[125rem] py-10 md:py-20 justify-center  bg-main-1"
     >
-      <div className="text-center">
+      <div className="text-center  mx-auto">
         <h1 className="text-5xl font-semibold">Frequently Asked Questions</h1>
         <p className="my-4 text-gray-700">
           Question we get about challenges in the project.

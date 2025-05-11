@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 const LandingFooter: React.FC = () => {
   return (
     <footer className="bg-main-2 max-w-[125rem] p-10 justify-center  w-full">
-      <div className="flex justify-between pb-10">
+      <div className="flex flex-col gap-6 md:flex-row justify-between pb-10">
         <div className="flex items-center gap-4">
           <img
             src="/icons/vnurehab.svg"

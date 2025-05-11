@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Atom,
+  BrickWall,
   ChevronsLeftRightEllipsis,
   Crosshair,
   Hospital,
@@ -48,16 +49,23 @@ const SolutionSection: React.FC = () => {
     },
   ];
   return (
-    <section className="py-20 px-4  bg-main-5 max-w-[125rem]" id="solutions">
-      <h1 className="text-center text-5xl mb-10 font-semibold ">
-        <i>H3MS-GCN & Web Application</i>
-      </h1>
-
-      <div className="grid grid-cols-12 gap-2 px-30">
+    <section
+      className="py-10 md:py-20 px-4  bg-main-5 max-w-[660px] mx-auto sm:max-w-[125rem] "
+      id="solutions"
+    >
+      <div className="flex items-center justify-center gap-4 mb-10 max-w-[360px] mx-auto md:max-w-full ">
+        <div className="bg-main-3 p-4 rounded-lg shadow-lg">
+          <BrickWall className="text-main-2  w-[30px] h-[30px] sm:w-[50px] sm:h-[50px]" />
+        </div>
+        <h1 className=" text-left sm:text-center text-2xl sm:text-5xl font-semibold ">
+          H3MS-GCN & Web Application
+        </h1>
+      </div>
+      <div className="grid grid-cols-12 gap-2 px-30 w-full mx-auto max-w-[96%] lg:max-w-full">
         {solutionItems.map((item, index) => (
           <Card
             key={index}
-            className="col-span-12 md:col-span-6 p-4 py-6 bg-main-2 cursor-pointer"
+            className="col-span-12 lg:col-span-6 p-4 py-6 bg-main-2 cursor-pointer"
           >
             <CardHeader>
               <CardTitle>
