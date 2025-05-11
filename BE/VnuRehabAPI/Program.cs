@@ -10,7 +10,7 @@ builder.Services.AddCors(opts =>
 {
     opts.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.WithOrigins("*")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
