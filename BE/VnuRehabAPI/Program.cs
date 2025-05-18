@@ -10,7 +10,7 @@ builder.Services.AddCors(opts =>
 {
     opts.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("*")
+        policy.WithOrigins("https://vnurehab.art")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
