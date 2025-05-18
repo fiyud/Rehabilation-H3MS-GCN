@@ -61,7 +61,7 @@ const SolutionSection: React.FC = () => {
           H3MS-GCN & Web Application
         </h1>
       </div>
-      <div className="grid grid-cols-12 gap-2 px-30 w-full mx-auto max-w-[96%] lg:max-w-full">
+      <div className="grid grid-cols-12 gap-2 px-2 lg:px-30 w-full mx-auto lg:max-w-full">
         {solutionItems.map((item, index) => (
           <Card
             key={index}

@@ -323,7 +323,7 @@ const Statistics: React.FC = () => {
                         <TableCell>{pt.address || "No information"}</TableCell>
                         <TableCell>{pt.phone || "No information"}</TableCell>
                         <TableCell>
-                          <Dialog>
+                          <Dialog >
                             <Tooltip>
                               <TooltipTrigger>
                                 {" "}
@@ -338,7 +338,7 @@ const Statistics: React.FC = () => {
                               </TooltipContent>
                             </Tooltip>
 
-                            <DialogContent>
+                            <DialogContent className="min-w-[1000px]">
                               <DialogTitle>Finished Exercises</DialogTitle>
                               <DialogDescription>
                                 by {pt.name} #{pt.id}

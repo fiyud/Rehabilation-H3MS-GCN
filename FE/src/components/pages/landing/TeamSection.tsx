@@ -70,12 +70,12 @@ const TeamSection: React.FC = () => {
     },
   ];
   return (
-    <section className="py-10 md:py-20 bg-main-2 px-4">
+    <section className="hidden lg:flex py-10 md:py-20 bg-main-2 px-4">
       <div className="flex items-center justify-center gap-4 mb-10">
         <div className="bg-main-3 p-4 rounded-lg shadow-lg">
           <Boxes className="text-main-2 w-[30px] h-[30px] sm:w-[50px] sm:h-[50px]" />
         </div>
-        <h1 className="md:text-5xl text-2xl  text-main-3 font-semibold text-center">
+        <h1 className="lg:text-5xl text-2xl  text-main-3 font-semibold text-start">
           Meet Our Team
         </h1>
       </div>
