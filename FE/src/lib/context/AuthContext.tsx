@@ -81,6 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user = response?.data as User;
       localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
+      navigate("/statistics")
       return true;
     } catch (error) {
       console.error("Login error:", error);
@@ -110,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value = {
     user,
     isLoading,
-    isAuthenticated: !user,
+    isAuthenticated: !!user,
     login,
     logout,
     authError,
