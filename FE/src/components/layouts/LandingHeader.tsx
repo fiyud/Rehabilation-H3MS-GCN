@@ -21,11 +21,18 @@ import { Loader2, LoaderCircle } from "lucide-react";
 import { isAxiosError } from "axios";
 import { useAuth } from "@/lib";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Link } from "react-router";
 const LandingHeader: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const { setAuthError, login, isAuthenticated, user } = useAuth();
+  const { setAuthError, login, isAuthenticated, logout, user } = useAuth();
   const handleLogin = async (formData: FormData) => {
     try {
       setLoading(true);
@@ -36,6 +43,16 @@ const LandingHeader: React.FC = () => {
       if (isAxiosError(error)) {
         setAuthError(error.response?.data.message);
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleLogout = async () => {
+    try {
+      setLoading(true);
+      await logout();
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -147,7 +164,7 @@ const LandingHeader: React.FC = () => {
                         src={`https://api.dicebear.com/9.x/glass/svg?seed=Doan`}
                         className="w-10 h-10 rounded-full object-cover"
                       />
-                      <AvatarFallback className="bg-black text-black">
+                      <AvatarFallback className="text-black">
                         {user?.name?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -167,6 +184,8 @@ const LandingHeader: React.FC = () => {
               <DropdownMenuItem>
                 <Link to="/exercises">Exercises</Link>
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}

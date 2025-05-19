@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user = response?.data as User;
       localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
-      navigate("/statistics")
+      navigate("/statistics");
       return true;
     } catch (error) {
       console.error("Login error:", error);
@@ -96,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setUser(null);
       setAuthError(null);
       navigate("/");

@@ -22,11 +22,13 @@ const HeroSection: React.FC = () => {
             className="hover:shadow-2xl duration-200 transition-all"
           >
             {/* {loading && <Loader2 className="animate-spin mr-2" />} */}
-            <img
-              src="/icons/microsoft-svgrepo-com.svg"
-              className="w-6 h-6 mr-2"
-            />
-            Download for Windows
+            <a className="flex gap-2" href="/VnuRehabInstaller.msi" download>
+              <img
+                src="/icons/microsoft-svgrepo-com.svg"
+                className="w-6 h-6 mr-2"
+              />
+              Download for Windows
+            </a>
           </Button>
         </div>
       </div>
